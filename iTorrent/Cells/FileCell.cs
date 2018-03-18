@@ -3,10 +3,8 @@ using MonoTorrent.Common;
 
 using UIKit;
 
-namespace iTorrent
-{
-    public partial class FileCell : UITableViewCell
-    {
+namespace iTorrent {
+    public partial class FileCell : UITableViewCell {
         public TorrentFile file;
 
         public FileCell(IntPtr handle) : base(handle) { }

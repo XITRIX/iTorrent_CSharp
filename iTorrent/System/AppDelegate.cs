@@ -57,7 +57,7 @@ namespace iTorrent {
             if (File.Exists(documents + "/Config/dat.itor")) {
                 save = Utils.DeSerializeObject<SaveClass>(documents + "/Config/dat.itor");
             }
-                            
+
             if (Directory.Exists(documents + "/Config")) {
                 foreach (var file in Directory.GetFiles(documents + "/Config")) {
                     if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
@@ -135,7 +135,7 @@ namespace iTorrent {
             return true;
         }
 
-		public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options) {
+        public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options) {
             Console.WriteLine(url.Path);
 
             if (!File.Exists(url.Path)) {
@@ -157,9 +157,9 @@ namespace iTorrent {
             ((AddTorrentController)((UINavigationController)controller).ChildViewControllers[0]).torrent = torrent;
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(controller, true, null);
             return true;
-		}
+        }
 
-		public override void OnResignActivation(UIApplication application) {
+        public override void OnResignActivation(UIApplication application) {
             // Invoked when the application is about to move from active to inactive state.
             // This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) 
             // or when the user quits the application and it begins the transition to the background state.
@@ -187,7 +187,7 @@ namespace iTorrent {
             // Called when the application is about to terminate. Save data, if needed. See also DidEnterBackground.
 
             Finish();
-            engine.Dispose(); 
+            engine.Dispose();
         }
         #endregion
     }

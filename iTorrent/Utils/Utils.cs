@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 namespace iTorrent {
     public class Utils {
         public static string GetSizeText(long size) {
-            string[] names = {"B","KB","MB","GB"};
+            string[] names = { "B", "KB", "MB", "GB" };
             int count = 0;
             float fRes = 0;
             while (count < 3 && size > 1024) {

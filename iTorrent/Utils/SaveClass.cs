@@ -34,6 +34,6 @@ namespace iTorrent {
             foreach (var file in manager.Torrent.Files) {
                 downloading.Add(file.Path, file.Priority != Priority.DoNotDownload);
             }
-        }  
+        }
     }
 }

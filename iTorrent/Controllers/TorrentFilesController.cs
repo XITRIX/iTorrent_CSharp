@@ -7,8 +7,7 @@ using MonoTorrent.Common;
 using Foundation;
 using UIKit;
 
-namespace iTorrent
-{
+namespace iTorrent {
     public partial class TorrentFilesController : UIViewController, IUITableViewDataSource, IUITableViewDelegate {
 
         #region Variables

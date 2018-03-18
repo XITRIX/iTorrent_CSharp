@@ -4,10 +4,8 @@ using MonoTorrent.Client;
 using Foundation;
 using UIKit;
 
-namespace iTorrent
-{
-    public partial class DetailCell : UITableViewCell
-    {
+namespace iTorrent {
+    public partial class DetailCell : UITableViewCell {
 
         NSIndexPath indexPath;
         TorrentManager manager;
@@ -15,8 +13,7 @@ namespace iTorrent
         public long size = 0;
         public long downloaded = 0;
 
-        public DetailCell (IntPtr handle) : base (handle)
-        {
+        public DetailCell(IntPtr handle) : base(handle) {
         }
 
         public void Set(NSIndexPath indexPath, TorrentManager manager, long size, long downloaded) {
@@ -26,7 +23,7 @@ namespace iTorrent
             this.downloaded = downloaded;
         }
 
-        public void Set(string title, string detail) {
+        private void Set(string title, string detail) {
             Title.Text = title;
             Details.Text = detail;
         }
@@ -46,7 +43,7 @@ namespace iTorrent
                             Set("Download", Utils.GetSizeText(manager.Monitor.DownloadSpeed) + "/s");
                             break;
                         case 1:
-                            
+
                             Set("Upload", Utils.GetSizeText(manager.Monitor.UploadSpeed) + "/s");
                             break;
                     }
@@ -59,7 +56,7 @@ namespace iTorrent
                         case 1:
                             if (manager.Torrent != null)
                                 Set("Creator", manager.Torrent.CreatedBy);
-                            else 
+                            else
                                 Set("Creator", "");
                             break;
                         case 2:
@@ -88,7 +85,7 @@ namespace iTorrent
                             Set("Completed", Utils.GetSizeText(downloaded));
                             break;
                         case 2:
-                            
+
                             var selected = size != 0 ? downloaded * 10000 / size : 0;
                             var total = 0L;
 

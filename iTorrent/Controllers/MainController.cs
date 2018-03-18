@@ -16,7 +16,7 @@ namespace iTorrent {
         #region Variables
 
         public static MainController Instance { get; private set; }
-        public UITableView TableView { get { return tableView; }}
+        public UITableView TableView { get { return tableView; } }
 
         #endregion
 
@@ -127,9 +127,11 @@ namespace iTorrent {
                     PresentViewController(urlAlert, true, null);
                 });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
+
                 alert.AddAction(magnet);
                 alert.AddAction(url);
                 alert.AddAction(cancel);
+
                 PresentViewController(alert, true, null);
             };
 
@@ -146,11 +148,11 @@ namespace iTorrent {
 
         }
 
-		public override void ViewWillAppear(bool animated) {
+        public override void ViewWillAppear(bool animated) {
             base.ViewWillAppear(animated);
 
             tableView.ReloadData();
-		}
+        }
 
         public override void DidReceiveMemoryWarning() {
             base.DidReceiveMemoryWarning();
@@ -214,8 +216,7 @@ namespace iTorrent {
                 else
                     segue.DestinationViewController.Title = "New download";
                 ((TorrentDetailsController)segue.DestinationViewController).manager = ((TorrentCell)sender).manager;
-                //((TorrentDetailsController)segue.DestinationViewController).num = tableView.IndexPathForCell((TorrentCell)sender).Row;
             }
-		}
-	}
+        }
+    }
 }

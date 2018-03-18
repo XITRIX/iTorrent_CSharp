@@ -34,7 +34,6 @@ using System.IO;
 using MonoTorrent.Common;
 using System.Collections.ObjectModel;
 using System.Threading;
-using System.Web;
 using System.Diagnostics;
 using System.Collections.Generic;
 using MonoTorrent.BEncoding;

@@ -82,7 +82,7 @@ namespace iTorrent {
                     });
                 }
             }).Start();
-                 }
+        }
 
         #region TableView DataSource
 
@@ -238,5 +238,5 @@ namespace iTorrent {
             });
         }
 
-	}
+    }
 }

@@ -34,7 +34,6 @@ using MonoTorrent.BEncoding;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Net;
-using System.Web;
 using MonoTorrent.Common;
 using System.IO;
 
