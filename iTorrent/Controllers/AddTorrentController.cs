@@ -1,0 +1,132 @@
+using System;
+using System.IO;
+
+using MonoTorrent.Client;
+using MonoTorrent.Common;
+using MonoTorrent.BEncoding;
+
+using Foundation;
+using UIKit;
+
+namespace iTorrent {
+    public partial class AddTorrentController : UIViewController, IUITableViewDataSource, IUITableViewDelegate {
+        public AddTorrentController(IntPtr handle) : base(handle) { }
+
+        #region Variables
+
+        public Torrent torrent;
+
+        TorrentFile[] files;
+
+        #endregion
+
+        public override void ViewDidLoad() {
+            base.ViewDidLoad();
+
+            files = torrent.Files.Clone() as TorrentFile[];
+            Array.Sort(files, delegate (TorrentFile f1, TorrentFile f2) {
+                return string.Compare(f1.Path, f2.Path, StringComparison.Ordinal);
+            });
+            foreach (var file in files) {
+                Console.WriteLine(file.Path);
+            }
+
+            tableView.DataSource = this;
+            tableView.Delegate = this;
+
+            tableView.RowHeight = 78;
+
+            Cancel.Clicked += delegate {
+                if (torrent.TorrentPath.EndsWith("/_temp.torrent")) {
+                    File.Delete(torrent.TorrentPath);
+                }
+
+                DismissViewController(true, null);
+            };
+
+            DeselectAll.Clicked += delegate {
+                foreach (var file in files) {
+                    file.Priority = Priority.DoNotDownload;
+                }
+                foreach (var cell in tableView.VisibleCells) {
+                    ((FileCell)cell).Update();
+                }
+            };
+
+            SelectAll.Clicked += delegate {
+                foreach (var file in files) {
+                    file.Priority = Priority.Highest;
+                }
+                foreach (var cell in tableView.VisibleCells) {
+                    ((FileCell)cell).Update();
+                }
+            };
+
+            Download.Clicked += delegate {
+                TorrentManager manager = new TorrentManager(torrent, AppDelegate.documents, new TorrentSettings());
+                if (AppDelegate.fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
+                    manager.LoadFastResume(new FastResume((BEncodedDictionary)AppDelegate.fastResume[torrent.InfoHash.ToHex()]));
+                    Console.WriteLine("FOUND!!!!!");
+                }
+                AppDelegate.managers.Add(manager);
+                AppDelegate.engine.Register(manager);
+                if (MainController.Instance != null)
+                    MainController.Instance.TableView.ReloadData();
+
+                // Disable rarest first and randomised picking - only allow priority based picking (i.e. selective downloading)
+                PiecePicker picker = new StandardPicker();
+                picker = new PriorityPicker(picker);
+                manager.ChangePicker(picker);
+                manager.TorrentStateChanged += delegate {
+                    InvokeOnMainThread(() => MainController.Instance.TableView.ReloadData());
+                };
+
+                foreach (var file in files) {
+                    if (file.Priority != Priority.DoNotDownload) {
+                        manager.Start();
+                        break;
+                    }
+                }
+
+                if (!Directory.Exists(AppDelegate.documents + "/Config")) {
+                    Directory.CreateDirectory(AppDelegate.documents + "/Config");
+                }
+                if (!File.Exists(AppDelegate.documents + "/Config/" + torrent.Name + ".torrent")) {
+                    File.Copy(torrent.TorrentPath, AppDelegate.documents + "/Config/" + torrent.Name + ".torrent");
+                }
+                if (torrent.TorrentPath.EndsWith("/_temp.torrent")) {
+                    File.Delete(torrent.TorrentPath);
+                }
+
+                foreach (var file in files) {
+                    Console.WriteLine(file.Path + " " + file.Priority);
+                }
+                //SaveClass save = new SaveClass(manager);
+                //Utils.SerializeObject<SaveClass>(save, AppDelegate.documents + "/Config/" + manager.Torrent.Name + ".sav");
+
+                DismissViewController(true, null);
+            };
+        }
+
+        #region TableView DabaSource
+
+        public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
+            var cell = (FileCell)tableView.DequeueReusableCell("Cell", indexPath);
+            cell.file = files[indexPath.Row];
+            cell.Initialise();
+            cell.Update();
+            return cell;
+        }
+
+        public nint RowsInSection(UITableView tableView, nint section) {
+            return files.Length;
+        }
+
+        [Export("tableView:didSelectRowAtIndexPath:")]
+        public void RowSelected(UITableView tableView, NSIndexPath indexPath) {
+            ((FileCell)tableView.CellAt(indexPath)).PressSwitch();
+        }
+
+        #endregion
+    }
+}
