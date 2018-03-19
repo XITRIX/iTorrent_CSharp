@@ -828,7 +828,6 @@ namespace MonoTorrent.Client
             if (engine == null)
                 throw new TorrentException("This manager has not been registed with an Engine");
             if (engine.Disposed) {
-                //Console.WriteLine(GetType().FullName + " : The registered engine has been disposed");
                 throw new InvalidOperationException("The registered engine has been disposed");
             }
         }

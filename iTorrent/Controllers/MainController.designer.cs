@@ -15,7 +15,7 @@ namespace iTorrent
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem Add { get; set; }
+        UIKit.UIBarButtonItem AddAction { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -23,9 +23,9 @@ namespace iTorrent
 
         void ReleaseDesignerOutlets ()
         {
-            if (Add != null) {
-                Add.Dispose ();
-                Add = null;
+            if (AddAction != null) {
+                AddAction.Dispose ();
+                AddAction = null;
             }
 
             if (tableView != null) {

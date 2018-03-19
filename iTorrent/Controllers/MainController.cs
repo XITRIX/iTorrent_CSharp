@@ -61,7 +61,7 @@ namespace iTorrent {
             tableView.TableFooterView = new UIView();
             tableView.RowHeight = 104;
 
-            Add.Clicked += delegate {
+            AddAction.Clicked += delegate {
                 var alert = UIAlertController.Create("Add from...", null, UIAlertControllerStyle.ActionSheet);
                 var magnet = UIAlertAction.Create("Magnet", UIAlertActionStyle.Default, delegate {
                     var magnetAlert = UIAlertController.Create("Add from magnet", "Please enter the magnet link below", UIAlertControllerStyle.Alert);

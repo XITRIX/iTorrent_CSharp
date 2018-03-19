@@ -72,7 +72,7 @@ namespace iTorrent {
                 DismissViewController(true, null);
             };
 
-            DeselectAll.Clicked += delegate {
+            DeselectAllAction.Clicked += delegate {
                 foreach (var file in files) {
                     file.Priority = Priority.DoNotDownload;
                 }
@@ -81,7 +81,7 @@ namespace iTorrent {
                 }
             };
 
-            SelectAll.Clicked += delegate {
+            SelectAllAction.Clicked += delegate {
                 foreach (var file in files) {
                     file.Priority = Priority.Highest;
                 }
@@ -92,10 +92,10 @@ namespace iTorrent {
 
             Download.Clicked += delegate {
                 TorrentManager manager = new TorrentManager(torrent, AppDelegate.documents, new TorrentSettings());
-                if (AppDelegate.fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
-                    manager.LoadFastResume(new FastResume((BEncodedDictionary)AppDelegate.fastResume[torrent.InfoHash.ToHex()]));
-                    Console.WriteLine("FOUND!!!!!");
-                }
+                //if (AppDelegate.fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
+                //    manager.LoadFastResume(new FastResume((BEncodedDictionary)AppDelegate.fastResume[torrent.InfoHash.ToHex()]));
+                //    Console.WriteLine("FOUND!!!!!");
+                //}
                 AppDelegate.managers.Add(manager);
                 AppDelegate.engine.Register(manager);
                 if (MainController.Instance != null)

@@ -62,7 +62,7 @@ namespace iTorrent {
 
             tableView.RowHeight = 78;
 
-            DeselectAll.Clicked += delegate {
+            DeselectAllAction.Clicked += delegate {
                 foreach (var file in files) {
                     file.Priority = Priority.DoNotDownload;
                 }
@@ -71,7 +71,7 @@ namespace iTorrent {
                 }
             };
 
-            SelectAll.Clicked += delegate {
+            SelectAllAction.Clicked += delegate {
                 foreach (var file in files) {
                     file.Priority = Priority.Highest;
                 }

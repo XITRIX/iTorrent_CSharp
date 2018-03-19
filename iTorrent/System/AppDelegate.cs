@@ -29,6 +29,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Collections.Generic;
 
 using MonoTorrent.BEncoding;
@@ -38,12 +39,13 @@ using MonoTorrent.Client.Encryption;
 
 using Foundation;
 using UIKit;
+using AVFoundation;
 
 namespace iTorrent {
     // The UIApplicationDelegate for the application. This class is responsible for launching the
     // User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
     [Register("AppDelegate")]
-    public class AppDelegate : UIApplicationDelegate {
+    public class AppDelegate : UIApplicationDelegate, IAVAudioRecorderDelegate {
         // class-level declarations
 
         public override UIWindow Window {
@@ -57,13 +59,35 @@ namespace iTorrent {
         public static ClientEngine engine;
         public static List<TorrentManager> managers = new List<TorrentManager>();
 
-        public static BEncodedDictionary fastResume;
+        //public static BEncodedDictionary fastResume;
+        #endregion
+
+        #region Background downloading tools
+
+        static AVAudioRecorder audioRecorder;
+
+        public static void CheckToStopBackground() {
+            if (audioRecorder.Recording) {
+                int stopCount = 0;
+                for (int i = 0; i < managers.Count; i++) {
+                    if (managers[i].State == TorrentState.Paused || managers[i].State == TorrentState.Stopped) {
+                        stopCount++;
+                    }
+                }
+                if (stopCount == managers.Count) {
+                    audioRecorder.Stop();
+
+                }
+            }
+        }
+
         #endregion
 
         #region Torrent Initialization Functions
+
         void SetupEngine() {
             EngineSettings settings = new EngineSettings();
-            settings.AllowedEncryption = EncryptionTypes.All;//ChooseEncryption();
+            settings.AllowedEncryption = EncryptionTypes.All;
             settings.PreferEncryption = true;
             settings.SavePath = documents;
 
@@ -73,11 +97,11 @@ namespace iTorrent {
             engine = new ClientEngine(settings);
             engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
 
-            try {
-                fastResume = BEncodedValue.Decode<BEncodedDictionary>(File.ReadAllBytes(documents + "/cache.data"));
-            } catch {
-                fastResume = new BEncodedDictionary();
-            }
+            //try {
+            //    fastResume = BEncodedValue.Decode<BEncodedDictionary>(File.ReadAllBytes(documents + "/cache.data"));
+            //} catch {
+            //    fastResume = new BEncodedDictionary();
+            //}
         }
 
         void RestoreTorrents() {
@@ -92,10 +116,10 @@ namespace iTorrent {
 
                         Torrent torrent = Torrent.Load(file);
                         TorrentManager manager = new TorrentManager(torrent, documents, new TorrentSettings());
-                        if (fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
-                            manager.LoadFastResume(new FastResume((BEncodedDictionary)fastResume[torrent.InfoHash.ToHex()]));
-                            Console.WriteLine("FOUND!!!!!");
-                        }
+                        //if (fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
+                        //    manager.LoadFastResume(new FastResume((BEncodedDictionary)fastResume[torrent.InfoHash.ToHex()]));
+                        //    Console.WriteLine("FOUND!!!!!");
+                        //}
 
                         managers.Add(manager);
                         engine.Register(manager);
@@ -160,6 +184,12 @@ namespace iTorrent {
             RestoreTorrents();
             StartTorrents();
 
+            var settings = new AudioSettings();
+            settings.AudioQuality = AVAudioQuality.Min;
+
+            NSError error;
+            audioRecorder = AVAudioRecorder.Create(new NSUrl(documents + "/Config/audio.caf"), settings, out error);
+
             return true;
         }
 
@@ -197,6 +227,17 @@ namespace iTorrent {
         public override void DidEnterBackground(UIApplication application) {
             // Use this method to release shared resources, save user data, invalidate timers and store the application state.
             // If your application supports background exection this method is called instead of WillTerminate when the user quits.
+            int count = 0;
+            for (int i = 0; i < managers.Count; i++) {
+                if (managers[i].State == TorrentState.Paused || managers[i].State == TorrentState.Stopped) {
+                    count++;
+                }
+            }
+            if (count < managers.Count) {
+                if (!audioRecorder.Recording) {
+                    audioRecorder.Record();
+                }
+            }
 
             Finish();
         }
@@ -204,6 +245,13 @@ namespace iTorrent {
         public override void WillEnterForeground(UIApplication application) {
             // Called as part of the transiton from background to active state.
             // Here you can undo many of the changes made on entering the background.
+
+            if (audioRecorder.Recording) {
+                audioRecorder.Stop();
+            }
+            if (File.Exists(documents + "/Config/audio.caf")) {
+                File.Delete(documents + "/Config/audio.caf");
+            }
         }
 
         public override void OnActivated(UIApplication application) {

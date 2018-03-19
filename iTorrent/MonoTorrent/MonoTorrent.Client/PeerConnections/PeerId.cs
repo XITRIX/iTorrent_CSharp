@@ -724,39 +724,41 @@ namespace MonoTorrent.Client
             // for the *next* message asynchronously and then add it to the queue.
             // While this is happening, we send data from the second PieceMessage in
             // the queue, thus the queue should rarely be empty.
-            int existingReads = 0;
-            if (currentlySendingMessage is PieceMessage)
-                existingReads++;
 
-            for (int i = 0; existingReads < 2 && i < sendQueue.Count; i++)
-                if (sendQueue[i] is PieceMessage)
-                    existingReads++;
 
-            if (existingReads >= 2)
-                return;
+            //int existingReads = 0;
+            //if (currentlySendingMessage is PieceMessage)
+            //    existingReads++;
 
-            PieceMessage m = null;
-            for (int i = 0; m == null && i < PieceReads.Count; i++)
-                if (PieceReads [i].Data == BufferManager.EmptyBuffer)
-                    m = PieceReads[i];
+            //for (int i = 0; existingReads < 2 && i < sendQueue.Count; i++)
+            //    if (sendQueue[i] is PieceMessage)
+            //        existingReads++;
 
-            if (m == null)
-                return;
+            //if (existingReads >= 2)
+            //    return;
 
-            long offset = (long)m.PieceIndex * torrentManager.Torrent.PieceLength + m.StartOffset;
-            ClientEngine.BufferManager.GetBuffer(ref m.Data, m.RequestLength);
-            engine.DiskManager.QueueRead(torrentManager, offset, m.Data, m.RequestLength, delegate {
-                ClientEngine.MainLoop.Queue(delegate {
-                    if (!PieceReads.Contains(m))
-                        ClientEngine.BufferManager.FreeBuffer(ref m.Data);
-                    else
-                    {
-                        PieceReads.Remove(m);
-                        Enqueue(m);
-                    }
-                    TryProcessAsyncReads();
-                });
-            });
+            //PieceMessage m = null;
+            //for (int i = 0; m == null && i < PieceReads.Count; i++)
+            //    if (PieceReads [i].Data == BufferManager.EmptyBuffer)
+            //        m = PieceReads[i];
+
+            //if (m == null)
+            //    return;
+
+            //long offset = (long)m.PieceIndex * torrentManager.Torrent.PieceLength + m.StartOffset;
+            //ClientEngine.BufferManager.GetBuffer(ref m.Data, m.RequestLength);
+            //engine.DiskManager.QueueRead(torrentManager, offset, m.Data, m.RequestLength, delegate {
+            //    ClientEngine.MainLoop.Queue(delegate {
+            //        if (!PieceReads.Contains(m))
+            //            ClientEngine.BufferManager.FreeBuffer(ref m.Data);
+            //        else
+            //        {
+            //            PieceReads.Remove(m);
+            //            Enqueue(m);
+            //        }
+            //        TryProcessAsyncReads();
+            //    });
+            //});
         }
     }
 }

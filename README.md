@@ -7,6 +7,7 @@
 Just simple torrent client for iOS with Files app support.
 
 What that app can do:
+- Background downloading by using Microphone hack
 - Add torrent files from Files app and Safari
 - Store files in Files app
 - Download torrent file by link

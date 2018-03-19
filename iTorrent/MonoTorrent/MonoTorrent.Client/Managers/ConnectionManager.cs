@@ -597,7 +597,6 @@ namespace MonoTorrent.Client
 
         internal void TryConnect()
         {
-            TorrentManager m = null;
             
             // If we have already reached our max connections globally, don't try to connect to a new peer
             while (OpenConnections < this.MaxOpenConnections && this.HalfOpenConnections < this.MaxHalfOpenConnections) {

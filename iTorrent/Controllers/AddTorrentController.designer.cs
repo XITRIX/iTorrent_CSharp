@@ -20,7 +20,7 @@ namespace iTorrent
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem DeselectAll { get; set; }
+        UIKit.UIBarButtonItem DeselectAllAction { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -28,7 +28,7 @@ namespace iTorrent
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem SelectAll { get; set; }
+        UIKit.UIBarButtonItem SelectAllAction { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -41,9 +41,9 @@ namespace iTorrent
                 Cancel = null;
             }
 
-            if (DeselectAll != null) {
-                DeselectAll.Dispose ();
-                DeselectAll = null;
+            if (DeselectAllAction != null) {
+                DeselectAllAction.Dispose ();
+                DeselectAllAction = null;
             }
 
             if (Download != null) {
@@ -51,9 +51,9 @@ namespace iTorrent
                 Download = null;
             }
 
-            if (SelectAll != null) {
-                SelectAll.Dispose ();
-                SelectAll = null;
+            if (SelectAllAction != null) {
+                SelectAllAction.Dispose ();
+                SelectAllAction = null;
             }
 
             if (tableView != null) {

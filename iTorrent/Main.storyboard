@@ -72,7 +72,7 @@
                     </view>
                     <connections>
                         <outlet property="tableView" destination="4323" id="name-outlet-4323"/>
-                        <outlet property="Add" destination="33769" id="name-outlet-33769"/>
+                        <outlet property="AddAction" destination="33769" id="name-outlet-33769"/>
                     </connections>
                     <navigationItem id="1110" key="navigationItem" title="iTorrent"/>
                     <toolbarItems>
@@ -139,8 +139,8 @@
                         <outlet property="Download" destination="13968" id="name-outlet-13968"/>
                         <outlet property="Cancel" destination="13969" id="name-outlet-13969"/>
                         <outlet property="tableView" destination="28044" id="name-outlet-28044"/>
-                        <outlet property="DeselectAll" destination="27786" id="name-outlet-27786"/>
-                        <outlet property="SelectAll" destination="27788" id="name-outlet-27788"/>
+                        <outlet property="DeselectAllAction" destination="27786" id="name-outlet-27786"/>
+                        <outlet property="SelectAllAction" destination="27788" id="name-outlet-27788"/>
                     </connections>
                     <toolbarItems>
                         <barButtonItem id="27786" title="Deselect All" width="122">
@@ -350,8 +350,8 @@
                     </view>
                     <connections>
                         <outlet property="tableView" destination="25240" id="name-outlet-25240"/>
-                        <outlet property="DeselectAll" destination="28577" id="name-outlet-28577"/>
-                        <outlet property="SelectAll" destination="28579" id="name-outlet-28579"/>
+                        <outlet property="DeselectAllAction" destination="28577" id="name-outlet-28577"/>
+                        <outlet property="SelectAllAction" destination="28579" id="name-outlet-28579"/>
                     </connections>
                     <toolbarItems>
                         <barButtonItem id="28577" title="Deselect All" width="122">
