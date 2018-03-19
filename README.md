@@ -16,8 +16,6 @@ What that app can do:
 
 You cannot chose any settings like "port", or maximum downloading speed, only file downloader... Just for now
 
-**License:** [GPLv3](https://github.com/owncloud/ios/blob/master/LICENSE.txt)
-
 ## License
 
 Copyright (c) 2018 XITRIX
