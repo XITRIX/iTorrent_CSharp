@@ -2,6 +2,8 @@
 
 **Build status:** master ![](https://www.bitrise.io/app/fb04a8ae5980d0e0/status.svg?token=XwFNndLUAUGMJC1FgOKMFw&branch=master)
 
+**Download ipa:** ([Google Drive](https://drive.google.com/open?id=1lCdjScAPKwgkWRdWrgx6qdFX2vsoX5Gt))
+
 ## Info
 
 Just simple torrent client for iOS with Files app support.
