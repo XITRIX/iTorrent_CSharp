@@ -119,9 +119,10 @@ namespace iTorrent {
                 if (!Directory.Exists(AppDelegate.documents + "/Config")) {
                     Directory.CreateDirectory(AppDelegate.documents + "/Config");
                 }
-                if (!File.Exists(AppDelegate.documents + "/Config/" + torrent.Name + ".torrent")) {
-                    File.Copy(torrent.TorrentPath, AppDelegate.documents + "/Config/" + torrent.Name + ".torrent");
+                if (File.Exists(AppDelegate.documents + "/Config/" + torrent.Name + ".torrent")) {
+                    File.Delete(AppDelegate.documents + "/Config/" + torrent.Name + ".torrent");
                 }
+                File.Copy(torrent.TorrentPath, AppDelegate.documents + "/Config/" + torrent.Name + ".torrent");
                 if (torrent.TorrentPath.EndsWith("/_temp.torrent")) {
                     File.Delete(torrent.TorrentPath);
                 }
