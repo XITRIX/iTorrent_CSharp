@@ -2,7 +2,11 @@
 
 **Build status:** master ![](https://www.bitrise.io/app/fb04a8ae5980d0e0/status.svg?token=XwFNndLUAUGMJC1FgOKMFw&branch=master)
 
-**Download ipa:** ([Google Drive](https://drive.google.com/open?id=1lCdjScAPKwgkWRdWrgx6qdFX2vsoX5Gt))
+## Screenshots
+
+![pic](https://user-images.githubusercontent.com/9553519/37665582-a06401ca-2c6e-11e8-8907-8aa25730401f.png)
+
+**Download .ipa:** ([Google Drive](https://drive.google.com/open?id=1lCdjScAPKwgkWRdWrgx6qdFX2vsoX5Gt))
 
 ## Info
 
