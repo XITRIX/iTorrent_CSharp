@@ -1,6 +1,7 @@
-# iTorrent iOS App
+# iTorrent - iOS Torrent client App
 
-**Build status:** master ![](https://www.bitrise.io/app/fb04a8ae5980d0e0/status.svg?token=XwFNndLUAUGMJC1FgOKMFw&branch=master)
+![](https://www.bitrise.io/app/fb04a8ae5980d0e0/status.svg?token=XwFNndLUAUGMJC1FgOKMFw&branch=master)
+![](https://img.shields.io/badge/iOS-11.0%2B-0088CC.svg)
 
 ## Screenshots
 
@@ -9,6 +10,8 @@
 **Download .ipa:** ([Google Drive](https://drive.google.com/open?id=1lCdjScAPKwgkWRdWrgx6qdFX2vsoX5Gt))
 
 ## Info
+
+This app was written in Visual Studio - Xamarin.iOS
 
 Just simple torrent client for iOS with Files app support.
 
@@ -22,6 +25,10 @@ What that app can do:
 - ??? 
 
 You cannot chose any settings like "port", or maximum downloading speed, only file downloader... Just for now
+
+## Libraries used
+
+- [MonoTorrent](https://github.com/mono/monotorrent)
 
 ## License
 
