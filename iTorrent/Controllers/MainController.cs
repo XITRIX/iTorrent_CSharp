@@ -165,7 +165,7 @@ namespace iTorrent {
 
             new Thread(() => {
                 while (true) {
-                    Thread.Sleep(500);
+                    Thread.Sleep(AppDelegate.UIUpdateRate);
                     InvokeOnMainThread(delegate {
                         foreach (var cell in tableView.VisibleCells) {
                             ((TorrentCell)cell).Update();

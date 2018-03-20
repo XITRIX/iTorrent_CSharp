@@ -59,6 +59,8 @@ namespace iTorrent {
         public static ClientEngine engine;
         public static List<TorrentManager> managers = new List<TorrentManager>();
 
+        public static readonly int UIUpdateRate = 1000;
+
         //public static BEncodedDictionary fastResume;
         #endregion
 
@@ -77,6 +79,9 @@ namespace iTorrent {
                 if (stopCount == managers.Count) {
                     audioRecorder.Stop();
 
+                    if (File.Exists(documents + "/Config/audio.caf")) {
+                        File.Delete(documents + "/Config/audio.caf");
+                    }
                 }
             }
         }
