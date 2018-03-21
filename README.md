@@ -13,17 +13,19 @@
 
 This app was written in Visual Studio - Xamarin.iOS
 
-Just simple torrent client for iOS with Files app support.
+It is a simple torrent client for iOS with Files app support.
 
-What that app can do:
-- Background downloading by using Microphone hack
+What can this app do:
+- Download in the background by using microphone hack
 - Add torrent files from Files app and Safari
 - Store files in Files app
 - Download torrent file by link
 - Download torrent by magnet
 - Select files to download
-- FTP Server for file sharing
+- Share files by FTP Server
 - ??? 
+
+For now it is only a file downloader, but more features like "Port" and Maximum download speed are coming soon with the new updates
 
 ## Libraries used
 
@@ -32,7 +34,7 @@ What that app can do:
 
 ## Known bugs
 
-- Microphone writing (background mode) enables from several attempts, just open and close the app until status bar becomes red
+- Microphone writing (background mode) might require several attempts to enable. Just try again by opening and closing an app until the status bar becomes red.
 
 ## License
 
