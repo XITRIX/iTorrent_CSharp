@@ -25,8 +25,6 @@ What that app can do:
 - FTP Server for file sharing
 - ??? 
 
-You cannot chose any settings like "port", or maximum downloading speed, only file downloader... Just for now
-
 ## Libraries used
 
 - [MonoTorrent](https://github.com/mono/monotorrent)
@@ -34,7 +32,7 @@ You cannot chose any settings like "port", or maximum downloading speed, only fi
 
 ## Known bugs
 
-- Microphone writing enables from several attempts, just open and close the app 
+- Microphone writing (background mode) enables from several attempts, just open and close the app until status bar becomes red
 
 ## License
 
