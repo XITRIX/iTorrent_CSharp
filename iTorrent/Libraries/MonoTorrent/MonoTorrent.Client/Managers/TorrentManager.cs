@@ -69,7 +69,7 @@ namespace MonoTorrent.Client
         #region Member Variables
 
         private BitField bitfield;              // The bitfield representing the pieces we've downloaded and have to download
-        private bool disposed;
+        //private bool disposed;
         private ClientEngine engine;            // The engine that this torrent is registered with
         private Error error;
         internal Queue<int> finishedPieces;     // The list of pieces which we should send "have" messages for
@@ -453,7 +453,7 @@ namespace MonoTorrent.Client
 
         public void Dispose()
         {
-            disposed = true;
+            //disposed = true;
         }
 
 

@@ -37,6 +37,8 @@ using MonoTorrent.Client;
 using MonoTorrent.Common;
 using MonoTorrent.Client.Encryption;
 
+using mooftpserv;
+
 using Foundation;
 using UIKit;
 using AVFoundation;
@@ -61,34 +63,31 @@ namespace iTorrent {
 
         public static readonly int UIUpdateRate = 1000;
 
-        //public static BEncodedDictionary fastResume;
+        public static Server server;
+        public static Thread ftpThread;
         #endregion
 
         #region Background downloading tools
-
         static AVAudioRecorder audioRecorder;
 
         public static void CheckToStopBackground() {
-            if (audioRecorder.Recording) {
-                int stopCount = 0;
-                for (int i = 0; i < managers.Count; i++) {
-                    if (managers[i].State == TorrentState.Paused || managers[i].State == TorrentState.Stopped) {
-                        stopCount++;
+            if (audioRecorder.Recording && ((ftpThread != null && !ftpThread.IsAlive) || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
+                foreach (var manager in managers) {
+                    if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped) {
+                        return;
                     }
                 }
-                if (stopCount == managers.Count) {
-                    audioRecorder.Stop();
 
-                    if (File.Exists(documents + "/Config/audio.caf")) {
-                        File.Delete(documents + "/Config/audio.caf");
-                    }
+                audioRecorder.Stop();
+
+                if (File.Exists(documents + "/Config/audio.caf")) {
+                    File.Delete(documents + "/Config/audio.caf");
                 }
             }
         }
-
         #endregion
 
-        #region Torrent Initialization Functions
+        #region Initialization Functions
 
         void SetupEngine() {
             EngineSettings settings = new EngineSettings();
@@ -178,6 +177,29 @@ namespace iTorrent {
 
             Utils.SerializeObject<SaveClass>(save, documents + "/Config/dat.itor");
         }
+
+        public static void InitializeFTPServer() {
+            
+            if (NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer")) {
+                server = new Server();
+
+                server.LogHandler = new DefaultLogHandler(false);
+                server.AuthHandler = new DefaultAuthHandler(false);
+                server.FileSystemHandler = new DefaultFileSystemHandler(documents);
+
+                server.LocalPort = 21;
+
+                ftpThread = new Thread(server.Run);
+                ftpThread.Start();
+            }
+        }
+
+        public static void DeinitializeFTPServer() {
+            if (ftpThread != null && ftpThread.IsAlive) {
+                server.Stop();
+            }
+        }
+
         #endregion
 
         #region AppDelegate LifeCycle 
@@ -188,6 +210,8 @@ namespace iTorrent {
             SetupEngine();
             RestoreTorrents();
             StartTorrents();
+
+            InitializeFTPServer();
 
             var settings = new AudioSettings();
             settings.AudioQuality = AVAudioQuality.Min;
@@ -231,16 +255,18 @@ namespace iTorrent {
 
         public override void DidEnterBackground(UIApplication application) {
             // Use this method to release shared resources, save user data, invalidate timers and store the application state.
-            // If your application supports background exection this method is called instead of WillTerminate when the user quits.
-            int count = 0;
-            for (int i = 0; i < managers.Count; i++) {
-                if (managers[i].State == TorrentState.Paused || managers[i].State == TorrentState.Stopped) {
-                    count++;
-                }
-            }
-            if (count < managers.Count) {
-                if (!audioRecorder.Recording) {
-                    audioRecorder.Record();
+            // If your application supports background exection this method is called instead of WillTerminate when the user quits.'
+            bool ftpBackground = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground");
+            if (ftpThread != null && ftpThread.IsAlive && ftpBackground) {
+                audioRecorder.Record();
+            } else {
+                foreach (var manager in managers) {
+                    if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped) {
+                        if (!audioRecorder.Recording) {
+                            audioRecorder.Record();
+                            break;
+                        }
+                    }
                 }
             }
 

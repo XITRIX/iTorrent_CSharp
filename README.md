@@ -22,6 +22,7 @@ What that app can do:
 - Download torrent file by link
 - Download torrent by magnet
 - Select files to download
+- FTP Server for file sharing
 - ??? 
 
 You cannot chose any settings like "port", or maximum downloading speed, only file downloader... Just for now
@@ -29,6 +30,11 @@ You cannot chose any settings like "port", or maximum downloading speed, only fi
 ## Libraries used
 
 - [MonoTorrent](https://github.com/mono/monotorrent)
+- [MooFTPServ](https://github.com/mooware/mooftpserv)
+
+## Known bugs
+
+- Microphone writing enables from several attempts, just open and close the app 
 
 ## License
 

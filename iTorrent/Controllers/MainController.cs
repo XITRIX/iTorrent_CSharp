@@ -161,7 +161,7 @@ namespace iTorrent {
                 alert.AddAction(cancel);
 
                 PresentViewController(alert, true, null);
-            };
+                         };
 
             new Thread(() => {
                 while (true) {
