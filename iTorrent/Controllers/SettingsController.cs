@@ -1,17 +1,15 @@
 using System;
 using System.Net.Sockets;
-using System.Net.NetworkInformation;
-
-using mooftpserv;
 
 using Foundation;
 using UIKit;
+using System.Net;
 
 namespace iTorrent {
     public partial class SettingsController : UITableViewController {
         public SettingsController(IntPtr handle) : base(handle) { }
 
-		public override void ViewDidLoad() {
+        public override void ViewDidLoad() {
             base.ViewDidLoad();
 
             DoneAction.Clicked += delegate {
@@ -21,8 +19,15 @@ namespace iTorrent {
             bool state = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
             FTPSwitcher.SetState(state, false);
             FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"), false);
-            //TableView.GetFooterView(0).TextLabel.Text = state ? "" : "Connect to: ftp://" + GetIP() + ":21";
-		}
+        }
+
+        public override string TitleForFooter(UITableView tableView, nint section) {
+            if (section == 0) {
+                bool state = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
+                return state ? "Connect to: ftp://" + GetLocalIPAddress() + ":21" : "";
+            }
+            return "";
+        }
 
         partial void Enabler(UISwitch sender) {
             if (sender.On) {
@@ -32,31 +37,23 @@ namespace iTorrent {
                 NSUserDefaults.StandardUserDefaults.SetBool(false, "FTPServer");
                 AppDelegate.DeinitializeFTPServer();
             }
-            //TableView.GetFooterView(0).TextLabel.Text = sender.On ? "" : "Connect to: ftp://" + GetIP() + ":21";
+            TableView.ReloadData();
         }
 
         partial void BackgroungModeToggle(UISwitch sender) {
-            if (sender.On) { 
+            if (sender.On) {
                 NSUserDefaults.StandardUserDefaults.SetBool(true, "FTPServerBackground");
             } else {
                 NSUserDefaults.StandardUserDefaults.SetBool(false, "FTPServerBackground");
             }
         }
 
-        string GetIP() {
-            foreach (var netInterface in NetworkInterface.GetAllNetworkInterfaces()) {
-                if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
-                    netInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet) {
-                    foreach (var addrInfo in netInterface.GetIPProperties().UnicastAddresses) {
-                        if (addrInfo.Address.AddressFamily == AddressFamily.InterNetwork) {
-                            var ipAddress = addrInfo.Address;
-
-                            return ipAddress.ToString();
-                        }
-                    }
-                }
+        string GetLocalIPAddress() {
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0)) {
+                socket.Connect("8.8.8.8", 65530);
+                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                return endPoint.Address.ToString();
             }
-            return "";
         }
     }
 }

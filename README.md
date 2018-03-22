@@ -34,7 +34,7 @@ For now it is only a file downloader, but more features like "Port" and Maximum 
 
 ## Known bugs
 
-- Microphone writing (background mode) might require several attempts to enable. Just try again by opening and closing an app until the status bar becomes red.
+- Microphone writing (background mode) might require several attempts to enable. Just try again by opening and closing the app until the status bar becomes red.
 
 ## License
 
