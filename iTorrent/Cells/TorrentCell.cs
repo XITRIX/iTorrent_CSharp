@@ -76,7 +76,7 @@ namespace iTorrent {
                 manager.Pause();
                 Info.Text = Utils.GetSizeText(downloaded) + " of " + Utils.GetSizeText(size) + " (" + String.Format("{0:0.00}", ((float)progress / 100f)) + "%)";
                 Status.Text = "Finished";
-                AppDelegate.CheckToStopBackground();
+                Progress.Progress = 1f;
             }
         }
     }

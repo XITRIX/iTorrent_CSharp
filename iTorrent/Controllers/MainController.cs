@@ -161,11 +161,12 @@ namespace iTorrent {
                 alert.AddAction(cancel);
 
                 PresentViewController(alert, true, null);
-                         };
+            };
 
             new Thread(() => {
                 while (true) {
                     Thread.Sleep(AppDelegate.UIUpdateRate);
+                    AppDelegate.UpdateManagers();
                     InvokeOnMainThread(delegate {
                         foreach (var cell in tableView.VisibleCells) {
                             ((TorrentCell)cell).Update();

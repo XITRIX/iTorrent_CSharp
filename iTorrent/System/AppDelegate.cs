@@ -71,7 +71,7 @@ namespace iTorrent {
         static AVAudioRecorder audioRecorder;
 
         public static void CheckToStopBackground() {
-            if (audioRecorder.Recording && ((ftpThread != null && !ftpThread.IsAlive) || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
+            if (audioRecorder != null && audioRecorder.Recording && (ftpThread == null || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
                 foreach (var manager in managers) {
                     if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped) {
                         return;
@@ -82,6 +82,28 @@ namespace iTorrent {
 
                 if (File.Exists(documents + "/Config/audio.caf")) {
                     File.Delete(documents + "/Config/audio.caf");
+                }
+                Console.WriteLine("Stopped");
+            } 
+        }
+
+        public static void UpdateManagers() {
+            foreach (var manager in managers) {
+                long size = 0;
+                long downloaded = 0;
+
+                if (manager.Torrent != null) {
+                    foreach (var f in manager.Torrent.Files) {
+                        if (f.Priority != Priority.DoNotDownload) {
+                            size += f.Length;
+                            downloaded += f.BytesDownloaded;
+                        }
+                    }
+                }
+
+                long progress = size != 0 ? downloaded * 10000 / size : 0;
+                if (progress / 10000f >= 1f || size == 0) {
+                    manager.Pause();
                 }
             }
         }
@@ -150,7 +172,9 @@ namespace iTorrent {
                         PiecePicker picker = new StandardPicker();
                         picker = new PriorityPicker(picker);
                         manager.ChangePicker(picker);
-
+                        manager.TorrentStateChanged += delegate {
+                            CheckToStopBackground();
+                        };
                     }
                 }
             }
@@ -197,6 +221,7 @@ namespace iTorrent {
         public static void DeinitializeFTPServer() {
             if (ftpThread != null && ftpThread.IsAlive) {
                 server.Stop();
+                ftpThread = null;
             }
         }
 

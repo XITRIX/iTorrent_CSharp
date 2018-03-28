@@ -193,10 +193,6 @@
     <Compile Include="Controllers\SettingsController.designer.cs">
       <DependentUpon>SettingsController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Cells\FTPSwitchCell.cs" />
-    <Compile Include="Cells\FTPSwitchCell.designer.cs">
-      <DependentUpon>FTPSwitchCell.cs</DependentUpon>
-    </Compile>
     <Compile Include="Libraries\MonoTorrent\MonoTorrent.BEncoding\BEncodedDictionary.cs" />
     <Compile Include="Libraries\MonoTorrent\MonoTorrent.BEncoding\BEncodedList.cs" />
     <Compile Include="Libraries\MonoTorrent\MonoTorrent.BEncoding\BEncodedNumber.cs" />

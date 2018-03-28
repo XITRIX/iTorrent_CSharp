@@ -107,6 +107,7 @@ namespace iTorrent {
                 manager.ChangePicker(picker);
                 manager.TorrentStateChanged += delegate {
                     InvokeOnMainThread(() => MainController.Instance.TableView.ReloadData());
+                    AppDelegate.CheckToStopBackground();
                 };
 
                 foreach (var file in files) {
