@@ -103,8 +103,7 @@ namespace iTorrent {
                     }
                 }
 
-                long progress = size != 0 ? downloaded * 10000 / size : 0;
-                if (progress / 10000f >= 1f || size == 0) {
+                if (downloaded >= size) {
                     manager.Pause();
                 }
             }
