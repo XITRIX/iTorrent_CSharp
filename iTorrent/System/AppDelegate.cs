@@ -89,6 +89,8 @@ namespace iTorrent {
 
         public static void UpdateManagers() {
             foreach (var manager in managers) {
+                if (manager.State == TorrentState.Paused) { continue; }
+
                 long size = 0;
                 long downloaded = 0;
 
