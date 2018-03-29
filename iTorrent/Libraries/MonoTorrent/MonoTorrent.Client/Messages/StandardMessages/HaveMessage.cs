@@ -26,8 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Net;
 
@@ -41,7 +39,6 @@ namespace MonoTorrent.Client.Messages.Standard
         internal static readonly byte MessageId = 4;
         private const int messageLength = 5;
 
-
         #region Member Variables
         /// <summary>
         /// The index of the piece that you "have"
@@ -53,15 +50,11 @@ namespace MonoTorrent.Client.Messages.Standard
         private int pieceIndex;
         #endregion
 
-
         #region Constructors
         /// <summary>
         /// Creates a new HaveMessage
         /// </summary>
-        public HaveMessage()
-        {
-        }
-
+        public HaveMessage() { }
 
         /// <summary>
         /// Creates a new HaveMessage
@@ -72,7 +65,6 @@ namespace MonoTorrent.Client.Messages.Standard
             this.pieceIndex = pieceIndex;
         }
         #endregion
-
 
         #region Methods
         public override int Encode(byte[] buffer, int offset)
@@ -99,7 +91,6 @@ namespace MonoTorrent.Client.Messages.Standard
             get { return (messageLength + 4); }
         }
         #endregion
-
 
         #region Overridden Methods
         /// <summary>

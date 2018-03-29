@@ -26,8 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Text;
 using System.Net;
@@ -69,22 +67,14 @@ namespace MonoTorrent.Client.Messages.FastPeer
         private int requestLength;
         #endregion
 
-
         #region Constructors
-        public RejectRequestMessage()
-        {
-        }
-
+        public RejectRequestMessage() { }
 
         public RejectRequestMessage(PieceMessage message)
-            :this(message.PieceIndex, message.StartOffset, message.RequestLength)
-        {
-        }
+            :this(message.PieceIndex, message.StartOffset, message.RequestLength) { }
 
         public RejectRequestMessage(RequestMessage message)
-            : this(message.PieceIndex, message.StartOffset, message.RequestLength)
-        {
-        }
+            : this(message.PieceIndex, message.StartOffset, message.RequestLength) { }
 
         public RejectRequestMessage(int pieceIndex, int startOffset, int requestLength)
         {
@@ -94,7 +84,6 @@ namespace MonoTorrent.Client.Messages.FastPeer
         }
         #endregion
 
-        
         #region Methods
         public override int Encode(byte[] buffer, int offset)
         {
@@ -112,7 +101,6 @@ namespace MonoTorrent.Client.Messages.FastPeer
             return CheckWritten(written - offset);
         }
 
-
         public override void Decode(byte[] buffer, int offset, int length)
         {
             if (!ClientEngine.SupportsFastPeer)
@@ -129,7 +117,6 @@ namespace MonoTorrent.Client.Messages.FastPeer
         }
         #endregion
 
-
         #region Overidden Methods
         public override bool Equals(object obj)
         {
@@ -142,14 +129,12 @@ namespace MonoTorrent.Client.Messages.FastPeer
                 && this.requestLength == msg.requestLength);
         }
 
-
         public override int GetHashCode()
         {
             return (this.pieceIndex.GetHashCode()
                     ^ this.requestLength.GetHashCode()
                     ^ this.startOffset.GetHashCode());
         }
-
 
         public override string ToString()
         {

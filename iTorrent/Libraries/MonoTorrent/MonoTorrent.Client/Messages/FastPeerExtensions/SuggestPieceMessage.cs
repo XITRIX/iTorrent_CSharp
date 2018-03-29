@@ -26,8 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Text;
 using System.Net;
@@ -51,15 +49,11 @@ namespace MonoTorrent.Client.Messages.FastPeer
         private int pieceIndex;
         #endregion
 
-
         #region Constructors
         /// <summary>
         /// Creates a new SuggestPiece message
         /// </summary>
-        public SuggestPieceMessage()
-        {
-        }
-
+        public SuggestPieceMessage() { }
 
         /// <summary>
         /// Creates a new SuggestPiece message
@@ -70,7 +64,6 @@ namespace MonoTorrent.Client.Messages.FastPeer
             this.pieceIndex = pieceIndex;
         }
         #endregion
-
 
         #region Methods
         public override int Encode(byte[] buffer, int offset)
@@ -100,7 +93,6 @@ namespace MonoTorrent.Client.Messages.FastPeer
             get { return this.messageLength + 4; }
         }
         #endregion
-
 
         #region Overidden Methods
         public override bool Equals(object obj)

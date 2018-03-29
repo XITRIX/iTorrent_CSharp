@@ -61,7 +61,6 @@ namespace MonoTorrent.Client {
 
         #endregion
 
-
         #region Member Variables
 
         private BitField bitfield;              // The bitfield representing the pieces we've downloaded and have to download

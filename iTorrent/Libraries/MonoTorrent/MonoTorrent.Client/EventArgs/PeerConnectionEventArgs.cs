@@ -26,32 +26,25 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using MonoTorrent.Common;
 
-namespace MonoTorrent.Client
-{
+namespace MonoTorrent.Client {
     /// <summary>
     /// Provides the data needed to handle a PeerConnection event
     /// </summary>
-    public class PeerConnectionEventArgs : TorrentEventArgs
-    {
+    public class PeerConnectionEventArgs : TorrentEventArgs {
         #region Member Variables
 
-        public PeerId PeerID
-        {
+        public PeerId PeerID {
             get { return this.peerConnectionId; }
         }
         private PeerId peerConnectionId;
 
-
         /// <summary>
         /// The peer event that just happened
         /// </summary>
-        public Direction ConnectionDirection
-        {
+        public Direction ConnectionDirection {
             get { return this.connectionDirection; }
         }
         private Direction connectionDirection;
@@ -61,27 +54,19 @@ namespace MonoTorrent.Client
         /// <summary>
         /// Any message that might be associated with this event
         /// </summary>
-        public String Message
-        {
+        public String Message {
             get { return message; }
         }
 
         #endregion
 
-
         #region Constructors
 
+        internal PeerConnectionEventArgs(TorrentManager manager, PeerId id, Direction direction)
+            : this(manager, id, direction, "") { }
 
-        internal PeerConnectionEventArgs( TorrentManager manager, PeerId id, Direction direction )
-            : this( manager, id, direction, "" )
-        {
-
-        }
-
-
-        internal PeerConnectionEventArgs( TorrentManager manager, PeerId id, Direction direction, String message )
-            : base( manager )
-        {
+        internal PeerConnectionEventArgs(TorrentManager manager, PeerId id, Direction direction, String message)
+            : base(manager) {
             this.peerConnectionId = id;
             this.connectionDirection = direction;
             this.message = message;

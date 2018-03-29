@@ -26,19 +26,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
-
 using System;
 using MonoTorrent.Client.Messages.Standard;
 
-namespace MonoTorrent.Client
-{
+namespace MonoTorrent.Client {
     /// <summary>
     /// 
     /// </summary>
-    public struct Block
-    {
+    public struct Block {
         #region Private Fields
 
         private Piece piece;
@@ -51,22 +46,17 @@ namespace MonoTorrent.Client
 
         #endregion Private Fields
 
-
         #region Properties
 
-        public int PieceIndex
-        {
+        public int PieceIndex {
             get { return this.piece.Index; }
         }
 
-        public bool Received
-        {
+        public bool Received {
             get { return this.received; }
-            internal set
-            {
+            internal set {
                 if (value && !received)
                     piece.TotalReceived++;
-
                 else if (!value && received)
                     piece.TotalReceived--;
 
@@ -74,14 +64,11 @@ namespace MonoTorrent.Client
             }
         }
 
-        public bool Requested
-        {
+        public bool Requested {
             get { return this.requested; }
-            internal set
-            {
+            internal set {
                 if (value && !requested)
                     piece.TotalRequested++;
-
                 else if (!value && requested)
                     piece.TotalRequested--;
 
@@ -89,39 +76,31 @@ namespace MonoTorrent.Client
             }
         }
 
-        public int RequestLength
-        {
+        public int RequestLength {
             get { return this.requestLength; }
         }
 
-        public bool RequestTimedOut
-        {
-            get
-            { // 60 seconds timeout for a request to fulfill
+        public bool RequestTimedOut {
+            get { // 60 seconds timeout for a request to fulfill
                 return !Received && requestedOff != null &&
                        (DateTime.Now - requestedOff.LastMessageReceived) > TimeSpan.FromMinutes(1);
             }
         }
 
-        internal PeerId RequestedOff
-        {
+        internal PeerId RequestedOff {
             get { return this.requestedOff; }
             set { this.requestedOff = value; }
         }
 
-        public int StartOffset
-        {
+        public int StartOffset {
             get { return this.startOffset; }
         }
 
-        public bool Written
-        {
+        public bool Written {
             get { return this.written; }
-            internal set
-            {
+            internal set {
                 if (value && !written)
                     piece.TotalWritten++;
-
                 else if (!value && written)
                     piece.TotalWritten--;
 
@@ -131,11 +110,9 @@ namespace MonoTorrent.Client
 
         #endregion Properties
 
-
         #region Constructors
 
-        internal Block(Piece piece, int startOffset, int requestLength)
-        {
+        internal Block(Piece piece, int startOffset, int requestLength) {
             this.requestedOff = null;
             this.piece = piece;
             this.received = false;
@@ -147,26 +124,22 @@ namespace MonoTorrent.Client
 
         #endregion
 
-
         #region Methods
 
-        internal RequestMessage CreateRequest(PeerId id)
-        {
+        internal RequestMessage CreateRequest(PeerId id) {
             Requested = true;
             RequestedOff = id;
             RequestedOff.AmRequestingPiecesCount++;
             return new RequestMessage(PieceIndex, this.startOffset, this.requestLength);
         }
 
-        internal void CancelRequest()
-        {
+        internal void CancelRequest() {
             Requested = false;
             RequestedOff.AmRequestingPiecesCount--;
             RequestedOff = null;
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (!(obj is Block))
                 return false;
 
@@ -174,13 +147,11 @@ namespace MonoTorrent.Client
             return this.PieceIndex == other.PieceIndex && this.startOffset == other.startOffset && this.requestLength == other.requestLength;
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return this.PieceIndex ^ this.requestLength ^ this.startOffset;
         }
 
-        internal static int IndexOf(Block[] blocks, int startOffset, int blockLength)
-        {
+        internal static int IndexOf(Block[] blocks, int startOffset, int blockLength) {
             int index = startOffset / Piece.BlockSize;
             if (blocks[index].startOffset != startOffset || blocks[index].RequestLength != blockLength)
                 return -1;
