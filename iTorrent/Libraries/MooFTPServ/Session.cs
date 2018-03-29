@@ -15,7 +15,7 @@ namespace mooftpserv
     class Session
     {
         // transfer data type, ascii or binary
-        enum DataType { ASCII, IMAGE };
+        enum DataType { ASCII, IMAGE }
 
         // buffer size to use for reading commands from the control connection
         private static int CMD_BUFFER_SIZE = 4096;

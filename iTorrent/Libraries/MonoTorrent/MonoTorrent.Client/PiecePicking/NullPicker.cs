@@ -33,63 +33,38 @@ using System.Text;
 using MonoTorrent.Client.Messages;
 using MonoTorrent.Common;
 
-namespace MonoTorrent.Client
-{
-    public class NullPicker : PiecePicker
-    {
+namespace MonoTorrent.Client {
+    public class NullPicker : PiecePicker {
         public NullPicker()
-            : base(null)
-        {
+            : base(null) { }
 
-        }
+        public override void CancelRequest(PeerId peer, int piece, int startOffset, int length) { }
 
-        public override void CancelRequest(PeerId peer, int piece, int startOffset, int length)
-        {
-            
-        }
+        public override void CancelRequests(PeerId peer) { }
 
-        public override void CancelRequests(PeerId peer)
-        {
-            
-        }
+        public override void CancelTimedOutRequests() { }
 
-        public override void CancelTimedOutRequests()
-        {
-            
-        }
-
-        public override int CurrentRequestCount()
-        {
+        public override int CurrentRequestCount() {
             return 0;
         }
 
-        public override List<Piece> ExportActiveRequests()
-        {
+        public override List<Piece> ExportActiveRequests() {
             return new List<Piece>();
         }
 
-        public override void Initialise(MonoTorrent.Common.BitField bitfield, MonoTorrent.Common.TorrentFile[] files, IEnumerable<Piece> requests)
-        {
-            
-        }
-        
-        public override bool IsInteresting(MonoTorrent.Common.BitField bitfield)
-        {
+        public override void Initialise(MonoTorrent.Common.BitField bitfield, MonoTorrent.Common.TorrentFile[] files, IEnumerable<Piece> requests) { }
+
+        public override bool IsInteresting(MonoTorrent.Common.BitField bitfield) {
             return false;
         }
 
-        public override MessageBundle PickPiece(PeerId id, BitField peerBitfield, List<PeerId> otherPeers, int count, int startIndex, int endIndex)
-        {
+        public override MessageBundle PickPiece(PeerId id, BitField peerBitfield, List<PeerId> otherPeers, int count, int startIndex, int endIndex) {
             return null;
         }
 
-        public override void Reset()
-        {
-            
-        }
+        public override void Reset() { }
 
-        public override bool ValidatePiece(PeerId peer, int pieceIndex, int startOffset, int length, out Piece piece)
-        {
+        public override bool ValidatePiece(PeerId peer, int pieceIndex, int startOffset, int length, out Piece piece) {
             piece = null;
             return false;
         }

@@ -26,7 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
 using System;
 using System.Text;
 using System.Net;
@@ -51,7 +50,6 @@ namespace MonoTorrent.Client.Tracker
         private TorrentManager manager;
         IList<TrackerTier> tierList;
 
-
         /// <summary>
         /// Returns the tracker that is current in use by the engine
         /// </summary>
@@ -66,12 +64,10 @@ namespace MonoTorrent.Client.Tracker
             }
         }
 
-
         /// <summary>
         /// The infohash for the torrent
         /// </summary>
         private InfoHash infoHash;
-
 
         /// <summary>
         /// True if the last update succeeded
@@ -82,7 +78,6 @@ namespace MonoTorrent.Client.Tracker
         }
         private bool updateSucceeded;
 
-
         /// <summary>
         /// The time the last tracker update was sent to any tracker
         /// </summary>
@@ -91,7 +86,6 @@ namespace MonoTorrent.Client.Tracker
             get { return this.lastUpdated; }
         }
         private DateTime lastUpdated;
-
 
         /// <summary>
         /// The trackers available
@@ -103,7 +97,6 @@ namespace MonoTorrent.Client.Tracker
         List<TrackerTier> trackerTiers;
 
         #endregion
-
 
         #region Constructors
 
@@ -140,7 +133,6 @@ namespace MonoTorrent.Client.Tracker
         }
 
         #endregion
-
 
         #region Methods
 
@@ -199,7 +191,7 @@ namespace MonoTorrent.Client.Tracker
             // tracker optimisations might result in no peers being sent back.
             long bytesLeft = 1000;
             if (manager.HasMetadata)
-                bytesLeft = (long)((1 - this.manager.Bitfield.PercentComplete / 100.0) * this.manager.Torrent.Size);
+                bytesLeft = (long)((1 - (this.manager.Bitfield.PercentComplete / 100.0)) * this.manager.Torrent.Size);
             AnnounceParameters p = new AnnounceParameters(this.manager.Monitor.DataBytesDownloaded,
                                                 this.manager.Monitor.DataBytesUploaded,
                                                 bytesLeft,

@@ -39,12 +39,11 @@ using MonoTorrent.Client.Tracker;
 using MonoTorrent.Client.Encryption;
 using MonoTorrent.Client.Messages;
 
-
 namespace MonoTorrent.Client
 {
     class MetadataMode : Mode
     {
-        private MemoryStream stream;//the stream of the torrent metadata
+        private MemoryStream stream; //the stream of the torrent metadata
         private BitField bitField;
         static readonly TimeSpan timeout = TimeSpan.FromSeconds(10);
         private PeerId currentId;
@@ -80,7 +79,6 @@ namespace MonoTorrent.Client
             {
                 SendRequestToNextPeer();
             }
-            
         }
 
         protected override void HandlePeerExchangeMessage(PeerId id, PeerExchangeMessage message)
@@ -201,7 +199,6 @@ namespace MonoTorrent.Client
                 default:
                     throw new MessageException(string.Format("Invalid messagetype in LTMetadata: {0}", message.MetadataMessageType));
             }
-
         }
 
         private void SwitchToRegular()
@@ -245,7 +242,7 @@ namespace MonoTorrent.Client
         {
             int index = bitField.FirstFalse();
             if (index == -1)
-                return;//throw exception or switch to regular?
+                return; //throw exception or switch to regular?
 
             LTMetadata m = new LTMetadata(id, LTMetadata.eMessageType.Request, index);
             id.Enqueue(m);
@@ -258,7 +255,7 @@ namespace MonoTorrent.Client
             using (SHA1 sha = HashAlgoFactory.Create<SHA1>())
                 calculatedInfoHash = sha.ComputeHash(stream.ToArray());
             if (!Manager.InfoHash.Equals (calculatedInfoHash))
-                throw new Exception("invalid metadata");//restart ?
+                throw new Exception("invalid metadata"); //restart ?
 
             BEncodedValue d = BEncodedValue.Decode(stream);
             BEncodedDictionary dict = new BEncodedDictionary();

@@ -26,8 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -46,7 +44,6 @@ namespace MonoTorrent.BEncoding
 
         #endregion
 
-
         #region Constructors
 
         /// <summary>
@@ -58,7 +55,6 @@ namespace MonoTorrent.BEncoding
         }
 
         #endregion
-
 
         #region Encode/Decode Methods
 
@@ -87,7 +83,6 @@ namespace MonoTorrent.BEncoding
             written++;
             return written;
         }
-
 
         /// <summary>
         /// 
@@ -136,7 +131,6 @@ namespace MonoTorrent.BEncoding
             return DecodeTorrent(new RawReader(s));
         }
 
-
         /// <summary>
         /// Special decoding method for torrent files - allows dictionary attributes to be out of order for the
         /// overall torrent file, but imposes strict rules on the info dictionary.
@@ -176,7 +170,6 @@ namespace MonoTorrent.BEncoding
 
         #endregion
 
-
         #region Helper Methods
 
         /// <summary>
@@ -198,7 +191,6 @@ namespace MonoTorrent.BEncoding
         }
 
         #endregion
-
 
         #region Overridden Methods
         public override bool Equals(object obj)
@@ -240,7 +232,6 @@ namespace MonoTorrent.BEncoding
             return System.Text.Encoding.UTF8.GetString(Encode());
         }
         #endregion
-
 
         #region IDictionary and IList methods
         public void Add(BEncodedString key, BEncodedValue value)

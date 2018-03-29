@@ -26,67 +26,40 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 using MonoTorrent.BEncoding;
 
-namespace MonoTorrent.Client
-{
-    class NullDhtEngine : IDhtEngine
-    {
+namespace MonoTorrent.Client {
+    class NullDhtEngine : IDhtEngine {
         public event EventHandler<PeersFoundEventArgs> PeersFound;
         public event EventHandler StateChanged;
 
-        public bool Disposed
-        {
+        public bool Disposed {
             get { return false; }
         }
 
-        public DhtState State
-        {
+        public DhtState State {
             get { return DhtState.NotReady; }
         }
 
-        public void Add(BEncodedList nodes)
-        {
-            
-        }
+        public void Add(BEncodedList nodes) { }
 
-        public void Announce(InfoHash infohash, int port)
-        {
+        public void Announce(InfoHash infohash, int port) { }
 
-        }
+        public void Dispose() { }
 
-        public void Dispose()
-        {
+        public void GetPeers(InfoHash infohash) { }
 
-        }
-
-        public void GetPeers(InfoHash infohash)
-        {
-
-        }
-
-        public byte[] SaveNodes()
-        {
+        public byte[] SaveNodes() {
             return new byte[0];
         }
 
-        public void Start()
-        {
-            
-        }
+        public void Start() { }
 
-        public void Start(byte[] initialNodes)
-        {
-            
-        }
+        public void Start(byte[] initialNodes) { }
 
-        public void Stop()
-        {
-            
-        }
+        public void Stop() { }
     }
 }

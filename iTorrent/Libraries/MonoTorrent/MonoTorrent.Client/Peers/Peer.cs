@@ -26,8 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Text;
 using System.Net;
@@ -36,10 +34,8 @@ using MonoTorrent.BEncoding;
 using MonoTorrent.Client.Encryption;
 using System.Collections.Generic;
 
-namespace MonoTorrent.Client
-{
-    public class Peer
-    {
+namespace MonoTorrent.Client {
+    public class Peer {
         #region Private Fields
 
         private int cleanedUpCount;
@@ -55,79 +51,63 @@ namespace MonoTorrent.Client
 
         #endregion Private Fields
 
-
         #region Properties
 
-        public Uri ConnectionUri
-        {
+        public Uri ConnectionUri {
             get { return connectionUri; }
         }
 
-        internal int CleanedUpCount
-        {
+        internal int CleanedUpCount {
             get { return this.cleanedUpCount; }
             set { this.cleanedUpCount = value; }
         }
 
-        public EncryptionTypes Encryption
-        {
+        public EncryptionTypes Encryption {
             get { return encryption; }
             set { encryption = value; }
         }
 
-        internal int TotalHashFails
-        {
+        internal int TotalHashFails {
             get { return this.totalHashFails; }
         }
 
-        internal string PeerId
-        {
+        internal string PeerId {
             get { return peerId; }
             set { peerId = value; }
         }
 
-        internal bool IsSeeder
-        {
+        internal bool IsSeeder {
             get { return this.isSeeder; }
             set { this.isSeeder = value; }
         }
 
-        internal int FailedConnectionAttempts
-        {
+        internal int FailedConnectionAttempts {
             get { return this.failedConnectionAttempts; }
             set { this.failedConnectionAttempts = value; }
         }
 
-        internal int LocalPort
-        {
+        internal int LocalPort {
             get { return localPort; }
             set { localPort = value; }
         }
 
-        internal DateTime LastConnectionAttempt
-        {
+        internal DateTime LastConnectionAttempt {
             get { return this.lastConnectionAttempt; }
             set { this.lastConnectionAttempt = value; }
         }
 
-        internal int RepeatedHashFails
-        {
+        internal int RepeatedHashFails {
             get { return this.repeatedHashFails; }
         }
 
         #endregion Properties
 
-
         #region Constructors
 
         public Peer(string peerId, Uri connectionUri)
-            : this (peerId, connectionUri, EncryptionTypes.All)
-        {
+            : this(peerId, connectionUri, EncryptionTypes.All) { }
 
-        }
-
-        public Peer(string peerId, Uri connectionUri, EncryptionTypes encryption)
-        {
+        public Peer(string peerId, Uri connectionUri, EncryptionTypes encryption) {
             if (peerId == null)
                 throw new ArgumentNullException("peerId");
             if (connectionUri == null)
@@ -140,14 +120,11 @@ namespace MonoTorrent.Client
 
         #endregion
 
-
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return Equals(obj as Peer);
         }
 
-        public bool Equals(Peer other)
-        {
+        public bool Equals(Peer other) {
             if (other == null)
                 return false;
 
@@ -158,56 +135,45 @@ namespace MonoTorrent.Client
             return peerId == other.peerId;
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return this.connectionUri.Host.GetHashCode();
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             return this.connectionUri.ToString();
         }
 
-        internal byte[] CompactPeer()
-        {
+        internal byte[] CompactPeer() {
             byte[] data = new byte[6];
             CompactPeer(data, 0);
             return data;
         }
 
-        internal void CompactPeer(byte[] data, int offset)
-        {
+        internal void CompactPeer(byte[] data, int offset) {
             Buffer.BlockCopy(IPAddress.Parse(this.connectionUri.Host).GetAddressBytes(), 0, data, offset, 4);
             Buffer.BlockCopy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(((short)this.connectionUri.Port))), 0, data, offset + 4, 2);
         }
 
-        internal void HashedPiece(bool succeeded)
-        {
+        internal void HashedPiece(bool succeeded) {
             if (succeeded && repeatedHashFails > 0)
                 repeatedHashFails--;
-            
-            if (!succeeded)
-            {
+
+            if (!succeeded) {
                 repeatedHashFails++;
                 totalHashFails++;
             }
         }
 
-        public static MonoTorrentCollection<Peer> Decode(BEncodedList peers)
-        {
+        public static MonoTorrentCollection<Peer> Decode(BEncodedList peers) {
             MonoTorrentCollection<Peer> list = new MonoTorrentCollection<Peer>(peers.Count);
-            foreach (BEncodedValue value in peers)
-            {
-                try
-                {
+            foreach (BEncodedValue value in peers) {
+                try {
                     if (value is BEncodedDictionary)
                         list.Add(DecodeFromDict((BEncodedDictionary)value));
                     else if (value is BEncodedString)
                         foreach (Peer p in Decode((BEncodedString)value))
                             list.Add(p);
-                }
-                catch
-                {
+                } catch {
                     // If something is invalid and throws an exception, ignore it
                     // and continue decoding the rest of the peers
                 }
@@ -215,8 +181,7 @@ namespace MonoTorrent.Client
             return list;
         }
 
-        private static Peer DecodeFromDict(BEncodedDictionary dict)
-        {
+        private static Peer DecodeFromDict(BEncodedDictionary dict) {
             string peerId;
 
             if (dict.ContainsKey("peer id"))
@@ -230,8 +195,7 @@ namespace MonoTorrent.Client
             return new Peer(peerId, connectionUri, EncryptionTypes.All);
         }
 
-        public static MonoTorrentCollection<Peer> Decode(BEncodedString peers)
-        {
+        public static MonoTorrentCollection<Peer> Decode(BEncodedString peers) {
             // "Compact Response" peers are encoded in network byte order. 
             // IP's are the first four bytes
             // Ports are the following 2 bytes
@@ -240,8 +204,7 @@ namespace MonoTorrent.Client
             UInt16 port;
             StringBuilder sb = new StringBuilder(27);
             MonoTorrentCollection<Peer> list = new MonoTorrentCollection<Peer>((byteOrderedData.Length / 6) + 1);
-            while ((i + 5) < byteOrderedData.Length)
-            {
+            while ((i + 5) < byteOrderedData.Length) {
                 sb.Remove(0, sb.Length);
 
                 sb.Append("tcp://");
@@ -265,8 +228,7 @@ namespace MonoTorrent.Client
             return list;
         }
 
-        internal static BEncodedList Encode(IEnumerable<Peer> peers)
-        {
+        internal static BEncodedList Encode(IEnumerable<Peer> peers) {
             BEncodedList list = new BEncodedList();
             foreach (Peer p in peers)
                 list.Add((BEncodedString)p.CompactPeer());

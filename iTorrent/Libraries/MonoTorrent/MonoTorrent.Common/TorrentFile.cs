@@ -26,20 +26,16 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Common
-{
+namespace MonoTorrent.Common {
     /// <summary>
     /// This is the base class for the files available to download from within a .torrent.
     /// This should be inherited by both Client and Tracker "TorrentFile" classes
     /// </summary>
-    public class TorrentFile : IEquatable<TorrentFile>
-    {
+    public class TorrentFile : IEquatable<TorrentFile> {
         #region Private Fields
 
         private BitField bitfield;
@@ -56,40 +52,34 @@ namespace MonoTorrent.Common
 
         #endregion Private Fields
 
-
         #region Member Variables
 
         /// <summary>
         /// The number of pieces which have been successfully downloaded which are from this file
         /// </summary>
-        public BitField BitField
-        {
+        public BitField BitField {
             get { return this.bitfield; }
         }
 
-        public long BytesDownloaded
-        {
+        public long BytesDownloaded {
             get { return (long)(BitField.PercentComplete * Length / 100.0); }
         }
 
         /// <summary>
         /// The ED2K hash of the file
         /// </summary>
-        public byte[] ED2K
-        {
+        public byte[] ED2K {
             get { return ed2k; }
         }
 
         /// <summary>
         /// The index of the last piece of this file
         /// </summary>
-        public int EndPieceIndex
-        {
+        public int EndPieceIndex {
             get { return this.endPiece; }
         }
 
-        public string FullPath
-        {
+        public string FullPath {
             get { return fullPath; }
             internal set { fullPath = value; }
         }
@@ -97,16 +87,14 @@ namespace MonoTorrent.Common
         /// <summary>
         /// The length of the file in bytes
         /// </summary>
-        public long Length
-        {
+        public long Length {
             get { return length; }
         }
 
         /// <summary>
         /// The MD5 hash of the file
         /// </summary>
-        public byte[] MD5
-        {
+        public byte[] MD5 {
             get { return this.md5; }
             internal set { md5 = value; }
         }
@@ -116,16 +104,14 @@ namespace MonoTorrent.Common
         /// In the case of a multi-file torrent this is the relative path of the file
         /// (including the filename) from the base directory
         /// </summary>
-        public string Path
-        {
+        public string Path {
             get { return path; }
         }
 
         /// <summary>
         /// The priority of this torrent file
         /// </summary>
-        public Priority Priority
-        {
+        public Priority Priority {
             get { return this.priority; }
             set { this.priority = value; }
         }
@@ -133,49 +119,33 @@ namespace MonoTorrent.Common
         /// <summary>
         /// The SHA1 hash of the file
         /// </summary>
-        public byte[] SHA1
-        {
+        public byte[] SHA1 {
             get { return this.sha1; }
         }
 
         /// <summary>
         /// The index of the first piece of this file
         /// </summary>
-        public int StartPieceIndex
-        {
+        public int StartPieceIndex {
             get { return this.startPiece; }
         }
 
         #endregion
 
-
         #region Constructors
         public TorrentFile(string path, long length)
-            : this(path, length, path)
-        {
+            : this(path, length, path) { }
 
-        }
+        public TorrentFile(string path, long length, string fullPath)
+            : this(path, length, fullPath, 0, 0) { }
 
-        public TorrentFile (string path, long length, string fullPath)
-            : this (path, length, fullPath, 0, 0)
-        {
-
-        }
-
-        public TorrentFile (string path, long length, int startIndex, int endIndex)
-            : this (path, length, path, startIndex, endIndex)
-        {
-
-        }
+        public TorrentFile(string path, long length, int startIndex, int endIndex)
+            : this(path, length, path, startIndex, endIndex) { }
 
         public TorrentFile(string path, long length, string fullPath, int startIndex, int endIndex)
-            : this(path, length, fullPath, startIndex, endIndex, null, null, null)
-        {
+            : this(path, length, fullPath, startIndex, endIndex, null, null, null) { }
 
-        }
-
-        public TorrentFile(string path, long length, string fullPath, int startIndex, int endIndex, byte[] md5, byte[] ed2k, byte[] sha1)
-        {
+        public TorrentFile(string path, long length, string fullPath, int startIndex, int endIndex, byte[] md5, byte[] ed2k, byte[] sha1) {
             this.bitfield = new BitField(endIndex - startIndex + 1);
             this.ed2k = ed2k;
             this.endPiece = endIndex;
@@ -190,26 +160,21 @@ namespace MonoTorrent.Common
 
         #endregion
 
-
         #region Methods
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return Equals(obj as TorrentFile);
         }
 
-        public bool Equals(TorrentFile other)
-        {
-            return other == null ? false : path == other.path && length == other.length; ;
+        public bool Equals(TorrentFile other) {
+            return other == null ? false : path == other.path && length == other.length;
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return path.GetHashCode();
         }
 
-        internal BitField GetSelector(int totalPieces)
-        {
+        internal BitField GetSelector(int totalPieces) {
             if (selector != null)
                 return selector;
 
@@ -219,8 +184,7 @@ namespace MonoTorrent.Common
             return selector;
         }
 
-        public override string ToString()
-        {
+        public override string ToString() {
             StringBuilder sb = new StringBuilder(32);
             sb.Append("File: ");
             sb.Append(path);

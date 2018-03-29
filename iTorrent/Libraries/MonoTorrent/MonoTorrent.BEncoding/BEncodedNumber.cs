@@ -26,54 +26,43 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
-namespace MonoTorrent.BEncoding
-{
+namespace MonoTorrent.BEncoding {
     /// <summary>
     /// Class representing a BEncoded number
     /// </summary>
-    public class BEncodedNumber : BEncodedValue, IComparable<BEncodedNumber>
-    {
+    public class BEncodedNumber : BEncodedValue, IComparable<BEncodedNumber> {
         #region Member Variables
         /// <summary>
         /// The value of the BEncodedNumber
         /// </summary>
-        public long Number
-        {
+        public long Number {
             get { return number; }
             set { number = value; }
         }
         internal long number;
         #endregion
 
-
         #region Constructors
         public BEncodedNumber()
-            : this(0)
-        {
-        }
+            : this(0) { }
 
         /// <summary>
         /// Create a new BEncoded number with the given value
         /// </summary>
-        /// <param name="initialValue">The inital value of the BEncodedNumber</param>
-        public BEncodedNumber(long value)
-        {
+        /// <param name="value">The inital value of the BEncodedNumber</param>
+        public BEncodedNumber(long value) {
             this.number = value;
         }
 
-        public static implicit operator BEncodedNumber(long value)
-        {
+        public static implicit operator BEncodedNumber(long value) {
             return new BEncodedNumber(value);
         }
         #endregion
-
 
         #region Encode/Decode Methods
 
@@ -83,27 +72,25 @@ namespace MonoTorrent.BEncoding
         /// <param name="buffer">The buffer to write the data to</param>
         /// <param name="offset">The offset to start writing the data at</param>
         /// <returns></returns>
-        public override int Encode(byte[] buffer, int offset)
-        {
+        public override int Encode(byte[] buffer, int offset) {
             long number = this.number;
 
             int written = offset;
             buffer[written++] = (byte)'i';
-            
-            if (number < 0)
-            {
+
+            if (number < 0) {
                 buffer[written++] = (byte)'-';
                 number = -number;
             }
             // Reverse the number '12345' to get '54321'
             long reversed = 0;
             for (long i = number; i != 0; i /= 10)
-                reversed = reversed * 10 + i % 10;
+                reversed = (reversed * 10) + (i % 10);
 
             // Write each digit of the reversed number to the array. We write '1'
             // first, then '2', etc
             for (long i = reversed; i != 0; i /= 10)
-                buffer[written++] = (byte)(i % 10 + '0');
+                buffer[written++] = (byte)((i % 10) + '0');
 
             if (number == 0)
                 buffer[written++] = (byte)'0';
@@ -117,33 +104,29 @@ namespace MonoTorrent.BEncoding
             return written - offset;
         }
 
-
         /// <summary>
         /// Decodes a BEncoded number from the supplied RawReader
         /// </summary>
         /// <param name="reader">RawReader containing a BEncoded Number</param>
-        internal override void DecodeInternal(RawReader reader)
-        {
+        internal override void DecodeInternal(RawReader reader) {
             int sign = 1;
             if (reader == null)
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
 
             if (reader.ReadByte() != 'i')              // remove the leading 'i'
                 throw new BEncodingException("Invalid data found. Aborting.");
 
-            if (reader.PeekByte() == '-')
-            {
+            if (reader.PeekByte() == '-') {
                 sign = -1;
-                reader.ReadByte ();
+                reader.ReadByte();
             }
 
             int letter;
-            while (((letter = reader.PeekByte()) != -1) && letter != 'e')
-            {
-                if(letter < '0' || letter > '9')
+            while (((letter = reader.PeekByte()) != -1) && letter != 'e') {
+                if (letter < '0' || letter > '9')
                     throw new BEncodingException("Invalid number found.");
-                number = number * 10 + (letter - '0');
-                reader.ReadByte ();
+                number = (number * 10) + (letter - '0');
+                reader.ReadByte();
             }
             if (reader.ReadByte() != 'e')        //remove the trailing 'e'
                 throw new BEncodingException("Invalid data found. Aborting.");
@@ -152,22 +135,19 @@ namespace MonoTorrent.BEncoding
         }
         #endregion
 
-
         #region Helper Methods
         /// <summary>
         /// Returns the length of the encoded string in bytes
         /// </summary>
         /// <returns></returns>
-        public override int LengthInBytes()
-        {
+        public override int LengthInBytes() {
             long number = this.number;
             int count = 2; // account for the 'i' and 'e'
 
             if (number == 0)
                 return count + 1;
 
-            if (number < 0)
-            {
+            if (number < 0) {
                 number = -number;
                 count++;
             }
@@ -177,30 +157,24 @@ namespace MonoTorrent.BEncoding
             return count;
         }
 
-
-        public int CompareTo(object other)
-        {
+        public int CompareTo(object other) {
             if (other is BEncodedNumber || other is long || other is int)
                 return CompareTo((BEncodedNumber)other);
 
             return -1;
         }
 
-        public int CompareTo(BEncodedNumber other)
-        {
+        public int CompareTo(BEncodedNumber other) {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
 
             return this.number.CompareTo(other.number);
         }
 
-
-        public int CompareTo(long other)
-        {
+        public int CompareTo(long other) {
             return this.number.CompareTo(other);
         }
         #endregion
-
 
         #region Overridden Methods
         /// <summary>
@@ -208,8 +182,7 @@ namespace MonoTorrent.BEncoding
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             BEncodedNumber obj2 = obj as BEncodedNumber;
             if (obj2 == null)
                 return false;
@@ -221,8 +194,7 @@ namespace MonoTorrent.BEncoding
         /// 
         /// </summary>
         /// <returns></returns>
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return this.number.GetHashCode();
         }
 
@@ -230,8 +202,7 @@ namespace MonoTorrent.BEncoding
         /// 
         /// </summary>
         /// <returns></returns>
-        public override string ToString()
-        {
+        public override string ToString() {
             return (this.number.ToString());
         }
         #endregion
