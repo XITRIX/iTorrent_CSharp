@@ -74,7 +74,6 @@ namespace iTorrent {
             Progress.Progress = progress / 10000f;
             if (Progress.Progress >= 1f || size == 0) {
                 manager.Pause();
-                Info.Text = Utils.GetSizeText(downloaded) + " of " + Utils.GetSizeText(size) + " (" + String.Format("{0:0.00}", ((float)progress / 100f)) + "%)";
                 Status.Text = "Finished";
                 Progress.Progress = 1f;
             }
