@@ -27,8 +27,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Text.RegularExpressions;
 
@@ -150,7 +148,6 @@ namespace MonoTorrent.Common
         {
             get { return this.shortId; }
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Software"/> class.
@@ -442,7 +439,6 @@ namespace MonoTorrent.Common
             this.shortId = peerId;
             System.Diagnostics.Trace.WriteLine("Unrecognisable clientid style: " + peerId);
         }
-
 
         public override string ToString()
         {

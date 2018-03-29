@@ -26,18 +26,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
-
 using System;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using MonoTorrent.Client.Encryption;
 
-namespace MonoTorrent.Client.Connections
-{
-    public class IPV4Connection : IConnection
-    {
+namespace MonoTorrent.Client.Connections {
+    public class IPV4Connection : IConnection {
         private bool isIncoming;
         private IPEndPoint endPoint;
         private Socket socket;
@@ -45,64 +41,48 @@ namespace MonoTorrent.Client.Connections
 
         #region Member Variables
 
-        public bool CanReconnect
-        {
+        public bool CanReconnect {
             get { return !isIncoming; }
         }
 
-        public bool Connected
-        {
+        public bool Connected {
             get { return socket.Connected; }
         }
 
-        EndPoint IConnection.EndPoint
-        {
+        EndPoint IConnection.EndPoint {
             get { return endPoint; }
         }
 
-        public IPEndPoint EndPoint
-        {
+        public IPEndPoint EndPoint {
             get { return this.endPoint; }
         }
 
-        public bool IsIncoming
-        {
+        public bool IsIncoming {
             get { return isIncoming; }
         }
 
-        public Uri Uri
-        {
+        public Uri Uri {
             get { return uri; }
         }
 
         #endregion
 
-
         #region Constructors
 
         public IPV4Connection(Uri uri)
-            : this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), 
+            : this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
                    new IPEndPoint(IPAddress.Parse(uri.Host), uri.Port),
-                   false)
-        {
+                   false) {
             this.uri = uri;
         }
 
         public IPV4Connection(IPEndPoint endPoint)
-            : this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), endPoint, false)
-        {
-
-        }
+            : this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), endPoint, false) { }
 
         public IPV4Connection(Socket socket, bool isIncoming)
-            : this(socket, (IPEndPoint)socket.RemoteEndPoint, isIncoming)
-        {
+            : this(socket, (IPEndPoint)socket.RemoteEndPoint, isIncoming) { }
 
-        }
-
-
-        private IPV4Connection(Socket socket, IPEndPoint endpoint, bool isIncoming)
-        {
+        private IPV4Connection(Socket socket, IPEndPoint endpoint, bool isIncoming) {
             this.socket = socket;
             this.endPoint = endpoint;
             this.isIncoming = isIncoming;
@@ -110,47 +90,37 @@ namespace MonoTorrent.Client.Connections
 
         #endregion
 
-
         #region Async Methods
 
-        public byte[] AddressBytes
-        {
+        public byte[] AddressBytes {
             get { return this.endPoint.Address.GetAddressBytes(); }
         }
 
-        public IAsyncResult BeginConnect(AsyncCallback peerEndCreateConnection, object state)
-        {
+        public IAsyncResult BeginConnect(AsyncCallback peerEndCreateConnection, object state) {
             return this.socket.BeginConnect(this.endPoint, peerEndCreateConnection, state);
         }
 
-        public IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state)
-        {
+        public IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state) {
             return this.socket.BeginReceive(buffer, offset, count, SocketFlags.None, asyncCallback, state);
         }
 
-        public IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state)
-        {
+        public IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state) {
             return this.socket.BeginSend(buffer, offset, count, SocketFlags.None, asyncCallback, state);
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             ((IDisposable)socket).Dispose();
         }
 
-        public void EndConnect(IAsyncResult result)
-        {
+        public void EndConnect(IAsyncResult result) {
             this.socket.EndConnect(result);
         }
 
-        public int EndSend(IAsyncResult result)
-        {
+        public int EndSend(IAsyncResult result) {
             return this.socket.EndSend(result);
         }
 
-        public int EndReceive(IAsyncResult result)
-        {
-            
+        public int EndReceive(IAsyncResult result) {
             return this.socket.EndReceive(result);
         }
 

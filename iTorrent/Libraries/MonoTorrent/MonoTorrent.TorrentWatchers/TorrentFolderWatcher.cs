@@ -26,21 +26,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-
 using System;
 using System.IO;
 
-namespace MonoTorrent.TorrentWatcher
-{
-    public class TorrentFolderWatcher : ITorrentWatcher
-    {
+namespace MonoTorrent.TorrentWatcher {
+    public class TorrentFolderWatcher : ITorrentWatcher {
         #region Events
 
         public event EventHandler<TorrentWatcherEventArgs> TorrentFound;
         public event EventHandler<TorrentWatcherEventArgs> TorrentLost;
 
         #endregion Events
-
 
         #region Member Variables
 
@@ -50,11 +46,9 @@ namespace MonoTorrent.TorrentWatcher
 
         #endregion
 
-
         #region Constructors
 
-        public TorrentFolderWatcher(string torrentDirectory, string watchFilter)
-        {
+        public TorrentFolderWatcher(string torrentDirectory, string watchFilter) {
             if (torrentDirectory == null)
                 throw new ArgumentNullException("torrentDirectory");
 
@@ -69,26 +63,19 @@ namespace MonoTorrent.TorrentWatcher
         }
 
         public TorrentFolderWatcher(DirectoryInfo torrentDirectory)
-            : this(torrentDirectory.FullName, "*.torrent")
-        {
-            
-        }
+            : this(torrentDirectory.FullName, "*.torrent") { }
 
         #endregion
 
-
         #region ITorrentWatcher implementations
 
-        public void ForceScan()
-        {
+        public void ForceScan() {
             foreach (string path in Directory.GetFiles(torrentDirectory, this.watchFilter))
                 RaiseTorrentFound(path);
         }
 
-        public void Start()
-        {
-            if (this.watcher == null)
-            {
+        public void Start() {
+            if (this.watcher == null) {
                 this.watcher = new FileSystemWatcher(torrentDirectory);
                 this.watcher.Filter = this.watchFilter;
                 //this.watcher.NotifyFilter = NotifyFilters.LastWrite;
@@ -98,36 +85,30 @@ namespace MonoTorrent.TorrentWatcher
             this.watcher.EnableRaisingEvents = true;
         }
 
-        public void Stop()
-        {
+        public void Stop() {
             this.watcher.EnableRaisingEvents = false;
         }
 
         #endregion
 
-
         #region Event Handlers
 
         ///<summary>Gets called when a File with .torrent extension was added to the torrentDirectory</summary>
-        private void OnCreated(object sender, FileSystemEventArgs e)
-        {
+        private void OnCreated(object sender, FileSystemEventArgs e) {
             RaiseTorrentFound(e.FullPath);
         }
 
         ///<summary>Gets called when a File with .torrent extension was deleted from the torrentDirectory</summary>
-        private void OnDeleted(object sender, FileSystemEventArgs e)
-        {
+        private void OnDeleted(object sender, FileSystemEventArgs e) {
             RaiseTorrentLost(e.FullPath);
         }
 
-        protected virtual void RaiseTorrentFound(string path)
-        {
+        protected virtual void RaiseTorrentFound(string path) {
             if (TorrentFound != null)
                 TorrentFound(this, new TorrentWatcherEventArgs(path));
         }
 
-        protected virtual void RaiseTorrentLost(string path)
-        {
+        protected virtual void RaiseTorrentLost(string path) {
             if (TorrentLost != null)
                 TorrentLost(this, new TorrentWatcherEventArgs(path));
         }
