@@ -216,8 +216,16 @@ namespace iTorrent {
                     var manager = AppDelegate.managers[indexPath.Row];
                     manager.Stop();
                     AppDelegate.managers.Remove(manager);
-                    Directory.Delete(AppDelegate.documents + "/" + manager.Torrent.Name, true);
-                    File.Delete(manager.Torrent.TorrentPath);
+                    if (Directory.Exists(AppDelegate.documents + "/" + manager.Torrent.Name)) {
+                        Directory.Delete(AppDelegate.documents + "/" + manager.Torrent.Name, true);
+                    } else {
+                        if (File.Exists(AppDelegate.documents + "/" + manager.Torrent.Name)) {
+                            File.Delete(AppDelegate.documents + "/" + manager.Torrent.Name);
+                        }
+                    }
+                    if (File.Exists(manager.Torrent.TorrentPath)) {
+                        File.Delete(manager.Torrent.TorrentPath);
+                    }
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
