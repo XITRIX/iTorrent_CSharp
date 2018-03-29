@@ -26,6 +26,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
+
 using System.Net.Sockets;
 using System;
 using MonoTorrent.Common;
@@ -36,22 +39,26 @@ using MonoTorrent.Client.Encryption;
 using MonoTorrent.Client.Messages.Libtorrent;
 using System.Collections.Generic;
 using MonoTorrent.Client.Messages.Standard;
-namespace MonoTorrent.Client {
+namespace MonoTorrent.Client
+{
     public class PeerId //: IComparable<PeerIdInternal>
     {
         #region Choke/Unchoke
-
-        internal DateTime? LastUnchoked {
+        
+        internal DateTime? LastUnchoked
+        {
             get { return this.lastUnchoked; }
             set { this.lastUnchoked = value; }
         }
 
-        internal long BytesDownloadedAtLastReview {
+        internal long BytesDownloadedAtLastReview
+        {
             get { return this.bytesDownloadedAtLastReview; }
             set { this.bytesDownloadedAtLastReview = value; }
         }
 
-        internal long BytesUploadedAtLastReview {
+        internal long BytesUploadedAtLastReview
+        {
             get { return this.bytesUploadedAtLastReview; }
             set { this.bytesUploadedAtLastReview = value; }
         }
@@ -61,25 +68,29 @@ namespace MonoTorrent.Client {
             internal set { connection = value; }
         }
 
-        internal double LastReviewDownloadRate {
+        internal double LastReviewDownloadRate
+        {
             get { return this.lastReviewDownloadRate; }
             set { this.lastReviewDownloadRate = value; }
         }
 
-        internal double LastReviewUploadRate {
+        internal double LastReviewUploadRate
+        {
             get { return this.lastReviewUploadRate; }
             set { this.lastReviewUploadRate = value; }
         }
 
-        internal bool FirstReviewPeriod {
-            get { return this.firstReviewPeriod; }
-            set { this.firstReviewPeriod = value; }
-        }
+		internal bool FirstReviewPeriod
+		{
+			get { return this.firstReviewPeriod; }
+			set { this.firstReviewPeriod = value; }
+		}
 
-        internal DateTime LastBlockReceived {
-            get { return this.lastBlockReceived; }
-            set { this.lastBlockReceived = value; }
-        }
+		internal DateTime LastBlockReceived
+		{
+			get { return this.lastBlockReceived; }
+			set { this.lastBlockReceived = value; }
+		}
 
         private DateTime? lastUnchoked = null;        //When this peer was last unchoked, or null if we haven't unchoked it yet
         private long bytesDownloadedAtLastReview = 0; //Number of bytes downloaded when this peer was last reviewed - allows us to determine number of bytes
@@ -88,7 +99,7 @@ namespace MonoTorrent.Client {
         private double lastReviewDownloadRate = 0;    //Download rate determined at the end of the last full review period when this peer was unchoked
         private double lastReviewUploadRate = 0;      //Ditto for upload rate
         private bool firstReviewPeriod;               //Set true if this is the first review period since this peer was last unchoked
-        private DateTime lastBlockReceived = DateTime.Now;
+		private DateTime lastBlockReceived = DateTime.Now;
 
         #endregion
 
@@ -114,7 +125,7 @@ namespace MonoTorrent.Client {
         private int isRequestingPiecesCount;
         private DateTime lastMessageReceived;
         private DateTime lastMessageSent;
-        private DateTime whenConnected;
+		private DateTime whenConnected;
         private ExtensionSupports extensionSupports;
         private int maxPendingRequests;
         private int maxSupportedPendingRequests;
@@ -137,208 +148,251 @@ namespace MonoTorrent.Client {
 
         #region Properties
 
-        internal byte[] AddressBytes {
+        internal byte[] AddressBytes
+        {
             get { return Connection.AddressBytes; }
         }
 
         /// <summary>
         /// The remote peer can request these and we'll fulfill the request if we're choking them
         /// </summary>
-        internal MonoTorrentCollection<int> AmAllowedFastPieces {
+        internal MonoTorrentCollection<int> AmAllowedFastPieces
+        {
             get { return this.amAllowedFastPieces; }
             set { this.amAllowedFastPieces = value; }
         }
 
-        public bool AmChoking {
+        public bool AmChoking
+        {
             get { return this.amChoking; }
             internal set { this.amChoking = value; }
         }
 
-        public bool AmInterested {
+        public bool AmInterested
+        {
             get { return this.amInterested; }
             internal set { this.amInterested = value; }
         }
 
-        public int AmRequestingPiecesCount {
+        public int AmRequestingPiecesCount
+        {
             get { return this.amRequestingPiecesCount; }
             set { this.amRequestingPiecesCount = value; }
         }
 
-        public BitField BitField {
+        public BitField BitField
+        {
             get { return this.bitField; }
             set { this.bitField = value; }
         }
 
-        public Software ClientApp {
+        public Software ClientApp
+        {
             get { return this.clientApp; }
             internal set { this.clientApp = value; }
         }
 
-        internal ConnectionManager ConnectionManager {
+        internal ConnectionManager ConnectionManager
+        {
             get { return this.engine.ConnectionManager; }
         }
 
-        internal PeerMessage CurrentlySendingMessage {
+        internal PeerMessage CurrentlySendingMessage
+        {
             get { return this.currentlySendingMessage; }
             set { this.currentlySendingMessage = value; }
         }
 
-        internal IEncryption Decryptor {
+        internal IEncryption Decryptor
+        {
             get { return this.decryptor; }
             set { this.decryptor = value; }
         }
 
-        internal string DisconnectReason {
+        internal string DisconnectReason
+        {
             get { return this.disconnectReason; }
             set { this.disconnectReason = value; }
         }
 
-        public IEncryption Encryptor {
+        public IEncryption Encryptor
+        {
             get { return this.encryptor; }
             set { this.encryptor = value; }
         }
 
-        public ClientEngine Engine {
-            get { return this.engine; }
+        public ClientEngine Engine
+        {
+            get { return this.engine; ; }
         }
 
-        internal ExtensionSupports ExtensionSupports {
+        internal ExtensionSupports ExtensionSupports
+        {
             get { return extensionSupports; }
             set { extensionSupports = value; }
         }
 
-        public int HashFails {
+        public int HashFails
+        {
             get { return peer.TotalHashFails; }
         }
-
-        internal MonoTorrentCollection<int> IsAllowedFastPieces {
+        
+        internal MonoTorrentCollection<int> IsAllowedFastPieces
+        {
             get { return this.isAllowedFastPieces; }
             set { this.isAllowedFastPieces = value; }
         }
 
-        public bool IsChoking {
+        public bool IsChoking
+        {
             get { return this.isChoking; }
             internal set { this.isChoking = value; }
         }
 
-        public bool IsConnected {
+        public bool IsConnected
+        {
             get { return Connection != null; }
         }
-
-        public bool IsInterested {
+        
+        public bool IsInterested
+        {
             get { return this.isInterested; }
             internal set { this.isInterested = value; }
         }
 
-        public bool IsSeeder {
+        public bool IsSeeder
+        {
             get { return bitField.AllTrue || peer.IsSeeder; }
         }
-
-        public int IsRequestingPiecesCount {
+        
+        public int IsRequestingPiecesCount
+        {
             get { return this.isRequestingPiecesCount; }
             set { this.isRequestingPiecesCount = value; }
         }
 
-        internal DateTime LastMessageReceived {
+        internal DateTime LastMessageReceived
+        {
             get { return this.lastMessageReceived; }
             set { this.lastMessageReceived = value; }
         }
 
-        internal DateTime LastMessageSent {
-            get { return this.lastMessageSent; }
-            set { this.lastMessageSent = value; }
-        }
+		internal DateTime LastMessageSent
+		{
+			get { return this.lastMessageSent; }
+			set { this.lastMessageSent = value; }
+		}
 
-        internal DateTime WhenConnected {
-            get { return this.whenConnected; }
-            set { this.whenConnected = value; }
-        }
+		internal DateTime WhenConnected
+		{
+			get { return this.whenConnected; }
+			set { this.whenConnected = value; }
+		}
 
-        internal int MaxPendingRequests {
+        internal int MaxPendingRequests
+        {
             get { return maxPendingRequests; }
             set { maxPendingRequests = value; }
         }
 
-        internal int MaxSupportedPendingRequests {
+        internal int MaxSupportedPendingRequests
+        {
             get { return maxSupportedPendingRequests; }
             set { maxSupportedPendingRequests = value; }
         }
 
-        internal MessagingCallback MessageSentCallback {
+        internal MessagingCallback MessageSentCallback
+        {
             get { return this.messageSentCallback; }
             set { this.messageSentCallback = value; }
         }
 
-        internal MessagingCallback MessageReceivedCallback {
+        internal MessagingCallback MessageReceivedCallback
+        {
             get { return this.messageReceivedCallback; }
             set { this.messageReceivedCallback = value; }
         }
 
-        public ConnectionMonitor Monitor {
+        public ConnectionMonitor Monitor
+        {
             get { return this.monitor; }
         }
 
-        internal Peer Peer {
+        internal Peer Peer
+        {
             get { return this.peer; }
             set { this.peer = value; }
         }
 
-        internal PeerExchangeManager PeerExchangeManager {
+        internal PeerExchangeManager PeerExchangeManager
+        {
             get { return this.pexManager; }
             set { this.pexManager = value; }
         }
 
-        public string PeerID {
+        public string PeerID
+        {
             get { return peer.PeerId; }
         }
-
-        public int PiecesSent {
+        
+        public int PiecesSent
+        {
             get { return this.piecesSent; }
             internal set { this.piecesSent = value; }
         }
 
-        public int PiecesReceived {
+        public int PiecesReceived
+        {
             get { return piecesReceived; }
             internal set { piecesReceived = value; }
         }
 
-        internal ushort Port {
+        internal ushort Port
+        {
             get { return this.port; }
             set { this.port = value; }
         }
 
-        internal bool ProcessingQueue {
+        internal bool ProcessingQueue
+        {
             get { return this.processingQueue; }
             set { this.processingQueue = value; }
         }
 
-        public bool SupportsFastPeer {
+        public bool SupportsFastPeer
+        {
             get { return this.supportsFastPeer; }
             internal set { this.supportsFastPeer = value; }
         }
 
-        public bool SupportsLTMessages {
+        public bool SupportsLTMessages
+        {
             get { return this.supportsLTMessages; }
             internal set { this.supportsLTMessages = value; }
         }
 
-        internal MonoTorrentCollection<int> SuggestedPieces {
+        internal MonoTorrentCollection<int> SuggestedPieces
+        {
             get { return this.suggestedPieces; }
         }
 
-        public TorrentManager TorrentManager {
+        public TorrentManager TorrentManager
+        {
             get { return this.torrentManager; }
-            set {
+            set
+            {
                 this.torrentManager = value;
-                if (value != null) {
+                if (value != null)
+                {
                     this.engine = value.Engine;
-                    if (value.HasMetadata)
+                    if(value.HasMetadata)
                         BitField = new BitField(value.Torrent.Pieces.Count);
                 }
             }
         }
-
-        public Uri Uri {
+        
+        public Uri Uri
+        {
             get { return peer.ConnectionUri; }
         }
 
@@ -346,7 +400,8 @@ namespace MonoTorrent.Client {
 
         #region Constructors
 
-        internal PeerId(Peer peer, TorrentManager manager) {
+        internal PeerId(Peer peer, TorrentManager manager)
+        {
             if (peer == null)
                 throw new ArgumentNullException("peer");
 
@@ -372,46 +427,55 @@ namespace MonoTorrent.Client {
 
         #region Methods
 
-        public void CloseConnection() {
+        public void CloseConnection()
+        {
             ClientEngine.MainLoop.QueueWait((MainLoopTask)delegate {
                 if (Connection != null)
                     Connection.Dispose();
             });
         }
 
-        internal PeerMessage Dequeue() {
+        internal PeerMessage Dequeue()
+        {
             return sendQueue.Dequeue();
         }
 
-        internal void Enqueue(PeerMessage msg) {
+        internal void Enqueue(PeerMessage msg)
+        {
             sendQueue.Add(msg);
-            if (!processingQueue) {
+            if (!processingQueue)
+            {
                 processingQueue = true;
                 ConnectionManager.ProcessQueue(this);
             }
         }
 
-        internal void EnqueueAt(PeerMessage message, int index) {
+        internal void EnqueueAt(PeerMessage message, int index)
+        {
             if (sendQueue.Count == 0 || index >= sendQueue.Count)
                 Enqueue(message);
             else
                 sendQueue.Insert(index, message);
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             PeerId id = obj as PeerId;
             return id == null ? false : this.peer.Equals(id.peer);
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return this.peer.ConnectionUri.GetHashCode();
         }
-
-        internal int QueueLength {
+        
+        internal int QueueLength
+        {
             get { return this.sendQueue.Count; }
         }
 
-        public void SendMessage(PeerMessage message) {
+        public void SendMessage(PeerMessage message)
+        {
             if (message == null)
                 throw new ArgumentNullException("message");
 
@@ -423,7 +487,8 @@ namespace MonoTorrent.Client {
             });
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return this.peer.ConnectionUri.ToString();
         }
 
@@ -442,7 +507,8 @@ namespace MonoTorrent.Client {
         private int maxObservedDownloadSpeed;
         private short roundsChoked, roundsUnchoked;     // for stats measurement
 
-        private void InitializeTyrant() {
+        private void InitializeTyrant()
+        {
             this.haveMessagesReceived = 0;
             this.startTime = Stopwatch.GetTimestamp();
 
@@ -467,7 +533,9 @@ namespace MonoTorrent.Client {
         /// </summary>
         private int uploadRateForRecip;
 
-        internal int HaveMessagesReceived {
+
+        internal int HaveMessagesReceived
+        {
             get { return this.haveMessagesReceived; }
             set { this.haveMessagesReceived = value; }
         }
@@ -475,27 +543,33 @@ namespace MonoTorrent.Client {
         /// <summary>
         /// This is Up
         /// </summary>
-        internal int UploadRateForRecip {
+        internal int UploadRateForRecip
+        {
             get { return this.uploadRateForRecip; }
         }
+
 
         /// <summary>
         /// TGS CHANGE: Get the estimated download rate of this peer based on the rate at which he sends
         /// us Have messages. Note that this could be false if the peer has a malicious client.
         /// Units: Bytes/s
         /// </summary>
-        internal int EstimatedDownloadRate {
-            get {
+        internal int EstimatedDownloadRate
+        {
+            get
+            {
                 int timeElapsed = (int)new TimeSpan(Stopwatch.GetTimestamp() - this.startTime).TotalSeconds;
-                return (int)(timeElapsed == 0 ? 0 : ((long)this.haveMessagesReceived * this.TorrentManager.Torrent.PieceLength) / timeElapsed);
+                return (int) (timeElapsed == 0 ? 0 : ((long) this.haveMessagesReceived * this.TorrentManager.Torrent.PieceLength) / timeElapsed);
             }
         }
 
         /// <summary>
         /// This is the ratio of Dp to Up
         /// </summary>
-        internal float Ratio {
-            get {
+        internal float Ratio
+        {
+            get
+            {
                 float downloadRate = (float)GetDownloadRate();
                 return downloadRate / (float)uploadRateForRecip;
             }
@@ -504,22 +578,26 @@ namespace MonoTorrent.Client {
         /// <summary>
         /// Last time we looked that this peer was choking us
         /// </summary>
-        internal DateTime LastChokedTime {
+        internal DateTime LastChokedTime
+        {
             get { return this.lastChokedTime; }
         }
 
         /// <summary>
         /// Used to check how much upload capacity we are giving this peer
         /// </summary>
-        internal RateLimiter RateLimiter {
+        internal RateLimiter RateLimiter
+        {
             get { return this.rateLimiter; }
         }
 
-        internal short RoundsChoked {
+        internal short RoundsChoked
+        {
             get { return this.roundsChoked; }
         }
 
-        internal short RoundsUnchoked {
+        internal short RoundsUnchoked
+        {
             get { return this.roundsUnchoked; }
         }
 
@@ -533,10 +611,14 @@ namespace MonoTorrent.Client {
         ///     - divide this upload rate by the standard implementation's active set size for that rate
         /// </summary>
         /// <returns></returns>
-        internal int GetDownloadRate() {
-            if (this.lastMeasuredDownloadRate > 0) {
+        internal int GetDownloadRate()
+        {
+            if (this.lastMeasuredDownloadRate > 0)
+            {
                 return this.lastMeasuredDownloadRate;
-            } else {
+            }
+            else
+            {
                 // assume that his upload rate will match his estimated download rate, and 
                 // get the estimated active set size
                 int estimatedDownloadRate = this.EstimatedDownloadRate;
@@ -546,22 +628,29 @@ namespace MonoTorrent.Client {
             }
         }
 
+
         /// <summary>
         /// Should be called by ChokeUnchokeManager.ExecuteReview
         /// Logic taken from BitTyrant implementation
         /// </summary>
-        internal void UpdateTyrantStats() {
+        internal void UpdateTyrantStats()
+        {
             // if we're still being choked, set the time of our last choking
-            if (isChoking) {
+            if (isChoking)
+            {
                 this.roundsChoked++;
 
                 this.lastChokedTime = DateTime.Now;
-            } else {
+            }
+            else
+            {
                 this.roundsUnchoked++;
 
-                if (amInterested) {
+                if (amInterested)
+                {
                     //if we are interested and unchoked, update last measured download rate, unless it is 0
-                    if (this.Monitor.DownloadSpeed > 0) {
+                    if (this.Monitor.DownloadSpeed > 0)
+                    {
                         this.lastMeasuredDownloadRate = this.Monitor.DownloadSpeed;
 
                         this.maxObservedDownloadSpeed = Math.Max(this.lastMeasuredDownloadRate, this.maxObservedDownloadSpeed);
@@ -585,20 +674,24 @@ namespace MonoTorrent.Client {
             }
         }
 
+
         /// <summary>
         /// Compares the actual upload rate with the upload rate that we are supposed to be limiting them to (UploadRateForRecip)
         /// </summary>
         /// <returns>True if the upload rate for recip is greater than the actual upload rate</returns>
-        internal bool IsUnderUploadLimit() {
+        internal bool IsUnderUploadLimit()
+        {
             return this.uploadRateForRecip > this.Monitor.UploadSpeed;
         }
+
 
         /// <summary>
         /// Stolen from reference BitTyrant implementation (see org.gudy.azureus2.core3.peer.TyrantStats)
         /// </summary>
         /// <param name="uploadRate">Upload rate of peer</param>
         /// <returns>Estimated active set size of peer</returns>
-        internal static int GetActiveSetSize(int uploadRate) {
+        internal static int GetActiveSetSize(int uploadRate)
+        {
             if (uploadRate < 11)
                 return 2;
             else if (uploadRate < 35)
@@ -619,7 +712,8 @@ namespace MonoTorrent.Client {
 
         #endregion BitTyrant
 
-        internal void TryProcessAsyncReads() {
+        internal void TryProcessAsyncReads()
+        {
             foreach (PeerMessage message in PieceReads)
                 Enqueue(message);
             PieceReads.Clear();
@@ -630,6 +724,7 @@ namespace MonoTorrent.Client {
             // for the *next* message asynchronously and then add it to the queue.
             // While this is happening, we send data from the second PieceMessage in
             // the queue, thus the queue should rarely be empty.
+
 
             //int existingReads = 0;
             //if (currentlySendingMessage is PieceMessage)

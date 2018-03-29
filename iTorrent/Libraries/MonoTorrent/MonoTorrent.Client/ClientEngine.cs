@@ -26,6 +26,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -39,11 +41,13 @@ using MonoTorrent.Client.Tracker;
 using MonoTorrent.Client.PieceWriters;
 using System.Collections.ObjectModel;
 
-namespace MonoTorrent.Client {
+namespace MonoTorrent.Client
+{
     /// <summary>
     /// The Engine that contains the TorrentManagers
     /// </summary>
-    public class ClientEngine : IDisposable {
+    public class ClientEngine : IDisposable
+    {
         internal static MainLoop MainLoop = new MainLoop("Client Engine Loop");
         private static Random random = new Random();
         #region Global Constants
@@ -64,8 +68,9 @@ namespace MonoTorrent.Client {
         public static readonly bool SupportsDht = false;
 #endif
         internal const int TickLength = 500;    // A logic tick will be performed every TickLength miliseconds
-
+       
         #endregion
+
 
         #region Events
 
@@ -77,11 +82,12 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Member Variables
 
         internal static readonly BufferManager BufferManager = new BufferManager();
         private ConnectionManager connectionManager;
-
+        
         private IDhtEngine dhtEngine;
         private DiskManager diskManager;
         private bool disposed;
@@ -100,32 +106,40 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Properties
 
-        public ConnectionManager ConnectionManager {
+        public ConnectionManager ConnectionManager
+        {
             get { return this.connectionManager; }
         }
 
 #if !DISABLE_DHT
-        public IDhtEngine DhtEngine {
+        public IDhtEngine DhtEngine
+        {
             get { return dhtEngine; }
         }
 #endif
-        public DiskManager DiskManager {
+        public DiskManager DiskManager
+        {
             get { return diskManager; }
         }
 
-        public bool Disposed {
+        public bool Disposed
+        {
             get { return disposed; }
         }
 
-        public PeerListener Listener {
+        public PeerListener Listener
+        {
             get { return this.listener; }
         }
 
-        public bool LocalPeerSearchEnabled {
+        public bool LocalPeerSearchEnabled
+        {
             get { return localPeerListener.Status != ListenerStatus.NotListening; }
-            set {
+            set
+            {
                 if (value && !LocalPeerSearchEnabled)
                     localPeerListener.Start();
                 else if (!value && LocalPeerSearchEnabled)
@@ -133,36 +147,52 @@ namespace MonoTorrent.Client {
             }
         }
 
-        public bool IsRunning {
+        public bool IsRunning
+        {
             get { return this.isRunning; }
         }
 
-        public string PeerId {
+        public string PeerId
+        {
             get { return peerId; }
         }
 
-        public EngineSettings Settings {
+        public EngineSettings Settings
+        {
             get { return this.settings; }
         }
 
-        public IList<TorrentManager> Torrents {
+        public IList<TorrentManager> Torrents
+        {
             get { return torrentsReadonly; }
         }
 
         #endregion
 
+
         #region Constructors
 
         public ClientEngine(EngineSettings settings)
-            : this(settings, new DiskWriter()) { }
+            : this (settings, new DiskWriter())
+        {
+
+        }
 
         public ClientEngine(EngineSettings settings, PieceWriter writer)
-            : this(settings, new SocketListener(new IPEndPoint(IPAddress.Any, 0)), writer) { }
+            : this(settings, new SocketListener(new IPEndPoint(IPAddress.Any, 0)), writer)
+
+        {
+
+        }
 
         public ClientEngine(EngineSettings settings, PeerListener listener)
-            : this(settings, listener, new DiskWriter()) { }
+            : this (settings, listener, new DiskWriter())
+        {
 
-        public ClientEngine(EngineSettings settings, PeerListener listener, PieceWriter writer) {
+        }
+
+        public ClientEngine(EngineSettings settings, PeerListener listener, PieceWriter writer)
+        {
             Check.Settings(settings);
             Check.Listener(listener);
             Check.Writer(writer);
@@ -171,7 +201,7 @@ namespace MonoTorrent.Client {
             this.settings = settings;
 
             this.connectionManager = new ConnectionManager(this);
-            RegisterDht(new NullDhtEngine());
+            RegisterDht (new NullDhtEngine());
             this.diskManager = new DiskManager(this, writer);
             this.listenManager = new ListenManager(this);
             MainLoop.QueueTimeout(TimeSpan.FromMilliseconds(TickLength), delegate {
@@ -180,7 +210,7 @@ namespace MonoTorrent.Client {
                 return !disposed;
             });
             this.torrents = new List<TorrentManager>();
-            this.torrentsReadonly = new ReadOnlyCollection<TorrentManager>(torrents);
+            this.torrentsReadonly = new ReadOnlyCollection<TorrentManager> (torrents);
             CreateRateLimiters();
             this.peerId = GeneratePeerId();
 
@@ -193,7 +223,8 @@ namespace MonoTorrent.Client {
                 listener.ChangeEndpoint(new IPEndPoint(IPAddress.Any, settings.ListenPort));
         }
 
-        void CreateRateLimiters() {
+        void CreateRateLimiters()
+        {
             RateLimiter downloader = new RateLimiter();
             downloadLimiter = new RateLimiterGroup();
             downloadLimiter.Add(new DiskWriterLimiter(DiskManager));
@@ -213,47 +244,54 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Methods
 
-        public void ChangeListenEndpoint(IPEndPoint endpoint) {
+        public void ChangeListenEndpoint(IPEndPoint endpoint)
+        {
             Check.Endpoint(endpoint);
 
             Settings.ListenPort = endpoint.Port;
             listener.ChangeEndpoint(endpoint);
         }
 
-        private void CheckDisposed() {
+        private void CheckDisposed()
+        {
             if (disposed) {
                 //Console.WriteLine(GetType().FullName + " : Disposed!!!!");
                 throw new ObjectDisposedException(GetType().Name);
             }
         }
 
-        public bool Contains(InfoHash infoHash) {
+        public bool Contains(InfoHash infoHash)
+        {
             CheckDisposed();
             if (infoHash == null)
                 return false;
 
-            return torrents.Exists(delegate (TorrentManager m) { return m.InfoHash.Equals(infoHash); });
+            return torrents.Exists(delegate(TorrentManager m) { return m.InfoHash.Equals(infoHash); });
         }
 
-        public bool Contains(Torrent torrent) {
+        public bool Contains(Torrent torrent)
+        {
             CheckDisposed();
             if (torrent == null)
                 return false;
 
-            return Contains(torrent.InfoHash);
+            return Contains (torrent.InfoHash);
         }
 
-        public bool Contains(TorrentManager manager) {
+        public bool Contains(TorrentManager manager)
+        {
             CheckDisposed();
             if (manager == null)
                 return false;
-
+            
             return Contains(manager.Torrent);
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             if (disposed)
                 return;
 
@@ -267,18 +305,20 @@ namespace MonoTorrent.Client {
             });
         }
 
-        private static string GeneratePeerId() {
+        private static string GeneratePeerId()
+        {
             StringBuilder sb = new StringBuilder(20);
 
             sb.Append(Common.VersionInfo.ClientVersion);
             lock (random)
                 while (sb.Length < 20)
-                    sb.Append(random.Next(0, 9));
+                    sb.Append (random.Next (0, 9));
 
             return sb.ToString();
         }
 
-        public void PauseAll() {
+        public void PauseAll()
+        {
             CheckDisposed();
             MainLoop.QueueWait((MainLoopTask)delegate {
                 foreach (TorrentManager manager in torrents)
@@ -286,7 +326,8 @@ namespace MonoTorrent.Client {
             });
         }
 
-        public void Register(TorrentManager manager) {
+        public void Register(TorrentManager manager)
+        {
             CheckDisposed();
             Check.Manager(manager);
 
@@ -301,10 +342,14 @@ namespace MonoTorrent.Client {
                 manager.Engine = this;
                 manager.DownloadLimiter.Add(downloadLimiter);
                 manager.UploadLimiter.Add(uploadLimiter);
-                if (dhtEngine != null && manager.Torrent != null && manager.Torrent.Nodes != null && dhtEngine.State != DhtState.Ready) {
-                    try {
+                if (dhtEngine != null && manager.Torrent != null && manager.Torrent.Nodes != null && dhtEngine.State != DhtState.Ready)
+                {
+                    try
+                    {
                         dhtEngine.Add(manager.Torrent.Nodes);
-                    } catch {
+                    }
+                    catch
+                    {
                         // FIXME: Should log this somewhere, though it's not critical
                     }
                 }
@@ -314,35 +359,40 @@ namespace MonoTorrent.Client {
                 TorrentRegistered(this, new TorrentEventArgs(manager));
         }
 
-        public void RegisterDht(IDhtEngine engine) {
-            MainLoop.QueueWait(delegate {
-                if (dhtEngine != null) {
+        public void RegisterDht(IDhtEngine engine)
+        {
+            MainLoop.QueueWait(delegate
+            {
+                if (dhtEngine != null)
+                {
                     dhtEngine.StateChanged -= DhtEngineStateChanged;
                     dhtEngine.Stop();
                     dhtEngine.Dispose();
                 }
-                dhtEngine = engine ?? new NullDhtEngine();
+                dhtEngine = engine ?? new NullDhtEngine ();
             });
 
             dhtEngine.StateChanged += DhtEngineStateChanged;
         }
 
-        void DhtEngineStateChanged(object o, EventArgs e) {
+        void DhtEngineStateChanged (object o, EventArgs e)
+        {
             if (dhtEngine.State != DhtState.Ready)
                 return;
 
-            MainLoop.Queue(delegate {
+            MainLoop.Queue (delegate {
                 foreach (TorrentManager manager in torrents) {
                     if (!manager.CanUseDht)
                         continue;
 
-                    dhtEngine.Announce(manager.InfoHash, Listener.Endpoint.Port);
-                    dhtEngine.GetPeers(manager.InfoHash);
+                    dhtEngine.Announce (manager.InfoHash, Listener.Endpoint.Port);
+                    dhtEngine.GetPeers (manager.InfoHash);
                 }
             });
         }
 
-        public void StartAll() {
+        public void StartAll()
+        {
             CheckDisposed();
             MainLoop.QueueWait((MainLoopTask)delegate {
                 for (int i = 0; i < torrents.Count; i++)
@@ -350,7 +400,8 @@ namespace MonoTorrent.Client {
             });
         }
 
-        public void StopAll() {
+        public void StopAll()
+        {
             CheckDisposed();
 
             MainLoop.QueueWait((MainLoopTask)delegate {
@@ -359,19 +410,24 @@ namespace MonoTorrent.Client {
             });
         }
 
-        public int TotalDownloadSpeed {
-            get {
-                return (int)(long)Toolbox.Accumulate<TorrentManager>(torrents, delegate (TorrentManager m) { return m.Monitor.DownloadSpeed; });
+        public int TotalDownloadSpeed
+        {
+            get
+            {
+                return (int)(long)Toolbox.Accumulate<TorrentManager>(torrents, delegate(TorrentManager m) { return m.Monitor.DownloadSpeed; });
             }
         }
 
-        public int TotalUploadSpeed {
-            get {
-                return (int)(long)Toolbox.Accumulate<TorrentManager>(torrents, delegate (TorrentManager m) { return m.Monitor.UploadSpeed; });
+        public int TotalUploadSpeed
+        {
+            get
+            {
+                return (int)(long)Toolbox.Accumulate<TorrentManager>(torrents, delegate(TorrentManager m) { return m.Monitor.UploadSpeed; });
             }
         }
 
-        public void Unregister(TorrentManager manager) {
+        public void Unregister(TorrentManager manager)
+        {
             CheckDisposed();
             Check.Manager(manager);
 
@@ -396,52 +452,63 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Private/Internal methods
 
-        internal void Broadcast(TorrentManager manager) {
+        internal void Broadcast(TorrentManager manager)
+        {
             if (LocalPeerSearchEnabled)
                 localPeerManager.Broadcast(manager);
         }
 
-        private void LogicTick() {
+        private void LogicTick()
+        {
             tickCount++;
 
-            if (tickCount % (1000 / TickLength) == 0) {
+            if (tickCount % (1000 / TickLength) == 0)
+            {
                 diskManager.writeLimiter.UpdateChunks(settings.MaxWriteRate, diskManager.WriteRate);
                 diskManager.readLimiter.UpdateChunks(settings.MaxReadRate, diskManager.ReadRate);
             }
 
-            ConnectionManager.TryConnect();
+            ConnectionManager.TryConnect ();
             for (int i = 0; i < this.torrents.Count; i++)
                 this.torrents[i].Mode.Tick(tickCount);
 
             RaiseStatsUpdate(new StatsUpdateEventArgs());
         }
 
-        internal void RaiseCriticalException(CriticalExceptionEventArgs e) {
-            Toolbox.RaiseAsyncEvent<CriticalExceptionEventArgs>(CriticalException, this, e);
+        internal void RaiseCriticalException(CriticalExceptionEventArgs e)
+        {
+            Toolbox.RaiseAsyncEvent<CriticalExceptionEventArgs>(CriticalException, this, e); 
         }
 
-        private void PieceHashed(object sender, PieceHashedEventArgs e) {
+        private void PieceHashed(object sender, PieceHashedEventArgs e)
+        {
             if (e.TorrentManager.State != TorrentState.Hashing)
                 diskManager.QueueFlush(e.TorrentManager, e.PieceIndex);
         }
 
-        internal void RaiseStatsUpdate(StatsUpdateEventArgs args) {
+        internal void RaiseStatsUpdate(StatsUpdateEventArgs args)
+        {
             Toolbox.RaiseAsyncEvent<StatsUpdateEventArgs>(StatsUpdate, this, args);
         }
 
-        internal void Start() {
+
+        internal void Start()
+        {
             CheckDisposed();
             isRunning = true;
             if (listener.Status == ListenerStatus.NotListening)
                 listener.Start();
         }
 
-        internal void Stop() {
+
+        internal void Stop()
+        {
             CheckDisposed();
             // If all the torrents are stopped, stop ticking
-            isRunning = torrents.Exists(delegate (TorrentManager m) { return m.State != TorrentState.Stopped; });
+            isRunning = torrents.Exists(delegate(TorrentManager m) { return m.State != TorrentState.Stopped; });
             if (!isRunning)
                 listener.Stop();
         }

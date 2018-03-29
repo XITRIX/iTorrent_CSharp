@@ -26,17 +26,21 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using MonoTorrent.Client.Encryption;
 using System.Reflection;
 using System;
 using System.Net;
 
-namespace MonoTorrent.Client {
+namespace MonoTorrent.Client
+{
     /// <summary>
     /// Represents the Settings which need to be passed to the engine
     /// </summary>
     [Serializable]
-    public class EngineSettings : ICloneable {
+    public class EngineSettings : ICloneable
+    {
         #region Private Fields
 
         private bool haveSupressionEnabled;             // True if you want to enable have surpression
@@ -55,75 +59,90 @@ namespace MonoTorrent.Client {
 
         #endregion Private Fields
 
+
         #region Properties
 
-        public EncryptionTypes AllowedEncryption {
+        public EncryptionTypes AllowedEncryption
+        {
             get { return this.allowedEncryption; }
             set { this.allowedEncryption = value; }
         }
-
-        public bool HaveSupressionEnabled {
+		
+        public bool HaveSupressionEnabled
+        {
             get { return this.haveSupressionEnabled; }
             set { this.haveSupressionEnabled = value; }
         }
 
-        public int GlobalMaxConnections {
+        public int GlobalMaxConnections
+        {
             get { return this.globalMaxConnections; }
             set { this.globalMaxConnections = value; }
         }
 
-        public int GlobalMaxHalfOpenConnections {
+        public int GlobalMaxHalfOpenConnections
+        {
             get { return this.globalMaxHalfOpenConnections; }
             set { this.globalMaxHalfOpenConnections = value; }
         }
 
-        public int GlobalMaxDownloadSpeed {
+        public int GlobalMaxDownloadSpeed
+        {
             get { return this.globalMaxDownloadSpeed; }
             set { this.globalMaxDownloadSpeed = value; }
         }
 
-        public int GlobalMaxUploadSpeed {
+        public int GlobalMaxUploadSpeed
+        {
             get { return this.globalMaxUploadSpeed; }
             set { this.globalMaxUploadSpeed = value; }
         }
-
+        
         //[Obsolete("Use the constructor overload for ClientEngine which takes a port argument. Alternatively just use the ChangeEndpoint method at a later stage")]
-        public int ListenPort {
+        public int ListenPort
+        {
             get { return this.listenPort; }
             set { this.listenPort = value; }
         }
 
-        public int MaxOpenFiles {
+        public int MaxOpenFiles
+        {
             get { return maxOpenStreams; }
             set { maxOpenStreams = value; }
         }
 
-        public int MaxReadRate {
+        public int MaxReadRate
+        {
             get { return maxReadRate; }
             set { maxReadRate = value; }
         }
 
-        public int MaxWriteRate {
+        public int MaxWriteRate
+        {
             get { return maxWriteRate; }
             set { maxWriteRate = value; }
         }
 
-        public IPEndPoint ReportedAddress {
+        public IPEndPoint ReportedAddress
+        {
             get { return reportedEndpoint; }
             set { reportedEndpoint = value; }
         }
 
-        public bool PreferEncryption {
+        public bool PreferEncryption
+        {
             get { return preferEncryption; }
             set { preferEncryption = value; }
         }
-
-        public string SavePath {
+		
+        public string SavePath
+        {
             get { return this.savePath; }
             set { this.savePath = value; }
         }
 
         #endregion Properties
+
 
         #region Defaults
 
@@ -138,22 +157,36 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Constructors
 
         public EngineSettings()
             : this(DefaultSavePath, DefaultListenPort, DefaultMaxConnections, DefaultMaxHalfOpenConnections,
-                   DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption) { }
+                  DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption)
+        {
+
+        }
 
         public EngineSettings(string defaultSavePath, int listenPort)
-            : this(defaultSavePath, listenPort, DefaultMaxConnections, DefaultMaxHalfOpenConnections, DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption) { }
+            : this(defaultSavePath, listenPort, DefaultMaxConnections, DefaultMaxHalfOpenConnections, DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption)
+        {
+
+        }
 
         public EngineSettings(string defaultSavePath, int listenPort, int globalMaxConnections)
-            : this(defaultSavePath, listenPort, globalMaxConnections, DefaultMaxHalfOpenConnections, DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption) { }
+            : this(defaultSavePath, listenPort, globalMaxConnections, DefaultMaxHalfOpenConnections, DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption)
+        {
+
+        }
 
         public EngineSettings(string defaultSavePath, int listenPort, int globalMaxConnections, int globalHalfOpenConnections)
-            : this(defaultSavePath, listenPort, globalMaxConnections, globalHalfOpenConnections, DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption) { }
+            : this(defaultSavePath, listenPort, globalMaxConnections, globalHalfOpenConnections, DefaultMaxDownloadSpeed, DefaultMaxUploadSpeed, DefaultAllowedEncryption)
+        {
 
-        public EngineSettings(string defaultSavePath, int listenPort, int globalMaxConnections, int globalHalfOpenConnections, int globalMaxDownloadSpeed, int globalMaxUploadSpeed, EncryptionTypes allowedEncryption) {
+        }
+
+        public EngineSettings(string defaultSavePath, int listenPort, int globalMaxConnections, int globalHalfOpenConnections, int globalMaxDownloadSpeed, int globalMaxUploadSpeed, EncryptionTypes allowedEncryption)
+        {
             this.globalMaxConnections = globalMaxConnections;
             this.globalMaxDownloadSpeed = globalMaxDownloadSpeed;
             this.globalMaxUploadSpeed = globalMaxUploadSpeed;
@@ -162,20 +195,24 @@ namespace MonoTorrent.Client {
             this.allowedEncryption = allowedEncryption;
             this.savePath = defaultSavePath;
         }
-
+ 
         #endregion
+
 
         #region Methods
 
-        object ICloneable.Clone() {
+        object ICloneable.Clone()
+        {
             return Clone();
         }
 
-        public EngineSettings Clone() {
+        public EngineSettings Clone()
+        {
             return (EngineSettings)MemberwiseClone();
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             EngineSettings settings = obj as EngineSettings;
             return (settings == null) ? false : this.globalMaxConnections == settings.globalMaxConnections &&
                                                 this.globalMaxDownloadSpeed == settings.globalMaxDownloadSpeed &&
@@ -186,7 +223,8 @@ namespace MonoTorrent.Client {
                                                 this.savePath == settings.savePath;
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return this.globalMaxConnections +
                    this.globalMaxDownloadSpeed +
                    this.globalMaxHalfOpenConnections +
@@ -194,6 +232,7 @@ namespace MonoTorrent.Client {
                    this.listenPort.GetHashCode() +
                    this.allowedEncryption.GetHashCode() +
                    this.savePath.GetHashCode();
+            
         }
 
         #endregion Methods

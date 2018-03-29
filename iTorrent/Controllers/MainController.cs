@@ -109,14 +109,13 @@ namespace iTorrent {
                         };
 
                         manager.Start();
-                    });
 
+                    });
                     var cancelMagnet = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
                     magnetAlert.AddAction(ok);
                     magnetAlert.AddAction(cancelMagnet);
                     PresentViewController(magnetAlert, true, null);
                 });
-
                 var url = UIAlertAction.Create("URL", UIAlertActionStyle.Default, delegate {
                     var urlAlert = UIAlertController.Create("Add from URL", "Please enter the existing torrent's URL below", UIAlertControllerStyle.Alert);
                     urlAlert.AddTextField((UITextField obj) => {
@@ -148,14 +147,13 @@ namespace iTorrent {
                         UIViewController controller = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("AddTorrent");
                         ((AddTorrentController)((UINavigationController)controller).ChildViewControllers[0]).torrent = torrent;
                         UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(controller, true, null);
-                    });
 
+                    });
                     var cancelUrl = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
                     urlAlert.AddAction(ok);
                     urlAlert.AddAction(cancelUrl);
                     PresentViewController(urlAlert, true, null);
                 });
-
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
                 alert.AddAction(magnet);
@@ -176,6 +174,7 @@ namespace iTorrent {
                     });
                 }
             }).Start();
+
         }
 
         public override void ViewWillAppear(bool animated) {

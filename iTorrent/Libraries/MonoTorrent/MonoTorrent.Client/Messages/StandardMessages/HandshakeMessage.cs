@@ -26,6 +26,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using MonoTorrent.Common;
 using System.Net;
@@ -42,6 +44,7 @@ namespace MonoTorrent.Client.Messages.Standard
         private const byte ExtendedMessagingFlag = 0x10;
         private const byte FastPeersFlag = 0x04;
 
+
         #region Member Variables
         /// <summary>
         /// The length of the protocol string
@@ -52,6 +55,7 @@ namespace MonoTorrent.Client.Messages.Standard
         }
         private int protocolStringLength;
 
+
         /// <summary>
         /// The protocol string to send
         /// </summary>
@@ -61,6 +65,7 @@ namespace MonoTorrent.Client.Messages.Standard
         }
         private string protocolString;
 
+
         /// <summary>
         /// The infohash of the torrent
         /// </summary>
@@ -69,6 +74,7 @@ namespace MonoTorrent.Client.Messages.Standard
             get { return this.infoHash; }
         }
         internal InfoHash infoHash;
+
 
         /// <summary>
         /// The ID of the peer
@@ -95,20 +101,33 @@ namespace MonoTorrent.Client.Messages.Standard
         private bool supportsFastPeer;
         #endregion
 
+
         #region Constructors
         public HandshakeMessage()
-            : this(ClientEngine.SupportsFastPeer) { }
+            : this(ClientEngine.SupportsFastPeer)
+        {
+
+        }
         /// <summary>
         /// Creates a new HandshakeMessage
         /// </summary>
         public HandshakeMessage(bool enableFastPeer)
-            : this(new InfoHash (new byte[20]), "", VersionInfo.ProtocolStringV100, enableFastPeer) { }
+            : this(new InfoHash (new byte[20]), "", VersionInfo.ProtocolStringV100, enableFastPeer)
+        {
+            
+        }
 
         public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString)
-            : this(infoHash, peerId, protocolString, ClientEngine.SupportsFastPeer, ClientEngine.SupportsExtended) { }
+            : this(infoHash, peerId, protocolString, ClientEngine.SupportsFastPeer, ClientEngine.SupportsExtended)
+        {
+
+        }
 
         public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString, bool enableFastPeer)
-            : this(infoHash, peerId, protocolString, enableFastPeer, ClientEngine.SupportsExtended) { }
+            : this(infoHash, peerId, protocolString, enableFastPeer, ClientEngine.SupportsExtended)
+        {
+
+        }
 
         public HandshakeMessage(InfoHash infoHash, string peerId, string protocolString, bool enableFastPeer, bool enableExtended)
         {
@@ -126,6 +145,7 @@ namespace MonoTorrent.Client.Messages.Standard
             this.extended = enableExtended;
         }
         #endregion
+
 
         #region Methods
         public override int Encode(byte[] buffer, int offset)
@@ -175,6 +195,7 @@ namespace MonoTorrent.Client.Messages.Standard
         }
         #endregion
 
+
         #region Overridden Methods
         /// <summary>
         /// 
@@ -191,6 +212,7 @@ namespace MonoTorrent.Client.Messages.Standard
             return sb.ToString();
         }
 
+
         public override bool Equals(object obj)
         {
             HandshakeMessage msg = obj as HandshakeMessage;
@@ -205,6 +227,7 @@ namespace MonoTorrent.Client.Messages.Standard
                     && this.protocolString == msg.protocolString
                     && this.supportsFastPeer == msg.supportsFastPeer);
         }
+
 
         public override int GetHashCode()
         {

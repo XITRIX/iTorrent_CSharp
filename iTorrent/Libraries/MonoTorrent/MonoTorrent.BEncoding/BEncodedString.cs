@@ -26,6 +26,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.IO;
 using System.Collections;
@@ -61,25 +63,34 @@ namespace MonoTorrent.BEncoding
         private byte[] textBytes;
         #endregion
 
+
         #region Constructors
         /// <summary>
         /// Create a new BEncodedString using UTF8 encoding
         /// </summary>
         public BEncodedString()
-            : this(new byte[0]) { }
+            : this(new byte[0])
+        {
+        }
 
         /// <summary>
         /// Create a new BEncodedString using UTF8 encoding
         /// </summary>
         /// <param name="value"></param>
         public BEncodedString(char[] value)
-            : this(System.Text.Encoding.UTF8.GetBytes(value)) { }
+            : this(System.Text.Encoding.UTF8.GetBytes(value))
+        {
+        }
+
         /// <summary>
         /// Create a new BEncodedString using UTF8 encoding
         /// </summary>
         /// <param name="value">Initial value for the string</param>
         public BEncodedString(string value)
-            : this(System.Text.Encoding.UTF8.GetBytes(value)) { }
+            : this(System.Text.Encoding.UTF8.GetBytes(value))
+        {
+        }
+
 
         /// <summary>
         /// Create a new BEncodedString using UTF8 encoding
@@ -89,6 +100,7 @@ namespace MonoTorrent.BEncoding
         {
             this.textBytes = value;
         }
+
 
         public static implicit operator BEncodedString(string value)
         {
@@ -104,7 +116,9 @@ namespace MonoTorrent.BEncoding
         }
         #endregion
 
+
         #region Encode/Decode Methods
+
 
         /// <summary>
         /// Encodes the BEncodedString to a byte[] using the supplied Encoding
@@ -121,6 +135,7 @@ namespace MonoTorrent.BEncoding
             written += Message.Write(buffer, written, textBytes);
             return written - offset;
         }
+
 
         /// <summary>
         /// Decodes a BEncodedString from the supplied StreamReader
@@ -149,6 +164,7 @@ namespace MonoTorrent.BEncoding
         }
         #endregion
 
+
         #region Helper Methods
         public string Hex
         {
@@ -175,6 +191,7 @@ namespace MonoTorrent.BEncoding
             return CompareTo(other as BEncodedString);
         }
 
+
         public int CompareTo(BEncodedString other)
         {
             if (other == null)
@@ -194,6 +211,7 @@ namespace MonoTorrent.BEncoding
         }
 
         #endregion
+
 
         #region Overridden Methods
 

@@ -123,6 +123,12 @@ namespace iTorrent {
 
             engine = new ClientEngine(settings);
             engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
+
+            //try {
+            //    fastResume = BEncodedValue.Decode<BEncodedDictionary>(File.ReadAllBytes(documents + "/cache.data"));
+            //} catch {
+            //    fastResume = new BEncodedDictionary();
+            //}
         }
 
         void RestoreTorrents() {
@@ -134,6 +140,7 @@ namespace iTorrent {
             if (Directory.Exists(documents + "/Config")) {
                 foreach (var file in Directory.GetFiles(documents + "/Config")) {
                     if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
+
                         Torrent torrent = Torrent.Load(file);
                         TorrentManager manager = new TorrentManager(torrent, documents, new TorrentSettings());
                         //if (fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
@@ -178,7 +185,7 @@ namespace iTorrent {
             engine.StartAll();
         }
 
-        void RemoveRudimentFiles() {
+        void Finish() {
             var save = new SaveClass();
             foreach (var manager in managers) {
                 save.AddManager(manager);
@@ -193,10 +200,11 @@ namespace iTorrent {
                 Directory.CreateDirectory(documents + "/Config");
             }
 
-            Utils.SerializeObject(save, documents + "/Config/dat.itor");
+            Utils.SerializeObject<SaveClass>(save, documents + "/Config/dat.itor");
         }
 
         public static void InitializeFTPServer() {
+            
             if (NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer")) {
                 server = new Server();
 
@@ -288,7 +296,7 @@ namespace iTorrent {
                 }
             }
 
-            RemoveRudimentFiles();
+            Finish();
         }
 
         public override void WillEnterForeground(UIApplication application) {
@@ -311,9 +319,10 @@ namespace iTorrent {
         public override void WillTerminate(UIApplication application) {
             // Called when the application is about to terminate. Save data, if needed. See also DidEnterBackground.
 
-            RemoveRudimentFiles();
+            Finish();
             engine.Dispose();
         }
         #endregion
     }
 }
+

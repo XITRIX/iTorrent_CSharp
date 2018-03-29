@@ -37,6 +37,7 @@ using UIKit;
 
 namespace iTorrent {
     public partial class TorrentFilesController : UIViewController, IUITableViewDataSource, IUITableViewDelegate {
+
         #region Variables
 
         public TorrentManager manager;
@@ -62,21 +63,22 @@ namespace iTorrent {
             tableView.RowHeight = 78;
 
             DeselectAllAction.Clicked += delegate {
-                SetFilesPriority(Priority.DoNotDownload);
+                foreach (var file in files) {
+                    file.Priority = Priority.DoNotDownload;
+                }
+                foreach (var cell in tableView.VisibleCells) {
+                    ((FileCell)cell).Update();
+                }
             };
 
             SelectAllAction.Clicked += delegate {
-                SetFilesPriority(Priority.Highest);
-            };
-
-            void SetFilesPriority(Priority priority) {
                 foreach (var file in files) {
                     file.Priority = Priority.Highest;
                 }
                 foreach (var cell in tableView.VisibleCells) {
                     ((FileCell)cell).Update();
                 }
-            }
+            };
 
             new Thread(() => {
                 while (true) {
