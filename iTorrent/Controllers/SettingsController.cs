@@ -24,7 +24,7 @@ namespace iTorrent {
 
         public override string TitleForFooter(UITableView tableView, nint section) {
             if (section == 0) {
-                bool state = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
+                bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);
                 return state ? "Connect to: ftp://" + GetLocalIPAddress() + ":21" : "";
             }
             return "";
@@ -33,16 +33,22 @@ namespace iTorrent {
         partial void Enabler(UISwitch sender) {
             if (sender.On) {
 				NSUserDefaults.StandardUserDefaults.SetBool(true, "FTPServer");
-				Manager.Singletone.RunFTPServer(delegate {
-					new Thread(() => {
+                Manager.Singletone.RunFTPServer((exception) => {
+                    new Thread(() => {
                         Manager.Singletone.StopFTPServer();
-						Thread.Sleep(250);
-						InvokeOnMainThread(delegate {
-                            FTPSwitcher.SetState(false, true);                     
-						});
-                        Console.WriteLine("ERROR");                  
-					}).Start();
-				});
+                        Thread.Sleep(250);
+                        InvokeOnMainThread(delegate {
+                            FTPSwitcher.SetState(false, true);
+                        });
+                        Console.WriteLine("Fail");
+                        Console.WriteLine(exception.Message);
+                    }).Start();
+                }, delegate {
+                    InvokeOnMainThread(delegate {
+                        TableView.ReloadData();
+                    });
+                    Console.WriteLine("Success");
+                });
             } else {
                 NSUserDefaults.StandardUserDefaults.SetBool(false, "FTPServer");
                 Manager.Singletone.StopFTPServer();

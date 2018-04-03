@@ -191,8 +191,8 @@ namespace iTorrent {
             engine.Register(manager);
         }
 
-		#region FTPServer
-		public void RunFTPServer(Action onErrorEvent = null) {
+        #region FTPServer
+        public void RunFTPServer(Action<SocketException> onErrorEvent = null, Action onSuccessEvent = null) {
             ftpThread = new Thread(() => {
                 server = new Server();
 
@@ -201,15 +201,20 @@ namespace iTorrent {
                 server.FileSystemHandler = new DefaultFileSystemHandler(RootFolder);
                 server.LocalPort = 21;
 
-				try {
+                try {
                     server.Run();
-                } catch (SocketException) {
-					if (onErrorEvent != null) {
-						onErrorEvent();
-					}
+                    if (onSuccessEvent != null) {
+                        onSuccessEvent();
+                    }
+                } catch (SocketException e) {
+                    if (onErrorEvent != null) {
+                        onErrorEvent(e);
+                    }
                 }
+
+
             });
-			ftpThread.Start();
+            ftpThread.Start();
         }
 
         public void StopFTPServer() {
