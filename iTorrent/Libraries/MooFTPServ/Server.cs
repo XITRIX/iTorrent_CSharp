@@ -119,7 +119,11 @@ namespace mooftpserv
             if (socket == null)
                 socket = new TcpListener(endpoint);
 
-            socket.Start();
+			try {
+				socket.Start();
+			} catch (System.Net.Sockets.SocketException e) {
+				throw new SocketException(e.ErrorCode);
+			}
 
             // listen for new connections
             try {

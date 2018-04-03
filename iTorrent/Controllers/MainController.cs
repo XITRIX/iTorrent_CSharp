@@ -29,6 +29,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Collections.Generic;
 
 using MonoTorrent;
 using MonoTorrent.Client;
@@ -49,6 +50,8 @@ namespace iTorrent {
         #endregion
 
         #region Life Cycle
+
+        Action action;
 
         public override void ViewDidLoad() {
             base.ViewDidLoad();
@@ -85,7 +88,7 @@ namespace iTorrent {
                             return;
                         }
 
-                        foreach (var m in AppDelegate.managers) {
+                        foreach (var m in Manager.Singletone.managers) {
                             if (m.InfoHash.Equals(magnetLink.InfoHash)) {
                                 var alertError = UIAlertController.Create("This torrent already exists", "Torrent with hash: \"" + magnetLink.InfoHash.ToHex() + "\" already exists in download queue", UIAlertControllerStyle.Alert);
                                 var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
@@ -95,17 +98,18 @@ namespace iTorrent {
                             }
                         }
 
-                        if (!Directory.Exists(AppDelegate.documents + "/Config")) {
-                            Directory.CreateDirectory(AppDelegate.documents + "/Config");
+                        if (!Directory.Exists(Manager.ConfigFolder)) {
+                            Directory.CreateDirectory(Manager.ConfigFolder);
                         }
-                        var manager = new TorrentManager(magnetLink, AppDelegate.documents, new TorrentSettings(), AppDelegate.documents + "/Config/" + magnetLink.InfoHash.ToHex() + ".torrent");
+                        var manager = new TorrentManager(magnetLink, Manager.RootFolder, new TorrentSettings(), Manager.RootFolder + "/Config/" + magnetLink.InfoHash.ToHex() + ".torrent");
 
-                        AppDelegate.managers.Add(manager);
-                        AppDelegate.engine.Register(manager);
+                        Manager.Singletone.managers.Add(manager);
+                        Manager.Singletone.RegisterManager(manager);
                         TableView.ReloadData();
 
                         manager.TorrentStateChanged += delegate {
-                            InvokeOnMainThread(() => TableView.ReloadData());
+                            Manager.OnFinishLoading(manager);
+                            Background.CheckToStopBackground();
                         };
 
                         manager.Start();
@@ -124,13 +128,13 @@ namespace iTorrent {
                     var ok = UIAlertAction.Create("OK", UIAlertActionStyle.Default, delegate {
                         var textField = urlAlert.TextFields[0];
 
-                        if (!Directory.Exists(AppDelegate.documents + "/Config")) {
-                            Directory.CreateDirectory(AppDelegate.documents + "/Config");
+                        if (!Directory.Exists(Manager.ConfigFolder)) {
+                            Directory.CreateDirectory(Manager.ConfigFolder);
                         }
 
-                        Torrent torrent = Torrent.Load(new Uri(textField.Text), AppDelegate.documents + "/Config/_temp.torrent");
+                        Torrent torrent = Torrent.Load(new Uri(textField.Text), Manager.RootFolder + "/Config/_temp.torrent");
 
-                        foreach (var m in AppDelegate.managers) {
+                        foreach (var m in Manager.Singletone.managers) {
                             if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
                                 var alertError = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
                                 var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
@@ -163,43 +167,40 @@ namespace iTorrent {
                 PresentViewController(alert, true, null);
             };
 
-            new Thread(() => {
-                while (true) {
-                    Thread.Sleep(AppDelegate.UIUpdateRate);
-                    InvokeOnMainThread(delegate {
-                        foreach (var cell in tableView.VisibleCells) {
-                            ((TorrentCell)cell).Update();
-                        }
-                        AppDelegate.UpdateManagers();
-                    });
-                }
-            }).Start();
-
+            action = () => {
+                InvokeOnMainThread(delegate {
+                    foreach (var cell in tableView.VisibleCells) {
+                        ((TorrentCell)cell).Update();
+                    }
+                    Manager.Singletone.UpdateManagers();
+                });
+            };
         }
 
         public override void ViewWillAppear(bool animated) {
             base.ViewWillAppear(animated);
 
             tableView.ReloadData();
+            Manager.Singletone.updateActions.Add(action);
         }
 
-        public override void DidReceiveMemoryWarning() {
-            base.DidReceiveMemoryWarning();
-            // Release any cached data, images, etc that aren't in use.
-        }
+		public override void ViewDidDisappear(bool animated) {
+            base.ViewDidDisappear(animated);
 
+            Manager.Singletone.updateActions.Remove(action);
+		}
         #endregion
 
         #region TableView DataSource
 
         public nint RowsInSection(UITableView tableView, nint section) {
-            return AppDelegate.managers.Count;
+            return Manager.Singletone.managers.Count;
         }
 
         public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             TorrentCell cell = (TorrentCell)tableView.DequeueReusableCell("Cell", indexPath);
-            cell.manager = AppDelegate.managers[indexPath.Row];
-            cell.InstaUpdate();
+            cell.manager = Manager.Singletone.managers[indexPath.Row];
+            cell.Update();
             return cell;
         }
 
@@ -211,16 +212,16 @@ namespace iTorrent {
         [Export("tableView:commitEditingStyle:forRowAtIndexPath:")]
         public void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath) {
             if (editingStyle == UITableViewCellEditingStyle.Delete) {
-                var action = UIAlertController.Create(null, "Are you sure to remove " + AppDelegate.managers[indexPath.Row].Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
+                var action = UIAlertController.Create(null, "Are you sure to remove " + Manager.Singletone.managers[indexPath.Row].Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
-                    var manager = AppDelegate.managers[indexPath.Row];
+                    var manager = Manager.Singletone.managers[indexPath.Row];
                     manager.Stop();
-                    AppDelegate.managers.Remove(manager);
-                    if (Directory.Exists(AppDelegate.documents + "/" + manager.Torrent.Name)) {
-                        Directory.Delete(AppDelegate.documents + "/" + manager.Torrent.Name, true);
+                    Manager.Singletone.managers.Remove(manager);
+                    if (Directory.Exists(Manager.RootFolder + "/" + manager.Torrent.Name)) {
+                        Directory.Delete(Manager.RootFolder + "/" + manager.Torrent.Name, true);
                     } else {
-                        if (File.Exists(AppDelegate.documents + "/" + manager.Torrent.Name)) {
-                            File.Delete(AppDelegate.documents + "/" + manager.Torrent.Name);
+                        if (File.Exists(Manager.RootFolder + "/" + manager.Torrent.Name)) {
+                            File.Delete(Manager.RootFolder + "/" + manager.Torrent.Name);
                         }
                     }
                     if (File.Exists(manager.Torrent.TorrentPath)) {
@@ -229,9 +230,9 @@ namespace iTorrent {
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
-                    var manager = AppDelegate.managers[indexPath.Row];
+                    var manager = Manager.Singletone.managers[indexPath.Row];
                     manager.Stop();
-                    AppDelegate.managers.Remove(manager);
+                    Manager.Singletone.managers.Remove(manager);
                     File.Delete(manager.Torrent.TorrentPath);
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
                 });

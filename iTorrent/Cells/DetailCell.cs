@@ -61,7 +61,7 @@ namespace iTorrent {
                 case 0:
                     switch (indexPath.Row) {
                         case 0:
-                            Set("State", manager.State.ToString());
+                            Set("State", downloaded >= size ? "Finished" : manager.State.ToString());
                             break;
                     }
                     break;

@@ -38,20 +38,11 @@ namespace iTorrent {
 
         public TorrentManager manager;
 
-        protected TorrentCell(IntPtr handle) : base(handle) {
-            // Note: this .ctor should not contain any initialization logic.
-        }
+        protected TorrentCell(IntPtr handle) : base(handle) { }
 
         public void Update() {
-            if (manager.State == TorrentState.Paused) { return; }
-            UpdateCell();
-        }
+            if (manager.State == TorrentState.Paused && Progress.Progress >= 1f) { return; }
 
-        public void InstaUpdate() {
-            UpdateCell();
-        }
-
-        private void UpdateCell() {
             if (manager.Torrent != null) {
                 Title.Text = manager.Torrent.Name;
             } else {

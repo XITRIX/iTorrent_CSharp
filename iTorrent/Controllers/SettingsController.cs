@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using Foundation;
 using UIKit;
 using System.Net;
+using System.Threading;
 
 namespace iTorrent {
     public partial class SettingsController : UITableViewController {
@@ -16,7 +17,7 @@ namespace iTorrent {
                 DismissViewController(true, null);
             };
 
-            bool state = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
+			bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);//NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
             FTPSwitcher.SetState(state, false);
             FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"), false);
         }
@@ -28,14 +29,23 @@ namespace iTorrent {
             }
             return "";
         }
-
+        
         partial void Enabler(UISwitch sender) {
             if (sender.On) {
-                NSUserDefaults.StandardUserDefaults.SetBool(true, "FTPServer");
-                AppDelegate.InitializeFTPServer();
+				NSUserDefaults.StandardUserDefaults.SetBool(true, "FTPServer");
+				Manager.Singletone.RunFTPServer(delegate {
+					new Thread(() => {
+                        Manager.Singletone.StopFTPServer();
+						Thread.Sleep(250);
+						InvokeOnMainThread(delegate {
+                            FTPSwitcher.SetState(false, true);                     
+						});
+                        Console.WriteLine("ERROR");                  
+					}).Start();
+				});
             } else {
                 NSUserDefaults.StandardUserDefaults.SetBool(false, "FTPServer");
-                AppDelegate.DeinitializeFTPServer();
+                Manager.Singletone.StopFTPServer();
             }
             TableView.ReloadData();
         }

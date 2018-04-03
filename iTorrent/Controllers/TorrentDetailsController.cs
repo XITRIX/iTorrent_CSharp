@@ -50,6 +50,7 @@ namespace iTorrent {
 
         string[] sections = { "", "SPEED", "GENERAL INFORMATION", "TRANSFER", "MORE" };
 
+        Action action;
         #endregion
 
         public override void ViewDidLoad() {
@@ -73,14 +74,14 @@ namespace iTorrent {
                 var action = UIAlertController.Create(null, "Are you sure to remove " + manager.Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
                     manager.Stop();
-                    AppDelegate.managers.Remove(manager);
-                    Directory.Delete(AppDelegate.documents + "/" + manager.Torrent.Name, true);
+                    Manager.Singletone.managers.Remove(manager);
+                    Directory.Delete(Path.Combine(Manager.RootFolder, manager.Torrent.Name), true);
                     File.Delete(manager.Torrent.TorrentPath);
                     NavigationController.PopViewController(true);
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
                     manager.Stop();
-                    AppDelegate.managers.Remove(manager);
+                    Manager.Singletone.managers.Remove(manager);
                     File.Delete(manager.Torrent.TorrentPath);
                     NavigationController.PopViewController(true);
                 });
@@ -94,27 +95,37 @@ namespace iTorrent {
             tableView.RowHeight = UITableView.AutomaticDimension;
             tableView.EstimatedRowHeight = 140;
 
-            new Thread(() => {
-                while (true) {
-                    Thread.Sleep(AppDelegate.UIUpdateRate);
-                    Update();
-                    InvokeOnMainThread(() => {
-                        foreach (var cell in tableView.VisibleCells) {
-                            var c = cell as DetailCell;
-                            if (c != null) {
-                                c.size = size;
-                                c.downloaded = downloaded;
-                                c.Update();
-                            }
+            action = () => {
+                Update();
+                InvokeOnMainThread(() => {
+                    foreach (var cell in tableView.VisibleCells) {
+                        var c = cell as DetailCell;
+                        if (c != null) {
+                            c.size = size;
+                            c.downloaded = downloaded;
+                            c.Update();
                         }
-                    });
-                }
-            }).Start();
+                    }
+                });
+            };
         }
 
-        #region TableView DataSource
+		public override void ViewWillAppear(bool animated) {
+            base.ViewWillAppear(animated);
 
-        [Export("numberOfSectionsInTableView:")]
+            Manager.Singletone.updateActions.Add(action);
+            tableView.ReloadData();
+		}
+
+		public override void ViewDidDisappear(bool animated) {
+            base.ViewDidDisappear(animated);
+
+            Manager.Singletone.updateActions.Remove(action);
+		}
+
+		#region TableView DataSource
+
+		[Export("numberOfSectionsInTableView:")]
         public nint NumberOfSections(UITableView tableView) {
             return sections.Length;
         }
@@ -178,14 +189,14 @@ namespace iTorrent {
                 }
             }
 
+            if (downloaded >= size) {
+                manager.Pause();
+            }
+
             InvokeOnMainThread(() => {
-                if (manager.State == TorrentState.Downloading) {
-                    Pause.Enabled = true;
-                    Start.Enabled = false;
-                } else {
-                    Pause.Enabled = false;
-                    Start.Enabled = true;
-                }
+                var res = manager.State == TorrentState.Downloading;
+                Pause.Enabled = res;
+                Start.Enabled = !res;
             });
         }
 

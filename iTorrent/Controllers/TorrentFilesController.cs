@@ -43,6 +43,7 @@ namespace iTorrent {
         public TorrentManager manager;
         TorrentFile[] files;
 
+        Action action;
         #endregion
 
         public TorrentFilesController(IntPtr handle) : base(handle) { }
@@ -67,7 +68,7 @@ namespace iTorrent {
                     file.Priority = Priority.DoNotDownload;
                 }
                 foreach (var cell in tableView.VisibleCells) {
-                    ((FileCell)cell).Update();
+                    ((FileCell)cell).UpdateInDetail();
                 }
             };
 
@@ -76,25 +77,35 @@ namespace iTorrent {
                     file.Priority = Priority.Highest;
                 }
                 foreach (var cell in tableView.VisibleCells) {
-                    ((FileCell)cell).Update();
+                    ((FileCell)cell).UpdateInDetail();
                 }
             };
 
-            new Thread(() => {
-                while (true) {
-                    Thread.Sleep(AppDelegate.UIUpdateRate);
-                    InvokeOnMainThread(() => {
-                        foreach (var cell in tableView.VisibleCells) {
-                            ((FileCell)cell).UpdateInDetail();
-                        }
-                    });
-                }
-            }).Start();
+            action = () => {
+                InvokeOnMainThread(() => {
+                    foreach (var cell in tableView.VisibleCells) {
+                        ((FileCell)cell).UpdateInDetail();
+                    }
+                });
+            };
         }
 
-        #region TableView DataSource
+		public override void ViewWillAppear(bool animated) {
+            base.ViewWillAppear(animated);
 
-        public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
+            Manager.Singletone.updateActions.Add(action);
+            tableView.ReloadData();
+		}
+
+		public override void ViewDidDisappear(bool animated) {
+            base.ViewDidDisappear(animated);
+
+            Manager.Singletone.updateActions.Remove(action);
+		}
+
+		#region TableView DataSource
+
+		public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             var cell = (FileCell)tableView.DequeueReusableCell("Cell", indexPath);
             cell.file = files[indexPath.Row];
             cell.Initialise();

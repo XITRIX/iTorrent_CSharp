@@ -91,13 +91,13 @@ namespace iTorrent {
             };
 
             Download.Clicked += delegate {
-                TorrentManager manager = new TorrentManager(torrent, AppDelegate.documents, new TorrentSettings());
+                TorrentManager manager = new TorrentManager(torrent, Manager.RootFolder, new TorrentSettings());
                 //if (AppDelegate.fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
                 //    manager.LoadFastResume(new FastResume((BEncodedDictionary)AppDelegate.fastResume[torrent.InfoHash.ToHex()]));
                 //    Console.WriteLine("FOUND!!!!!");
                 //}
-                AppDelegate.managers.Add(manager);
-                AppDelegate.engine.Register(manager);
+                Manager.Singletone.managers.Add(manager);
+                Manager.Singletone.RegisterManager(manager);
                 if (MainController.Instance != null)
                     MainController.Instance.TableView.ReloadData();
 
@@ -106,8 +106,8 @@ namespace iTorrent {
                 picker = new PriorityPicker(picker);
                 manager.ChangePicker(picker);
                 manager.TorrentStateChanged += delegate {
-                    InvokeOnMainThread(() => MainController.Instance.TableView.ReloadData());
-                    AppDelegate.CheckToStopBackground();
+                    Manager.OnFinishLoading(manager);
+                    Background.CheckToStopBackground();
                 };
 
                 foreach (var file in files) {
@@ -117,13 +117,13 @@ namespace iTorrent {
                     }
                 }
 
-                if (!Directory.Exists(AppDelegate.documents + "/Config")) {
-                    Directory.CreateDirectory(AppDelegate.documents + "/Config");
+                if (!Directory.Exists(Manager.ConfigFolder)) {
+                    Directory.CreateDirectory(Manager.ConfigFolder);
                 }
-                if (File.Exists(AppDelegate.documents + "/Config/" + torrent.Name + ".torrent")) {
-                    File.Delete(AppDelegate.documents + "/Config/" + torrent.Name + ".torrent");
+                if (File.Exists(Path.Combine(Manager.ConfigFolder, torrent.Name + ".torrent"))) {
+                    File.Delete(Path.Combine(Manager.ConfigFolder, torrent.Name + ".torrent"));
                 }
-                File.Copy(torrent.TorrentPath, AppDelegate.documents + "/Config/" + torrent.Name + ".torrent");
+                File.Copy(torrent.TorrentPath, Path.Combine(Manager.ConfigFolder, torrent.Name + ".torrent"));
                 if (torrent.TorrentPath.EndsWith("/_temp.torrent")) {
                     File.Delete(torrent.TorrentPath);
                 }

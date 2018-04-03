@@ -26,19 +26,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Collections.Generic;
-
-using MonoTorrent.BEncoding;
-using MonoTorrent.Client;
-using MonoTorrent.Common;
-using MonoTorrent.Client.Encryption;
-
-using mooftpserv;
-
 using Foundation;
 using UIKit;
 using AVFoundation;
@@ -55,220 +42,17 @@ namespace iTorrent {
             set;
         }
 
-        #region Global Static Variables
-        public static string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-        public static ClientEngine engine;
-        public static List<TorrentManager> managers = new List<TorrentManager>();
-
-        public static readonly int UIUpdateRate = 1000;
-
-        public static Server server;
-        public static Thread ftpThread;
-        #endregion
-
-        #region Background downloading tools
-        static AVAudioRecorder audioRecorder;
-
-        public static void CheckToStopBackground() {
-            if (audioRecorder != null && audioRecorder.Recording && (ftpThread == null || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
-                foreach (var manager in managers) {
-                    if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped) {
-                        return;
-                    }
-                }
-
-                audioRecorder.Stop();
-
-                if (File.Exists(documents + "/Config/audio.caf")) {
-                    File.Delete(documents + "/Config/audio.caf");
-                }
-                Console.WriteLine("Stopped");
-            } 
-        }
-
-        public static void UpdateManagers() {
-            foreach (var manager in managers) {
-                if (manager.State == TorrentState.Paused) { continue; }
-
-                long size = 0;
-                long downloaded = 0;
-
-                if (manager.Torrent != null) {
-                    foreach (var f in manager.Torrent.Files) {
-                        if (f.Priority != Priority.DoNotDownload) {
-                            size += f.Length;
-                            downloaded += f.BytesDownloaded;
-                        }
-                    }
-                }
-
-                if (downloaded >= size) {
-                    manager.Pause();
-                }
-            }
-        }
-        #endregion
-
-        #region Initialization Functions
-
-        void SetupEngine() {
-            EngineSettings settings = new EngineSettings();
-            settings.AllowedEncryption = EncryptionTypes.All;
-            settings.PreferEncryption = true;
-            settings.SavePath = documents;
-
-            // The maximum upload speed is 200 kilobytes per second, or 204,800 bytes per second
-            //settings.GlobalMaxUploadSpeed = 200 * 1024;
-
-            engine = new ClientEngine(settings);
-            engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
-
-            //try {
-            //    fastResume = BEncodedValue.Decode<BEncodedDictionary>(File.ReadAllBytes(documents + "/cache.data"));
-            //} catch {
-            //    fastResume = new BEncodedDictionary();
-            //}
-        }
-
-        void RestoreTorrents() {
-            SaveClass save = null;
-            if (File.Exists(documents + "/Config/dat.itor")) {
-                save = Utils.DeSerializeObject<SaveClass>(documents + "/Config/dat.itor");
-            }
-
-            if (Directory.Exists(documents + "/Config")) {
-                foreach (var file in Directory.GetFiles(documents + "/Config")) {
-                    if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
-
-                        Torrent torrent = Torrent.Load(file);
-                        TorrentManager manager = new TorrentManager(torrent, documents, new TorrentSettings());
-                        //if (fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
-                        //    manager.LoadFastResume(new FastResume((BEncodedDictionary)fastResume[torrent.InfoHash.ToHex()]));
-                        //    Console.WriteLine("FOUND!!!!!");
-                        //}
-
-                        managers.Add(manager);
-                        engine.Register(manager);
-
-                        if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
-                            switch (save.data[torrent.InfoHash.ToHex()].state) {
-                                case TorrentState.Downloading:
-                                    manager.Start();
-                                    break;
-                                case TorrentState.Paused:
-                                    manager.Pause();
-                                    break;
-                                case TorrentState.Stopped:
-                                    manager.Stop();
-                                    break;
-                            }
-                            foreach (var _file in torrent.Files) {
-                                if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
-                                    _file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
-                                }
-                            }
-                        }
-
-                        PiecePicker picker = new StandardPicker();
-                        picker = new PriorityPicker(picker);
-                        manager.ChangePicker(picker);
-                        manager.TorrentStateChanged += delegate {
-                            CheckToStopBackground();
-                        };
-                    }
-                }
-            }
-        }
-
-        void StartTorrents() {
-            engine.StartAll();
-        }
-
-        void Finish() {
-            var save = new SaveClass();
-            foreach (var manager in managers) {
-                save.AddManager(manager);
-                foreach (var file in manager.Torrent.Files) {
-                    if (manager.State != TorrentState.Hashing && File.Exists(file.FullPath) && file.Priority == Priority.DoNotDownload && file.BytesDownloaded == 0) {
-                        File.Delete(file.FullPath);
-                    }
-                }
-            }
-
-            if (!Directory.Exists(documents + "/Config")) {
-                Directory.CreateDirectory(documents + "/Config");
-            }
-
-            Utils.SerializeObject<SaveClass>(save, documents + "/Config/dat.itor");
-        }
-
-        public static void InitializeFTPServer() {
-            
-            if (NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer")) {
-                server = new Server();
-
-                server.LogHandler = new DefaultLogHandler(false);
-                server.AuthHandler = new DefaultAuthHandler(false);
-                server.FileSystemHandler = new DefaultFileSystemHandler(documents);
-
-                server.LocalPort = 21;
-
-                ftpThread = new Thread(server.Run);
-                ftpThread.Start();
-            }
-        }
-
-        public static void DeinitializeFTPServer() {
-            if (ftpThread != null && ftpThread.IsAlive) {
-                server.Stop();
-                ftpThread = null;
-            }
-        }
-
-        #endregion
-
         #region AppDelegate LifeCycle 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions) {
-            // Override point for customization after application launch.
-            // If not required for your application you can safely delete this method
+			// Override point for customization after application launch.
+			// If not required for your application you can safely delete this method
 
-            SetupEngine();
-            RestoreTorrents();
-            StartTorrents();
-
-            InitializeFTPServer();
-
-            var settings = new AudioSettings();
-            settings.AudioQuality = AVAudioQuality.Min;
-
-            NSError error;
-            audioRecorder = AVAudioRecorder.Create(new NSUrl(documents + "/Config/audio.caf"), settings, out error);
-
+			new Manager();
             return true;
         }
 
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options) {
-            Console.WriteLine(url.Path);
-
-            if (!File.Exists(url.Path)) {
-                Console.WriteLine("NOT EXIST!");
-                return false;
-            }
-            Torrent torrent = Torrent.Load(url.Path);
-
-            foreach (var m in managers) {
-                if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
-                    var alert = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
-                    var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
-                    alert.AddAction(close);
-                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
-                    return true;
-                }
-            }
-            UIViewController controller = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("AddTorrent");
-            ((AddTorrentController)((UINavigationController)controller).ChildViewControllers[0]).torrent = torrent;
-            UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(controller, true, null);
+            Manager.Singletone.OpenTorrentFromFile(url);
             return true;
         }
 
@@ -282,33 +66,15 @@ namespace iTorrent {
         public override void DidEnterBackground(UIApplication application) {
             // Use this method to release shared resources, save user data, invalidate timers and store the application state.
             // If your application supports background exection this method is called instead of WillTerminate when the user quits.'
-            bool ftpBackground = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground");
-            if (ftpThread != null && ftpThread.IsAlive && ftpBackground) {
-                audioRecorder.Record();
-            } else {
-                foreach (var manager in managers) {
-                    if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped) {
-                        if (!audioRecorder.Recording) {
-                            audioRecorder.Record();
-                            break;
-                        }
-                    }
-                }
-            }
-
-            Finish();
+            Background.RunBackgroundMode();
+            Manager.Singletone.SaveState();
         }
 
         public override void WillEnterForeground(UIApplication application) {
             // Called as part of the transiton from background to active state.
             // Here you can undo many of the changes made on entering the background.
 
-            if (audioRecorder.Recording) {
-                audioRecorder.Stop();
-            }
-            if (File.Exists(documents + "/Config/audio.caf")) {
-                File.Delete(documents + "/Config/audio.caf");
-            }
+            Background.StopBackgroundMode();
         }
 
         public override void OnActivated(UIApplication application) {
@@ -319,8 +85,7 @@ namespace iTorrent {
         public override void WillTerminate(UIApplication application) {
             // Called when the application is about to terminate. Save data, if needed. See also DidEnterBackground.
 
-            Finish();
-            engine.Dispose();
+            Manager.Singletone.SaveState();
         }
         #endregion
     }
