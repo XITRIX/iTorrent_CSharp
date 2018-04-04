@@ -166,15 +166,18 @@ namespace iTorrent {
             }
             Torrent torrent = Torrent.Load(url.Path);
 
-            foreach (var m in Manager.Singletone.managers) {
-                if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
-                    var alert = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
-                    var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
-                    alert.AddAction(close);
-                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
-                    return;
-                }
-            }
+			foreach (var m in managers) {
+				if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
+					var alert = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
+					var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
+					alert.AddAction(close);
+					UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
+					return;
+				} 
+				if (m.Torrent.Name.Equals(torrent.Name)) {
+					//TODO: Unregister old one               
+				}
+			}
             UIViewController controller = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("AddTorrent");
             ((AddTorrentController)((UINavigationController)controller).ChildViewControllers[0]).torrent = torrent;
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(controller, true, null);
