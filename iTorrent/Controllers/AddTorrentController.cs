@@ -92,10 +92,6 @@ namespace iTorrent {
 
             Download.Clicked += delegate {
                 TorrentManager manager = new TorrentManager(torrent, Manager.RootFolder, new TorrentSettings());
-                //if (AppDelegate.fastResume.ContainsKey(torrent.InfoHash.ToHex())) {
-                //    manager.LoadFastResume(new FastResume((BEncodedDictionary)AppDelegate.fastResume[torrent.InfoHash.ToHex()]));
-                //    Console.WriteLine("FOUND!!!!!");
-                //}
                 Manager.Singletone.managers.Add(manager);
                 Manager.Singletone.RegisterManager(manager);
                 if (MainController.Instance != null)
@@ -107,7 +103,6 @@ namespace iTorrent {
                 manager.ChangePicker(picker);
                 manager.TorrentStateChanged += delegate {
                     Manager.OnFinishLoading(manager);
-                    Background.CheckToStopBackground();
                 };
 
                 foreach (var file in files) {

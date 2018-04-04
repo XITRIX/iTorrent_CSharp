@@ -109,7 +109,6 @@ namespace iTorrent {
 
                         manager.TorrentStateChanged += delegate {
                             Manager.OnFinishLoading(manager);
-                            Background.CheckToStopBackground();
                         };
 
                         manager.Start();

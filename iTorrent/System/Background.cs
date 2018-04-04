@@ -42,6 +42,12 @@ namespace iTorrent {
 
         static List<Action> actionsBuffer;
 
+        public static bool Backgrounding {
+            get {
+                return audioRecorder.Recording;
+            }
+        }
+
         static Background() {
             var settings = new AudioSettings();
             settings.AudioQuality = AVAudioQuality.Min;
