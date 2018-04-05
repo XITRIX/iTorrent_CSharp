@@ -23,13 +23,14 @@
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
     <MtouchFastDev>true</MtouchFastDev>
     <IOSDebuggerPort>65275</IOSDebuggerPort>
-    <MtouchLink>None</MtouchLink>
-    <MtouchArch>x86_64</MtouchArch>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodesignProvision>VS: ru.nonamedude.iTorrent Development</CodesignProvision>
     <IOSDebugOverWiFi>true</IOSDebugOverWiFi>
+    <MtouchFloat32>true</MtouchFloat32>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>pdbonly</DebugType>
@@ -79,7 +80,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <IOSDebuggerPort>51435</IOSDebuggerPort>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARM64</MtouchArch>
+    <MtouchArch>ARMv7, ARMv7s, ARM64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -113,6 +114,8 @@
     <ImageAsset Include="Assets.xcassets\Settings.imageset\gear_25.png" />
     <ImageAsset Include="Assets.xcassets\Settings.imageset\gear_50.png" />
     <ImageAsset Include="Assets.xcassets\Settings.imageset\gear_75.png" />
+    <ImageAsset Include="Assets.xcassets\Share.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-50.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -124,6 +127,7 @@
     <Folder Include="Libraries\" />
     <Folder Include="Libraries\MonoTorrent\" />
     <Folder Include="Libraries\MooFTPServ\" />
+    <Folder Include="Assets.xcassets\Share.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

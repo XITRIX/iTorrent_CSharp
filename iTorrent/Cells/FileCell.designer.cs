@@ -16,6 +16,10 @@ namespace iTorrent
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton Share { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel Size { get; set; }
 
         [Outlet]
@@ -28,6 +32,11 @@ namespace iTorrent
 
         void ReleaseDesignerOutlets ()
         {
+            if (Share != null) {
+                Share.Dispose ();
+                Share = null;
+            }
+
             if (Size != null) {
                 Size.Dispose ();
                 Size = null;

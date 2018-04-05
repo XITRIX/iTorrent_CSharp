@@ -183,7 +183,6 @@ namespace iTorrent {
         }
 
         public static void OnFinishLoading(TorrentManager manager) {
-            Console.WriteLine("Manager.OnFinishLoading() : Call");
             if (manager.State == TorrentState.Seeding || 
                 manager.State == TorrentState.Error) {
                 manager.Pause();
@@ -204,7 +203,6 @@ namespace iTorrent {
                     manager.Pause();
                 }
             }
-            Console.WriteLine("Manager.OnFinishLoading() : State - " + manager.State);
             Background.CheckToStopBackground();
         }
 

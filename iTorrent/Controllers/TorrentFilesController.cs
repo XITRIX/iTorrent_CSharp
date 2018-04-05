@@ -39,13 +39,13 @@ namespace iTorrent {
     public partial class TorrentFilesController : UIViewController, IUITableViewDataSource, IUITableViewDelegate {
 
         #region Variables
-
         public TorrentManager manager;
         TorrentFile[] files;
 
         Action action;
         #endregion
 
+        #region Life Cycle
         public TorrentFilesController(IntPtr handle) : base(handle) { }
 
         public override void ViewDidLoad() {
@@ -58,8 +58,6 @@ namespace iTorrent {
 
             tableView.DataSource = this;
             tableView.Delegate = this;
-
-            //tableView.ContentInset.Bottom += toolBar.
 
             tableView.RowHeight = 78;
 
@@ -102,10 +100,11 @@ namespace iTorrent {
 
             Manager.Singletone.updateActions.Remove(action);
 		}
+        #endregion
 
-		#region TableView DataSource
+        #region TableView DataSource
 
-		public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
+        public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             var cell = (FileCell)tableView.DequeueReusableCell("Cell", indexPath);
             cell.file = files[indexPath.Row];
             cell.Initialise();

@@ -29,6 +29,7 @@
 using System;
 using MonoTorrent.Common;
 
+using Foundation;
 using UIKit;
 
 namespace iTorrent {
@@ -40,6 +41,35 @@ namespace iTorrent {
         public void Initialise() {
             Switch.ValueChanged += delegate {
                 file.Priority = Switch.On ? Priority.Highest : Priority.DoNotDownload;
+            };
+
+            Share.TouchUpInside += delegate {
+                var alert = UIAlertController.Create(file.Path, null, UIAlertControllerStyle.ActionSheet);
+                var share = UIAlertAction.Create("Share", UIAlertActionStyle.Default, delegate {
+                    NSObject[] mass = { (NSString)"TEXT", new NSUrl(file.FullPath, false) };
+                    var shareController = new UIActivityViewController(mass, null);
+
+                    //shareController.PopoverPresentationController.SourceView = this;
+
+                    //shareController.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Any;
+                    //shareController.PopoverPresentationController.SourceRect = new CoreGraphics.CGRect(150, 150, 0, 0);
+
+                    NSString[] set = { UIActivityType.PostToWeibo };
+                    shareController.ExcludedActivityTypes = set;
+
+                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(shareController, true, null);
+                });
+                var delete = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate {
+
+
+                });
+                var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
+
+                alert.AddAction(share);
+                alert.AddAction(delete);
+                alert.AddAction(cancel);
+
+                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
             };
         }
 
@@ -57,7 +87,9 @@ namespace iTorrent {
         public void UpdateInDetail() {
             Title.Text = file.Path;
             Switch.SetState(file.Priority != Priority.DoNotDownload, false);
-            Size.Text = Utils.GetSizeText(file.BytesDownloaded) + " / " + Utils.GetSizeText(file.Length) + " (" + String.Format("{0:0.00}", ((file.BytesDownloaded * 10000 / file.Length) / 100f) + "%)");
+            var persentage = ((file.BytesDownloaded * 10000 / file.Length) / 100f);
+            Size.Text = Utils.GetSizeText(file.BytesDownloaded) + " / " + Utils.GetSizeText(file.Length) + " (" + String.Format("{0:0.00}", persentage + "%)");
+            Share.Hidden = persentage < 100;
         }
     }
 }
