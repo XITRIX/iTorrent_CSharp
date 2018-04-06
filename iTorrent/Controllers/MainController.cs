@@ -163,6 +163,10 @@ namespace iTorrent {
                 alert.AddAction(url);
                 alert.AddAction(cancel);
 
+                if (alert.PopoverPresentationController != null) {
+                    alert.PopoverPresentationController.BarButtonItem = AddAction;
+                }
+
                 PresentViewController(alert, true, null);
             };
 

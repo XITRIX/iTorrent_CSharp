@@ -222,13 +222,9 @@ namespace iTorrent {
 
                 try {
                     server.Run();
-                    if (onSuccessEvent != null) {
-                        onSuccessEvent();
-                    }
+                    onSuccessEvent?.Invoke();
                 } catch (SocketException e) {
-                    if (onErrorEvent != null) {
-                        onErrorEvent(e);
-                    }
+                    onErrorEvent?.Invoke(e);
                 }
 
 

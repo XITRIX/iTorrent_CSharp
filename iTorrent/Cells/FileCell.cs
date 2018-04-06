@@ -43,34 +43,58 @@ namespace iTorrent {
                 file.Priority = Switch.On ? Priority.Highest : Priority.DoNotDownload;
             };
 
-            Share.TouchUpInside += delegate {
-                var alert = UIAlertController.Create(file.Path, null, UIAlertControllerStyle.ActionSheet);
-                var share = UIAlertAction.Create("Share", UIAlertActionStyle.Default, delegate {
-                    NSObject[] mass = { (NSString)"TEXT", new NSUrl(file.FullPath, false) };
-                    var shareController = new UIActivityViewController(mass, null);
+            if (Share != null) {
+                Share.TouchUpInside += delegate {
+                    var alert = UIAlertController.Create(file.Path, null, UIAlertControllerStyle.ActionSheet);
+                    var share = UIAlertAction.Create("Share", UIAlertActionStyle.Default, delegate {
+                        NSObject[] mass = { null, new NSUrl(file.FullPath, false) };
+                        var shareController = new UIActivityViewController(mass, null);
 
-                    //shareController.PopoverPresentationController.SourceView = this;
+                        if (shareController.PopoverPresentationController != null) {
+                            shareController.PopoverPresentationController.SourceView = Share;
+                            shareController.PopoverPresentationController.SourceRect = Share.Bounds;
+                            shareController.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Any;
+                        }
 
-                    //shareController.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Any;
-                    //shareController.PopoverPresentationController.SourceRect = new CoreGraphics.CGRect(150, 150, 0, 0);
+                        NSString[] set = { UIActivityType.PostToWeibo };
+                        shareController.ExcludedActivityTypes = set;
 
-                    NSString[] set = { UIActivityType.PostToWeibo };
-                    shareController.ExcludedActivityTypes = set;
+                        UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(shareController, true, null);
+                    });
+                    var delete = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate {
+                        var deleteController = UIAlertController.Create("Are you sure to delete? (Not implemented yet!)", file.Path, UIAlertControllerStyle.ActionSheet);
 
-                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(shareController, true, null);
-                });
-                var delete = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate {
+                        var deleteAction = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate { 
+                            //TODO: Remove file and rehash it
+                        });
+                        var cancelAction = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
+                        deleteController.AddAction(deleteAction);
+                        deleteController.AddAction(cancelAction);
 
-                });
-                var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
+                        if (deleteController.PopoverPresentationController != null) {
+                            deleteController.PopoverPresentationController.SourceView = Share;
+                            deleteController.PopoverPresentationController.SourceRect = Share.Bounds;
+                            deleteController.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Any;
+                        }
 
-                alert.AddAction(share);
-                alert.AddAction(delete);
-                alert.AddAction(cancel);
+                        UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(deleteController, true, null);
+                    });
+                    var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
-                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
-            };
+                    alert.AddAction(share);
+                    alert.AddAction(delete);
+                    alert.AddAction(cancel);
+
+                    if (alert.PopoverPresentationController != null) {
+                        alert.PopoverPresentationController.SourceView = Share;
+                        alert.PopoverPresentationController.SourceRect = Share.Bounds;
+                        alert.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Any;
+                    }
+
+                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
+                };
+            }
         }
 
         public void PressSwitch() {

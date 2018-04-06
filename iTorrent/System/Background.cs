@@ -94,7 +94,7 @@ namespace iTorrent {
         public static void CheckToStopBackground() {
             if (audioRecorder != null && audioRecorder.Recording && (Manager.Singletone.ftpThread == null || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
                 foreach (var manager in Manager.Singletone.managers) {
-                    if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped) {
+                    if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped && manager.State != TorrentState.Error) {
                         return;
                     }
                 }
