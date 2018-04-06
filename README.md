@@ -1,7 +1,7 @@
 # iTorrent - iOS Torrent client App
 
 ![](https://www.bitrise.io/app/fb04a8ae5980d0e0/status.svg?token=XwFNndLUAUGMJC1FgOKMFw&branch=master)
-![](https://img.shields.io/badge/iOS-11.0%2B-0088CC.svg)
+![](https://img.shields.io/badge/iOS-9.3+-blue.svg)
 
 ## Screenshots
 
@@ -17,15 +17,13 @@ It is a simple torrent client for iOS with Files app support.
 
 What can this app do:
 - Download in the background by using microphone hack
-- Add torrent files from Files app and Safari
-- Store files in Files app
+- Add torrent files from Share menu (Safari and other apps)
+- Store files in Files app (only iOS 11)
 - Download torrent file by link
 - Download torrent by magnet
 - Select files to download
 - Share files by FTP Server
 - ??? 
-
-For now it is only a file downloader, but more features like "Port" and Maximum download speed are coming soon with the new updates
 
 ## Libraries used
 
