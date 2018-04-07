@@ -95,7 +95,7 @@ namespace iTorrent {
                     if (alert.PopoverPresentationController != null) {
                         alert.PopoverPresentationController.SourceView = Share;
                         alert.PopoverPresentationController.SourceRect = Share.Bounds;
-                        alert.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Any;
+                        alert.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Right;
                     }
 
                     UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);

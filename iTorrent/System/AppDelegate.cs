@@ -116,6 +116,14 @@ namespace iTorrent {
             }
             return true;
         }
+
+        [Export("splitViewController:separateSecondaryViewControllerFromPrimaryViewController:")]
+        public UIViewController SeparateSecondaryViewController(UISplitViewController splitViewController, UIViewController primaryViewController) {
+            if (primaryViewController is UINavigationController nav && nav.TopViewController is SettingsController settings) {
+                return Utils.CreateEmptyViewController();
+            }
+            return null;
+        }
     }
 }
 

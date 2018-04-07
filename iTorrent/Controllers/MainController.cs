@@ -277,18 +277,9 @@ namespace iTorrent {
                         var detail = splitController.ViewControllers.Length > 1 ? splitController.ViewControllers[1] : null;
                         if (detail != null && detail is UINavigationController) {
                             var detailView = (detail as UINavigationController).TopViewController;
-                            if (detailView is TorrentDetailsController) {
-                                if ((detailView as TorrentDetailsController).manager == manager) {
-                                    var view = new UIViewController();
-                                    view.View.BackgroundColor = new UIColor(237f / 255f, 237f / 255f, 237f / 255f, 1);
-                                    splitController.ShowDetailViewController(view, this);
-                                }
-                            } else if (detailView is TorrentFilesController) {
-                                if ((detailView as TorrentFilesController).manager == manager) {
-                                    var view = new UIViewController();
-                                    view.View.BackgroundColor = new UIColor(237f / 255f, 237f / 255f, 237f / 255f, 1);
-                                    splitController.ShowDetailViewController(view, this);
-                                }
+                            if (detailView is TorrentDetailsController detailController && detailController.manager == manager ||
+                                detailView is TorrentFilesController fileController && fileController.manager == manager) {
+                                    splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                             }
                         }
                     }
@@ -326,8 +317,8 @@ namespace iTorrent {
                             } else if (detail.TopViewController is TorrentDetailsController detailController) {
                                 var cell = sender as TorrentCell;
                                 if (detailController.manager == cell.manager) {
-                                    detailController.TableView.SetContentOffset(new CoreGraphics.CGPoint(0, 0 - detailController.NavigationController.NavigationBar.Frame.Height - UIApplication.SharedApplication.StatusBarFrame.Height), true);
-                                    return false;
+                                    //detailController.TableView.SetContentOffset(new CoreGraphics.CGPoint(0, 0 - detailController.NavigationController.NavigationBar.Frame.Height - UIApplication.SharedApplication.StatusBarFrame.Height), true);
+                                    detailController.TableView.ScrollToRow(NSIndexPath.FromRowSection(0, 0), UITableViewScrollPosition.Top, true);
                                 }
                             }
                         }
