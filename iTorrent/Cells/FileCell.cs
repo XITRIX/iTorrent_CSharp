@@ -28,6 +28,7 @@
 
 using System;
 using MonoTorrent.Common;
+using MonoTorrent.Client;
 
 using Foundation;
 using UIKit;
@@ -35,12 +36,17 @@ using UIKit;
 namespace iTorrent {
     public partial class FileCell : UITableViewCell {
         public TorrentFile file;
+        public TorrentManager manager;
 
         public FileCell(IntPtr handle) : base(handle) { }
 
         public void Initialise() {
             Switch.ValueChanged += delegate {
                 file.Priority = Switch.On ? Priority.Highest : Priority.DoNotDownload;
+
+                if (manager != null) {
+                    Manager.Singletone.UpdateMasterController(manager);
+                }
             };
 
             if (Share != null) {

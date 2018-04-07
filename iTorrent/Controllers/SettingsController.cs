@@ -13,16 +13,24 @@ namespace iTorrent {
         public override void ViewDidLoad() {
             base.ViewDidLoad();
 
-            DoneAction.Clicked += delegate {
-                DismissViewController(true, null);
-            };
-
 			bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);//NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
             FTPSwitcher.SetState(state, false);
             FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"), false);
         }
 
-        public override string TitleForFooter(UITableView tableView, nint section) {
+		public override void ViewWillAppear(bool animated) {
+            base.ViewWillAppear(animated);
+
+            NavigationController.ToolbarHidden = true;
+		}
+
+		public override void ViewWillDisappear(bool animated) {
+            base.ViewWillDisappear(animated);
+
+            NavigationController.ToolbarHidden = false;
+		}
+
+		public override string TitleForFooter(UITableView tableView, nint section) {
             if (section == 0) {
                 bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);
                 return state ? "Connect to: ftp://" + GetLocalIPAddress() + ":21" : "";

@@ -116,6 +116,8 @@
     <ImageAsset Include="Assets.xcassets\Settings.imageset\gear_75.png" />
     <ImageAsset Include="Assets.xcassets\Share.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-50.png" />
+    <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-75.png" />
+    <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-25.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

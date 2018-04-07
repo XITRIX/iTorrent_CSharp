@@ -40,8 +40,8 @@ namespace iTorrent {
 
         protected TorrentCell(IntPtr handle) : base(handle) { }
 
-        public void Update() {
-            if (manager.State == TorrentState.Paused && Progress.Progress >= 1f) { return; }
+        public void Update(bool force = false) {
+            if (manager.State == TorrentState.Paused && Progress.Progress >= 1f && !force) { return; }
 
             if (manager.Torrent != null) {
                 Title.Text = manager.Torrent.Name;

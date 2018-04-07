@@ -43,6 +43,7 @@ namespace iTorrent {
         #region Variables
 
         public TorrentManager manager;
+        public UITableView TableView { get { return tableView; } }
 
         long size = 0;
         long downloaded = 0;
@@ -55,6 +56,10 @@ namespace iTorrent {
 
         public override void ViewDidLoad() {
             base.ViewDidLoad();
+
+            if (manager == null) {
+                return;
+            }
 
             Update();
             tableView.DataSource = this;
@@ -119,7 +124,9 @@ namespace iTorrent {
 		public override void ViewWillAppear(bool animated) {
             base.ViewWillAppear(animated);
 
-            Manager.Singletone.updateActions.Add(action);
+            if (action != null) {
+                Manager.Singletone.updateActions.Add(action);
+            }
             tableView.ReloadData();
 		}
 

@@ -42,7 +42,6 @@ using mooftpserv;
 
 using UIKit;
 using Foundation;
-using AVFoundation;
 
 namespace iTorrent {
     public class Manager {
@@ -69,6 +68,7 @@ namespace iTorrent {
         ClientEngine engine;
 
         public List<Action> updateActions = new List<Action>();
+        public List<Action<TorrentManager>> masterUpdateActions = new List<Action<TorrentManager>>();
 
         Server server;
         public Thread ftpThread;
@@ -147,7 +147,7 @@ namespace iTorrent {
                     if (updateActions != null) {
 						try {
 							foreach (var action in updateActions) {
-								action();
+                                action();
 							}
 						} catch (InvalidOperationException) {} // HACK: Prevent "Collection was modified" exception
                     }
@@ -183,8 +183,7 @@ namespace iTorrent {
         }
 
         public static void OnFinishLoading(TorrentManager manager) {
-            if (manager.State == TorrentState.Seeding || 
-                manager.State == TorrentState.Error) {
+            if (manager.State == TorrentState.Seeding) {
                 manager.Pause();
             } else if (manager.State == TorrentState.Downloading) {
                 long size = 0;
@@ -277,6 +276,12 @@ namespace iTorrent {
                 if (downloaded >= size) {
                     manager.Pause();
                 }
+            }
+        }
+
+        public void UpdateMasterController(TorrentManager manager) {
+            foreach (var action in masterUpdateActions){
+                action(manager);
             }
         }
 

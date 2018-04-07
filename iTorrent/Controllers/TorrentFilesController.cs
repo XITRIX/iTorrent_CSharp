@@ -107,8 +107,11 @@ namespace iTorrent {
         public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             var cell = (FileCell)tableView.DequeueReusableCell("Cell", indexPath);
             cell.file = files[indexPath.Row];
+            cell.manager = manager;
+
             cell.Initialise();
             cell.UpdateInDetail();
+
             return cell;
         }
 

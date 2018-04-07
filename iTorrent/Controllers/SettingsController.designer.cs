@@ -16,10 +16,6 @@ namespace iTorrent
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem DoneAction { get; set; }
-
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISwitch FTPBackgroundSwitcher { get; set; }
 
         [Outlet]
@@ -36,11 +32,6 @@ namespace iTorrent
 
         void ReleaseDesignerOutlets ()
         {
-            if (DoneAction != null) {
-                DoneAction.Dispose ();
-                DoneAction = null;
-            }
-
             if (FTPBackgroundSwitcher != null) {
                 FTPBackgroundSwitcher.Dispose ();
                 FTPBackgroundSwitcher = null;
