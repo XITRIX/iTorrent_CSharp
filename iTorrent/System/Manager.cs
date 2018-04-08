@@ -54,6 +54,9 @@ namespace iTorrent {
             DatFile = Path.Combine(ConfigFolder, "dat.itor");
             AudioFile = Path.Combine(ConfigFolder, "audio.caf");
         }
+        public static void Init() {
+            Singletone = new Manager();
+        }
         #endregion
 
         #region Variables
@@ -64,7 +67,7 @@ namespace iTorrent {
 
         public static readonly int UIUpdateRate = 1000;
 
-        public List<TorrentManager> managers;
+        public List<TorrentManager> managers = new List<TorrentManager>();
         ClientEngine engine;
 
         public List<Action> updateActions = new List<Action>();
@@ -78,8 +81,6 @@ namespace iTorrent {
             if (Singletone != null) {
                 throw new MessageException("Only one sample of this object can exists");
             }
-			Singletone = this;
-            managers = new List<TorrentManager>();
                 
             SetupEngine();
             RestoreTorrents();

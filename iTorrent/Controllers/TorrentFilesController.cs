@@ -68,6 +68,7 @@ namespace iTorrent {
                 foreach (var cell in tableView.VisibleCells) {
                     ((FileCell)cell).UpdateInDetail();
                 }
+                Manager.Singletone.UpdateMasterController(manager);
             };
 
             SelectAllAction.Clicked += delegate {
@@ -77,6 +78,7 @@ namespace iTorrent {
                 foreach (var cell in tableView.VisibleCells) {
                     ((FileCell)cell).UpdateInDetail();
                 }
+                Manager.Singletone.UpdateMasterController(manager);
             };
 
             action = () => {

@@ -47,7 +47,7 @@ namespace iTorrent {
 			// Override point for customization after application launch.
 			// If not required for your application you can safely delete this method
 
-			new Manager();
+            Manager.Init();
 
             var splitController = Window.RootViewController as UISplitViewController;
             if (splitController != null) {
