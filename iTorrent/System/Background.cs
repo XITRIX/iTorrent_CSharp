@@ -40,8 +40,6 @@ namespace iTorrent {
 
         static AVAudioRecorder audioRecorder;
 
-        static List<Action> actionsBuffer;
-
         public static bool Backgrounding {
             get {
                 return audioRecorder.Recording;
@@ -57,9 +55,6 @@ namespace iTorrent {
         }
 
         public static void RunBackgroundMode() {
-            actionsBuffer = Manager.Singletone.updateActions;
-            Manager.Singletone.updateActions = null;
-
             bool ftpBackground = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground");
             if (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive && ftpBackground) {
                 audioRecorder.Record();
@@ -76,12 +71,6 @@ namespace iTorrent {
         }
 
         public static void StopBackgroundMode() {
-            foreach (var action in actionsBuffer) {
-                action();
-            }
-            Manager.Singletone.updateActions = actionsBuffer;
-            actionsBuffer = null;
-
             if (audioRecorder.Recording) {
                 audioRecorder.Stop();
             }

@@ -40,14 +40,11 @@ namespace iTorrent {
 
         protected TorrentCell(IntPtr handle) : base(handle) { }
 
-        public void Update() {
-            if (manager.State == TorrentState.Paused && Progress.Progress >= 1f) { return; }
+        public void Update(bool force = false) {
+            if ((manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped) && Progress.Progress >= 1f && !force) { return; }
 
-            if (manager.Torrent != null) {
-                Title.Text = manager.Torrent.Name;
-            } else {
-                Title.Text = "New download";
-            }
+            Title.Text = manager.Torrent != null ? manager.Torrent.Name : "New download";
+
             long size = 0;
             long downloaded = 0;
 
@@ -63,8 +60,8 @@ namespace iTorrent {
             Info.Text = Utils.GetSizeText(downloaded) + " of " + Utils.GetSizeText(size) + " (" + String.Format("{0:0.00}", ((float)progress / 100f)) + "%)";
             Status.Text = manager.State == TorrentState.Downloading ? manager.State.ToString() + " - DL:" + Utils.GetSizeText(manager.Monitor.DownloadSpeed) + "/s, UL:" + Utils.GetSizeText(manager.Monitor.UploadSpeed) + "/s" : manager.State.ToString();
             Progress.Progress = progress / 10000f;
-            if (Progress.Progress >= 1f || size == 0) {
-                manager.Pause();
+            if ((Progress.Progress >= 1f || size == 0) && manager.State != TorrentState.Hashing) {
+                manager.Stop();
                 Status.Text = "Finished";
                 Progress.Progress = 1f;
             }

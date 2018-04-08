@@ -43,6 +43,7 @@ namespace iTorrent {
         #region Variables
 
         public TorrentManager manager;
+        public UITableView TableView { get { return tableView; } }
 
         long size = 0;
         long downloaded = 0;
@@ -55,6 +56,10 @@ namespace iTorrent {
 
         public override void ViewDidLoad() {
             base.ViewDidLoad();
+
+            if (manager == null) {
+                return;
+            }
 
             Update();
             tableView.DataSource = this;
@@ -71,7 +76,7 @@ namespace iTorrent {
             };
 
             Remove.Clicked += delegate {
-                var action = UIAlertController.Create(null, "Are you sure to remove " + manager.Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
+                var actionController = UIAlertController.Create(null, "Are you sure to remove " + manager.Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
@@ -86,10 +91,16 @@ namespace iTorrent {
                     NavigationController.PopViewController(true);
                 });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
-                action.AddAction(removeAll);
-                action.AddAction(removeTorrent);
-                action.AddAction(cancel);
-                PresentViewController(action, true, null);
+
+                actionController.AddAction(removeAll);
+                actionController.AddAction(removeTorrent);
+                actionController.AddAction(cancel);
+
+                if (actionController.PopoverPresentationController != null) {
+                    actionController.PopoverPresentationController.BarButtonItem = Remove;
+                }
+
+                PresentViewController(actionController, true, null);
             };
 
             tableView.RowHeight = UITableView.AutomaticDimension;
@@ -113,7 +124,9 @@ namespace iTorrent {
 		public override void ViewWillAppear(bool animated) {
             base.ViewWillAppear(animated);
 
-            Manager.Singletone.updateActions.Add(action);
+            if (action != null) {
+                Manager.Singletone.updateActions.Add(action);
+            }
             tableView.ReloadData();
 		}
 

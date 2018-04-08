@@ -42,11 +42,12 @@
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARM64</MtouchArch>
+    <MtouchArch>ARMv7, ARMv7s, ARM64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodesignProvision>VS: ru.nonamedude.iTorrent Development</CodesignProvision>
+    <MtouchUseLlvm>true</MtouchUseLlvm>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>pdbonly</DebugType>
@@ -56,8 +57,8 @@
     <WarningLevel>4</WarningLevel>
     <CodesignKey>iPhone Developer: Daniil Vinogradov (XZD36HG6YQ)</CodesignKey>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
-    <MtouchLink>None</MtouchLink>
-    <MtouchArch>x86_64</MtouchArch>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -116,6 +117,8 @@
     <ImageAsset Include="Assets.xcassets\Settings.imageset\gear_75.png" />
     <ImageAsset Include="Assets.xcassets\Share.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-50.png" />
+    <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-75.png" />
+    <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-25.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />

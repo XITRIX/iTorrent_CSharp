@@ -42,7 +42,6 @@ using mooftpserv;
 
 using UIKit;
 using Foundation;
-using AVFoundation;
 
 namespace iTorrent {
     public class Manager {
@@ -55,6 +54,9 @@ namespace iTorrent {
             DatFile = Path.Combine(ConfigFolder, "dat.itor");
             AudioFile = Path.Combine(ConfigFolder, "audio.caf");
         }
+        public static void Init() {
+            Singletone = new Manager();
+        }
         #endregion
 
         #region Variables
@@ -65,10 +67,11 @@ namespace iTorrent {
 
         public static readonly int UIUpdateRate = 1000;
 
-        public List<TorrentManager> managers;
+        public List<TorrentManager> managers = new List<TorrentManager>();
         ClientEngine engine;
 
         public List<Action> updateActions = new List<Action>();
+        public List<Action<TorrentManager>> masterUpdateActions = new List<Action<TorrentManager>>();
 
         Server server;
         public Thread ftpThread;
@@ -78,8 +81,6 @@ namespace iTorrent {
             if (Singletone != null) {
                 throw new MessageException("Only one sample of this object can exists");
             }
-			Singletone = this;
-            managers = new List<TorrentManager>();
                 
             SetupEngine();
             RestoreTorrents();
@@ -147,7 +148,7 @@ namespace iTorrent {
                     if (updateActions != null) {
 						try {
 							foreach (var action in updateActions) {
-								action();
+                                action();
 							}
 						} catch (InvalidOperationException) {} // HACK: Prevent "Collection was modified" exception
                     }
@@ -183,8 +184,7 @@ namespace iTorrent {
         }
 
         public static void OnFinishLoading(TorrentManager manager) {
-            if (manager.State == TorrentState.Seeding || 
-                manager.State == TorrentState.Error) {
+            if (manager.State == TorrentState.Seeding) {
                 manager.Pause();
             } else if (manager.State == TorrentState.Downloading) {
                 long size = 0;
@@ -260,7 +260,7 @@ namespace iTorrent {
 
         public void UpdateManagers() {
             foreach (var manager in Manager.Singletone.managers) {
-                if (manager.State == TorrentState.Paused) { continue; }
+                if (manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped || manager.State == TorrentState.Hashing) { continue; }
 
                 long size = 0;
                 long downloaded = 0;
@@ -275,8 +275,14 @@ namespace iTorrent {
                 }
 
                 if (downloaded >= size) {
-                    manager.Pause();
+                    manager.Stop();
                 }
+            }
+        }
+
+        public void UpdateMasterController(TorrentManager manager) {
+            foreach (var action in masterUpdateActions){
+                action(manager);
             }
         }
 

@@ -34,7 +34,7 @@ namespace iTorrent {
     // The UIApplicationDelegate for the application. This class is responsible for launching the
     // User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
     [Register("AppDelegate")]
-    public class AppDelegate : UIApplicationDelegate, IAVAudioRecorderDelegate {
+    public class AppDelegate : UIApplicationDelegate, IAVAudioRecorderDelegate, IUISplitViewControllerDelegate {
         // class-level declarations
 
         public override UIWindow Window {
@@ -47,7 +47,16 @@ namespace iTorrent {
 			// Override point for customization after application launch.
 			// If not required for your application you can safely delete this method
 
-			new Manager();
+            Manager.Init();
+
+            var splitController = Window.RootViewController as UISplitViewController;
+            if (splitController != null) {
+                splitController.Delegate = this;
+                splitController.PreferredDisplayMode = UISplitViewControllerDisplayMode.AllVisible;
+            } else {
+                throw new System.MissingMemberException("Storyboard's root element is not SplitViewController");
+            }
+
             return true;
         }
 
@@ -88,6 +97,33 @@ namespace iTorrent {
             Manager.Singletone.SaveState();
         }
         #endregion
+
+        [Export("splitViewController:collapseSecondaryViewController:ontoPrimaryViewController:")]
+        public bool CollapseSecondViewController(UISplitViewController splitViewController, UIViewController secondaryViewController, UIViewController primaryViewController) {
+            var secondNav = secondaryViewController as UINavigationController;
+            if (secondNav != null) {
+                if (secondNav.TopViewController is TorrentDetailsController) {
+                    var detail = secondNav.TopViewController as TorrentDetailsController;
+                    if (detail != null && detail.manager != null) {
+                        return false;
+                    }
+                } else if (secondNav.TopViewController is TorrentFilesController) {
+                    var detail = secondNav.TopViewController as TorrentFilesController;
+                    if (detail != null && detail.manager != null) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        [Export("splitViewController:separateSecondaryViewControllerFromPrimaryViewController:")]
+        public UIViewController SeparateSecondaryViewController(UISplitViewController splitViewController, UIViewController primaryViewController) {
+            if (primaryViewController is UINavigationController nav && nav.TopViewController is SettingsController settings) {
+                return Utils.CreateEmptyViewController();
+            }
+            return null;
+        }
     }
 }
 

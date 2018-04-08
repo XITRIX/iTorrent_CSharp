@@ -31,6 +31,8 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
+using UIKit;
+
 namespace iTorrent {
     public class Utils {
         public static string GetSizeText(long size) {
@@ -94,6 +96,12 @@ namespace iTorrent {
             }
 
             return objectOut;
+        }
+
+        public static UIViewController CreateEmptyViewController() {
+            var view = new UIViewController();
+            view.View.BackgroundColor = new UIColor(237f / 255f, 237f / 255f, 237f / 255f, 1);
+            return view;
         }
     }
 }

@@ -68,6 +68,7 @@ namespace iTorrent {
                 foreach (var cell in tableView.VisibleCells) {
                     ((FileCell)cell).UpdateInDetail();
                 }
+                Manager.Singletone.UpdateMasterController(manager);
             };
 
             SelectAllAction.Clicked += delegate {
@@ -77,6 +78,7 @@ namespace iTorrent {
                 foreach (var cell in tableView.VisibleCells) {
                     ((FileCell)cell).UpdateInDetail();
                 }
+                Manager.Singletone.UpdateMasterController(manager);
             };
 
             action = () => {
@@ -107,8 +109,11 @@ namespace iTorrent {
         public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             var cell = (FileCell)tableView.DequeueReusableCell("Cell", indexPath);
             cell.file = files[indexPath.Row];
+            cell.manager = manager;
+
             cell.Initialise();
             cell.UpdateInDetail();
+
             return cell;
         }
 
