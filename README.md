@@ -5,7 +5,7 @@
 
 ## Screenshots
 
-![pic](https://user-images.githubusercontent.com/9553519/37665582-a06401ca-2c6e-11e8-8907-8aa25730401f.png)
+![pic](https://user-images.githubusercontent.com/9553519/38474040-d08144a2-3ba1-11e8-941e-7295dac03cc8.png)
 
 **Download .ipa:** ([Google Drive](https://drive.google.com/open?id=1lCdjScAPKwgkWRdWrgx6qdFX2vsoX5Gt))
 
