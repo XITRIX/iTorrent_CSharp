@@ -45,9 +45,9 @@ namespace iTorrent {
         public TorrentManager manager;
         public UITableView TableView { get { return tableView; } }
 
-        long size = 0;
-        long downloaded = 0;
-        long totalDownloaded = 0;
+        long selectedSize = 0;
+        long selectedDownload = 0;
+        long totalDownload = 0;
 
         string[] sections = { "", "SPEED", "GENERAL INFORMATION", "TRANSFER", "MORE" };
 
@@ -112,8 +112,8 @@ namespace iTorrent {
                     foreach (var cell in tableView.VisibleCells) {
                         var c = cell as DetailCell;
                         if (c != null) {
-                            c.size = size;
-                            c.downloaded = downloaded;
+                            c.selectedSize = selectedSize;
+                            c.selectedDownload = selectedDownload;
                             c.Update();
                         }
                     }
@@ -167,7 +167,7 @@ namespace iTorrent {
         public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             if (indexPath.Section <= 3) {
                 UITableViewCell cell = tableView.DequeueReusableCell("CellDetail", indexPath);
-                ((DetailCell)cell).Set(indexPath, manager, size, downloaded);
+                ((DetailCell)cell).Set(indexPath, manager, selectedSize, selectedDownload, totalDownload);
                 ((DetailCell)cell).Update();
                 return cell;
             } else {
@@ -189,21 +189,38 @@ namespace iTorrent {
         #endregion
 
         void Update() {
-            size = 0;
-            downloaded = 0;
-            totalDownloaded = 0;
+            selectedSize = 0;
+            selectedDownload = 0;
+            totalDownload = 0;
+
             if (manager.Torrent != null) {
                 foreach (var f in manager.Torrent.Files) {
                     if (f.Priority != Priority.DoNotDownload) {
-                        size += f.Length;
-                        downloaded += f.BytesDownloaded;
+                        selectedSize += f.Length;
+                        selectedDownload += f.BytesDownloaded;
                     }
-                    totalDownloaded += f.BytesDownloaded;
+                    totalDownload += f.BytesDownloaded;
                 }
             }
 
-            if (downloaded >= size) {
-                manager.Pause();
+            if (manager.State == TorrentState.Hashing) {
+                InvokeOnMainThread(() => {
+                    Pause.Enabled = false;
+                    Start.Enabled = false;
+                });
+                return;
+            }
+
+            if (manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped) {
+                InvokeOnMainThread(() => {
+                    Pause.Enabled = false;
+                    Start.Enabled = true;
+                });
+                return;
+            }
+
+            if (selectedDownload >= selectedSize) {
+                manager.Stop();
             }
 
             InvokeOnMainThread(() => {

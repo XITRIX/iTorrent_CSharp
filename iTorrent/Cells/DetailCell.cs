@@ -38,17 +38,19 @@ namespace iTorrent {
         NSIndexPath indexPath;
         TorrentManager manager;
 
-        public long size = 0;
-        public long downloaded = 0;
+        public long selectedSize = 0;
+        public long selectedDownload = 0;
+        long totalDownload = 0;
 
         public DetailCell(IntPtr handle) : base(handle) {
         }
 
-        public void Set(NSIndexPath indexPath, TorrentManager manager, long size, long downloaded) {
+        public void Set(NSIndexPath indexPath, TorrentManager manager, long selectedSize, long selectedDownload, long totalDownload) {
             this.indexPath = indexPath;
             this.manager = manager;
-            this.size = size;
-            this.downloaded = downloaded;
+            this.selectedSize = selectedSize;
+            this.selectedDownload = selectedDownload;
+            this.totalDownload = totalDownload;
         }
 
         private void Set(string title, string detail) {
@@ -61,7 +63,7 @@ namespace iTorrent {
                 case 0:
                     switch (indexPath.Row) {
                         case 0:
-                            Set("State", downloaded >= size ? "Finished" : manager.State.ToString());
+                            Set("State", selectedDownload >= selectedSize ? "Finished" : manager.State.ToString());
                             break;
                     }
                     break;
@@ -105,20 +107,20 @@ namespace iTorrent {
                     switch (indexPath.Row) {
                         case 0:
                             if (manager.Torrent != null)
-                                Set("Selected/Total", Utils.GetSizeText(size) + "/" + Utils.GetSizeText(manager.Torrent.Size));
+                                Set("Selected/Total", Utils.GetSizeText(selectedSize) + "/" + Utils.GetSizeText(manager.Torrent.Size));
                             else
                                 Set("Selected/Total", "");
                             break;
                         case 1:
-                            Set("Completed", Utils.GetSizeText(downloaded));
+                            Set("Completed", Utils.GetSizeText(selectedDownload));
                             break;
                         case 2:
 
-                            var selected = size != 0 ? downloaded * 10000 / size : 0;
+                            var selected = selectedSize != 0 ? selectedDownload * 10000 / selectedSize : 0;
                             var total = 0L;
 
                             if (manager.Torrent != null && manager.Torrent.Size != 0)
-                                total = downloaded * 10000 / manager.Torrent.Size;
+                                total = totalDownload * 10000 / manager.Torrent.Size;
                             Set("Progress Selected/Total", String.Format("{0:0.00}", ((float)selected / 100f)) + "%" + " / " + String.Format("{0:0.00}", ((float)total / 100f)) + "%");
                             break;
                         case 3:

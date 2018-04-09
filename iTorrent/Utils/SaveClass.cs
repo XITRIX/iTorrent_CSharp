@@ -28,6 +28,7 @@
 
 using MonoTorrent.Client;
 using MonoTorrent.Common;
+using MonoTorrent.BEncoding;
 
 namespace iTorrent {
     public class SaveClass {
@@ -49,15 +50,19 @@ namespace iTorrent {
 
     public class TorrentManagerSave {
         public TorrentState state;
+        public byte[] resume;
         public SerializableDictionary<string, bool> downloading;
-        //public bool[] downloading;
 
-        public TorrentManagerSave() { }
+        public TorrentManagerSave() {
+        }
 
         public TorrentManagerSave(TorrentManager manager) {
             state = manager.State;
 
-            //downloading = new bool[files.Length];
+            if (manager.State != TorrentState.Hashing) {
+                resume = manager.SaveFastResume().Encode().Encode();
+            }
+
             downloading = new SerializableDictionary<string, bool>();
             foreach (var file in manager.Torrent.Files) {
                 downloading.Add(file.Path, file.Priority != Priority.DoNotDownload);

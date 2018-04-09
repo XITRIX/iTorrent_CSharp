@@ -81,14 +81,14 @@ namespace iTorrent {
             if (Singletone != null) {
                 throw new MessageException("Only one sample of this object can exists");
             }
-                
+
             SetupEngine();
             RestoreTorrents();
             StartTorrents();
 
-			InitializeMainLoop();
+            InitializeMainLoop();
 
-			RunFTPServer();
+            RunFTPServer();
         }
 
         #region Initialization Functions
@@ -119,6 +119,8 @@ namespace iTorrent {
                         engine.Register(manager);
 
                         if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
+                            if (save.data[torrent.InfoHash.ToHex()].resume != null)
+                                manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
                             foreach (var _file in torrent.Files) {
                                 if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
                                     _file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
@@ -146,11 +148,11 @@ namespace iTorrent {
                 while (true) {
                     Thread.Sleep(UIUpdateRate);
                     if (updateActions != null) {
-						try {
-							foreach (var action in updateActions) {
+                        try {
+                            foreach (var action in updateActions) {
                                 action();
-							}
-						} catch (InvalidOperationException) {} // HACK: Prevent "Collection was modified" exception
+                            }
+                        } catch (InvalidOperationException) { } // HACK: Prevent "Collection was modified" exception
                     }
                 }
             }).Start();
@@ -166,18 +168,18 @@ namespace iTorrent {
             }
             Torrent torrent = Torrent.Load(url.Path);
 
-			foreach (var m in managers) {
-				if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
-					var alert = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
-					var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
-					alert.AddAction(close);
-					UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
-					return;
-				} 
-				if (m.Torrent.Name.Equals(torrent.Name)) {
-					//TODO: Unregister old one               
-				}
-			}
+            foreach (var m in managers) {
+                if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
+                    var alert = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
+                    var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
+                    alert.AddAction(close);
+                    UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
+                    return;
+                }
+                if (m.Torrent.Name.Equals(torrent.Name)) {
+                    //TODO: Unregister old one               
+                }
+            }
             UIViewController controller = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("AddTorrent");
             ((AddTorrentController)((UINavigationController)controller).ChildViewControllers[0]).torrent = torrent;
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(controller, true, null);
@@ -235,13 +237,14 @@ namespace iTorrent {
         public void StopFTPServer() {
             if (ftpThread.IsAlive) {
                 server.Stop();
-				ftpThread.Abort();
+                ftpThread.Abort();
             }
         }
         #endregion
 
         public void SaveState() {
             var save = new SaveClass();
+            Console.WriteLine(Manager.Singletone.managers.Count);
             foreach (var manager in Manager.Singletone.managers) {
                 save.AddManager(manager);
                 foreach (var file in manager.Torrent.Files) {
@@ -281,7 +284,7 @@ namespace iTorrent {
         }
 
         public void UpdateMasterController(TorrentManager manager) {
-            foreach (var action in masterUpdateActions){
+            foreach (var action in masterUpdateActions) {
                 action(manager);
             }
         }

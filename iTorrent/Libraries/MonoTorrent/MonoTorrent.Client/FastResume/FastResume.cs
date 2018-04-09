@@ -6,10 +6,8 @@ using MonoTorrent.Common;
 using System.IO;
 using MonoTorrent.BEncoding;
 
-namespace MonoTorrent.Client
-{
-    public class FastResume
-    {
+namespace MonoTorrent.Client {
+    public class FastResume {
         private static readonly BEncodedString VersionKey = (BEncodedString)"version";
         private static readonly BEncodedString InfoHashKey = (BEncodedString)"infohash";
         private static readonly BEncodedString BitfieldKey = (BEncodedString)"bitfield";
@@ -18,33 +16,23 @@ namespace MonoTorrent.Client
         private BitField bitfield;
         private InfoHash infoHash;
 
-        public BitField Bitfield
-        {
+        public BitField Bitfield {
             get { return bitfield; }
         }
 
-        public InfoHash Infohash
-        {
+        public InfoHash Infohash {
             get { return infoHash; }
         }
 
-        public FastResume()
-        {
+        public FastResume() {
         }
 
-        public FastResume(InfoHash infoHash, BitField bitfield)
-        {
-            if (infoHash==null)
-                throw new ArgumentNullException("infoHash");
-            if(bitfield == null)
-                throw new ArgumentNullException("bitfield");
-
-            this.infoHash = infoHash;
-            this.bitfield = bitfield;
+        public FastResume(InfoHash infoHash, BitField bitfield) {
+            this.infoHash = infoHash ?? throw new ArgumentNullException(nameof(infoHash));
+            this.bitfield = bitfield ?? throw new ArgumentNullException(nameof(bitfield));
         }
 
-        public FastResume(BEncodedDictionary dict)
-        {
+        public FastResume(BEncodedDictionary dict) {
             CheckContent(dict, VersionKey, (BEncodedNumber)1);
             CheckContent(dict, InfoHashKey);
             CheckContent(dict, BitfieldKey);
@@ -56,21 +44,18 @@ namespace MonoTorrent.Client
             bitfield.FromArray(data, 0, data.Length);
         }
 
-        private void CheckContent(BEncodedDictionary dict, BEncodedString key, BEncodedNumber value)
-        {
+        private void CheckContent(BEncodedDictionary dict, BEncodedString key, BEncodedNumber value) {
             CheckContent(dict, key);
             if (!dict[key].Equals(value))
                 throw new TorrentException(string.Format("Invalid FastResume data. The value of '{0}' was '{1}' instead of '{2}'", key, dict[key], value));
         }
 
-        private void CheckContent(BEncodedDictionary dict, BEncodedString key)
-        {
+        private void CheckContent(BEncodedDictionary dict, BEncodedString key) {
             if (!dict.ContainsKey(key))
                 throw new TorrentException(string.Format("Invalid FastResume data. Key '{0}' was not present", key));
         }
 
-        public BEncodedDictionary Encode()
-        {
+        public BEncodedDictionary Encode() {
             BEncodedDictionary dict = new BEncodedDictionary();
             dict.Add(VersionKey, (BEncodedNumber)1);
             dict.Add(InfoHashKey, new BEncodedString(infoHash.Hash));
@@ -79,8 +64,7 @@ namespace MonoTorrent.Client
             return dict;
         }
 
-        public void Encode(Stream s)
-        {
+        public void Encode(Stream s) {
             byte[] data = Encode().Encode();
             s.Write(data, 0, data.Length);
         }
