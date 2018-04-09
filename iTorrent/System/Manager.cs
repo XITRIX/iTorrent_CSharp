@@ -84,7 +84,6 @@ namespace iTorrent {
 
             SetupEngine();
             RestoreTorrents();
-            StartTorrents();
 
             InitializeMainLoop();
 
@@ -119,8 +118,20 @@ namespace iTorrent {
                         engine.Register(manager);
 
                         if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
-                            if (save.data[torrent.InfoHash.ToHex()].resume != null)
+                            if (save.data[torrent.InfoHash.ToHex()].resume != null) {
                                 manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
+                                switch (save.data[torrent.InfoHash.ToHex()].state) {
+                                    case TorrentState.Downloading:
+                                        manager.Start();
+                                        break;
+                                    case TorrentState.Paused:
+                                        manager.Pause();
+                                        break;
+                                    case TorrentState.Stopped:
+                                        manager.Stop();
+                                        break;
+                                }
+                            }
                             foreach (var _file in torrent.Files) {
                                 if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
                                     _file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
@@ -137,10 +148,6 @@ namespace iTorrent {
                     }
                 }
             }
-        }
-
-        void StartTorrents() {
-            engine.StartAll();
         }
 
         void InitializeMainLoop() {
@@ -244,7 +251,6 @@ namespace iTorrent {
 
         public void SaveState() {
             var save = new SaveClass();
-            Console.WriteLine(Manager.Singletone.managers.Count);
             foreach (var manager in Manager.Singletone.managers) {
                 save.AddManager(manager);
                 foreach (var file in manager.Torrent.Files) {
