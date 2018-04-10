@@ -252,6 +252,8 @@ namespace iTorrent {
         public void SaveState() {
             var save = new SaveClass();
             foreach (var manager in Manager.Singletone.managers) {
+                if (manager.Torrent == null) { continue; }
+
                 save.AddManager(manager);
                 foreach (var file in manager.Torrent.Files) {
                     if (manager.State != TorrentState.Hashing && File.Exists(file.FullPath) && file.Priority == Priority.DoNotDownload && file.BytesDownloaded == 0) {
@@ -283,7 +285,7 @@ namespace iTorrent {
                     }
                 }
 
-                if (downloaded >= size) {
+                if (downloaded >= size && manager.HasMetadata) {
                     manager.Stop();
                 }
             }

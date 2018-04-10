@@ -41,7 +41,6 @@ namespace iTorrent {
         public TorrentDetailsController(IntPtr handle) : base(handle) { }
 
         #region Variables
-
         public TorrentManager manager;
         public UITableView TableView { get { return tableView; } }
 
@@ -54,6 +53,7 @@ namespace iTorrent {
         Action action;
         #endregion
 
+        #region Lifecycle
         public override void ViewDidLoad() {
             base.ViewDidLoad();
 
@@ -76,24 +76,52 @@ namespace iTorrent {
             };
 
             Remove.Clicked += delegate {
-                var actionController = UIAlertController.Create(null, "Are you sure to remove " + manager.Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
+                var message = manager.HasMetadata ? "Are you sure to remove " + manager.Torrent.Name + " torrent?" : "Are you sure to remove this magnet torrent?";
+                var actionController = UIAlertController.Create(null, message, UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
                     Directory.Delete(Path.Combine(Manager.RootFolder, manager.Torrent.Name), true);
                     File.Delete(manager.Torrent.TorrentPath);
-                    NavigationController.PopViewController(true);
+
+                    if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
+                        if (splitController.Collapsed) {
+                            (splitController.ViewControllers[0] as UINavigationController).PopViewController(true);
+                        } 
+                        splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                    }
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
                     File.Delete(manager.Torrent.TorrentPath);
-                    NavigationController.PopViewController(true);
+
+                    if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
+                        if (splitController.Collapsed) {
+                            (splitController.ViewControllers[0] as UINavigationController).PopViewController(true);
+                        } 
+                        splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                    }
+                });
+                var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
+                    manager.Stop();
+                    Manager.Singletone.managers.Remove(manager);
+
+                    if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
+                        if (splitController.Collapsed) {
+                            (splitController.ViewControllers[0] as UINavigationController).PopViewController(true);
+                        }
+                        splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                    }
                 });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
-                actionController.AddAction(removeAll);
-                actionController.AddAction(removeTorrent);
+                if (manager.HasMetadata) {
+                    actionController.AddAction(removeAll);
+                    actionController.AddAction(removeTorrent);
+                } else {
+                    actionController.AddAction(removeMagnet);
+                }
                 actionController.AddAction(cancel);
 
                 if (actionController.PopoverPresentationController != null) {
@@ -135,10 +163,10 @@ namespace iTorrent {
 
             Manager.Singletone.updateActions.Remove(action);
 		}
+        #endregion
 
-		#region TableView DataSource
-
-		[Export("numberOfSectionsInTableView:")]
+        #region TableView DataSource
+        [Export("numberOfSectionsInTableView:")]
         public nint NumberOfSections(UITableView tableView) {
             return sections.Length;
         }
@@ -185,7 +213,6 @@ namespace iTorrent {
                 ShowViewController(controller, this);
             }
         }
-
         #endregion
 
         void Update() {
@@ -203,7 +230,7 @@ namespace iTorrent {
                 }
             }
 
-            if (manager.State == TorrentState.Hashing) {
+            if (manager.State == TorrentState.Hashing || !manager.HasMetadata || !Manager.Singletone.managers.Contains(manager)) {
                 InvokeOnMainThread(() => {
                     Pause.Enabled = false;
                     Start.Enabled = false;
@@ -219,7 +246,7 @@ namespace iTorrent {
                 return;
             }
 
-            if (selectedDownload >= selectedSize) {
+            if (selectedDownload >= selectedSize && manager.HasMetadata) {
                 manager.Stop();
             }
 

@@ -43,14 +43,11 @@ namespace iTorrent {
         protected MainController(IntPtr handle) : base(handle) { }
 
         #region Variables
-
         public static MainController Instance { get; private set; }
         public UITableView TableView { get { return tableView; } }
-
         #endregion
 
         #region Life Cycle
-
         Action action;
         Action<TorrentManager> masterAction;
 
@@ -198,16 +195,15 @@ namespace iTorrent {
             Manager.Singletone.masterUpdateActions.Add(masterAction);
         }
 
-		public override void ViewDidDisappear(bool animated) {
+        public override void ViewDidDisappear(bool animated) {
             base.ViewDidDisappear(animated);
 
             Manager.Singletone.updateActions.Remove(action);
             Manager.Singletone.masterUpdateActions.Remove(masterAction);
-		}
+        }
         #endregion
 
         #region TableView DataSource
-
         public nint RowsInSection(UITableView tableView, nint section) {
             return Manager.Singletone.managers.Count;
         }
@@ -227,7 +223,8 @@ namespace iTorrent {
         [Export("tableView:commitEditingStyle:forRowAtIndexPath:")]
         public void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath) {
             if (editingStyle == UITableViewCellEditingStyle.Delete) {
-                var actionController = UIAlertController.Create(null, "Are you sure to remove " + Manager.Singletone.managers[indexPath.Row].Torrent.Name + " torrent?", UIAlertControllerStyle.ActionSheet);
+                var message = Manager.Singletone.managers[indexPath.Row].HasMetadata ? "Are you sure to remove " + Manager.Singletone.managers[indexPath.Row].Torrent.Name + " torrent?" : "Are you sure to remove this magnet torrent?";
+                var actionController = UIAlertController.Create(null, message, UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
                     var manager = Manager.Singletone.managers[indexPath.Row];
                     manager.Stop();
@@ -251,15 +248,11 @@ namespace iTorrent {
                             var detailView = (detail as UINavigationController).TopViewController;
                             if (detailView is TorrentDetailsController) {
                                 if ((detailView as TorrentDetailsController).manager == manager) {
-                                    var view = new UIViewController();
-                                    view.View.BackgroundColor = new UIColor(237f / 255f, 237f / 255f, 237f / 255f, 1);
-                                    splitController.ShowDetailViewController(view, this);
+                                    splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                                 }
                             } else if (detailView is TorrentFilesController) {
                                 if ((detailView as TorrentFilesController).manager == manager) {
-                                    var view = new UIViewController();
-                                    view.View.BackgroundColor = new UIColor(237f / 255f, 237f / 255f, 237f / 255f, 1);
-                                    splitController.ShowDetailViewController(view, this);
+                                    splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                                 }
                             }
                         }
@@ -279,30 +272,52 @@ namespace iTorrent {
                             var detailView = (detail as UINavigationController).TopViewController;
                             if (detailView is TorrentDetailsController detailController && detailController.manager == manager ||
                                 detailView is TorrentFilesController fileController && fileController.manager == manager) {
-                                    splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                                splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                             }
                         }
                     }
                 });
+                var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
+                    var manager = Manager.Singletone.managers[indexPath.Row];
+                    manager.Stop();
+                    Manager.Singletone.managers.Remove(manager);
+                    tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+
+                    var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
+                    if (!splitController.Collapsed) {
+                        var detail = splitController.ViewControllers.Length > 1 ? splitController.ViewControllers[1] : null;
+                        if (detail != null && detail is UINavigationController) {
+                            var detailView = (detail as UINavigationController).TopViewController;
+                            if (detailView is TorrentDetailsController detailController && detailController.manager == manager ||
+                                detailView is TorrentFilesController fileController && fileController.manager == manager) {
+                                splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                            }
+                        }
+                    } //FIXME: IPhone Plus - If remove torrent in portrait mode than rotate, split view detail will show removed manager
+                });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
-                actionController.AddAction(removeAll);
-                actionController.AddAction(removeTorrent);
+                if (Manager.Singletone.managers[indexPath.Row].HasMetadata) {
+                    actionController.AddAction(removeAll);
+                    actionController.AddAction(removeTorrent);
+                } else {
+                    actionController.AddAction(removeMagnet);
+                }
                 actionController.AddAction(cancel);
 
                 if (actionController.PopoverPresentationController != null) {
                     actionController.PopoverPresentationController.SourceView = TableView.CellAt(indexPath);
-                    actionController.PopoverPresentationController.SourceRect = TableView.CellAt(indexPath).Bounds;//new CoreGraphics.CGRect(0, 0, 0, 0);
+                    actionController.PopoverPresentationController.SourceRect = TableView.CellAt(indexPath).Bounds;
                     actionController.PopoverPresentationController.PermittedArrowDirections = UIPopoverArrowDirection.Left;
                 }
 
                 PresentViewController(actionController, true, null);
             }
         }
+        #endregion
 
-		#endregion
-
-		public override bool ShouldPerformSegue(string segueIdentifier, NSObject sender) {
+        #region Segue
+        public override bool ShouldPerformSegue(string segueIdentifier, NSObject sender) {
             if (segueIdentifier == "Details") {
                 var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
                 if (!splitController.Collapsed) {
@@ -317,8 +332,8 @@ namespace iTorrent {
                             } else if (detail.TopViewController is TorrentDetailsController detailController) {
                                 var cell = sender as TorrentCell;
                                 if (detailController.manager == cell.manager) {
-                                    //detailController.TableView.SetContentOffset(new CoreGraphics.CGPoint(0, 0 - detailController.NavigationController.NavigationBar.Frame.Height - UIApplication.SharedApplication.StatusBarFrame.Height), true);
-                                    detailController.TableView.ScrollToRow(NSIndexPath.FromRowSection(0, 0), UITableViewScrollPosition.Top, true);
+                                    // TODO: Scroll to top, HOW TO DO THIS SHIT?!
+                                    //return false;
                                 }
                             }
                         }
@@ -326,9 +341,9 @@ namespace iTorrent {
                 }
             }
             return true;
-		}
+        }
 
-		public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender) {
+        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender) {
             base.PrepareForSegue(segue, sender);
             if (segue.Identifier == "Details") {
                 var target = segue.DestinationViewController as UINavigationController;
@@ -336,10 +351,11 @@ namespace iTorrent {
                 if (cell.manager.Torrent != null)
                     (target.TopViewController as TorrentDetailsController).Title = cell.manager.Torrent.Name;
                 else
-                    (target.TopViewController as TorrentDetailsController).Title = "New download";
+                    (target.TopViewController as TorrentDetailsController).Title = "Magnet download";
                 (target.TopViewController as TorrentDetailsController).manager = cell.manager;
                 (target.TopViewController as TorrentDetailsController).WillMoveToParentViewController(this);
             }
         }
+        #endregion
     }
 }

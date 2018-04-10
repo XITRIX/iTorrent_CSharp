@@ -40,6 +40,8 @@ namespace iTorrent {
         }
 
         public void AddManager(TorrentManager manager) {
+            if (manager.Torrent == null) { return; }
+
             var save = new TorrentManagerSave(manager);
             if (data.ContainsKey(manager.Torrent.InfoHash.ToHex())) {
                 data.Remove(manager.Torrent.InfoHash.ToHex());
@@ -59,13 +61,15 @@ namespace iTorrent {
         public TorrentManagerSave(TorrentManager manager) {
             state = manager.State;
 
-            if (manager.State != TorrentState.Hashing) {
+            if (manager.State != TorrentState.Hashing && manager.HasMetadata) {
                 resume = manager.SaveFastResume().Encode().Encode();
             }
 
             downloading = new SerializableDictionary<string, bool>();
-            foreach (var file in manager.Torrent.Files) {
-                downloading.Add(file.Path, file.Priority != Priority.DoNotDownload);
+            if (manager.Torrent != null) {
+                foreach (var file in manager.Torrent.Files) {
+                    downloading.Add(file.Path, file.Priority != Priority.DoNotDownload);
+                }
             }
         }
     }
