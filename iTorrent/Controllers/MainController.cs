@@ -120,7 +120,7 @@ namespace iTorrent {
                 var url = UIAlertAction.Create("URL", UIAlertActionStyle.Default, delegate {
                     var urlAlert = UIAlertController.Create("Add from URL", "Please enter the existing torrent's URL below", UIAlertControllerStyle.Alert);
                     urlAlert.AddTextField((UITextField obj) => {
-                        obj.Placeholder = "http://";
+                        obj.Placeholder = "https://";
                     });
                     var ok = UIAlertAction.Create("OK", UIAlertActionStyle.Default, delegate {
                         var textField = urlAlert.TextFields[0];
@@ -129,7 +129,26 @@ namespace iTorrent {
                             Directory.CreateDirectory(Manager.ConfigFolder);
                         }
 
-                        Torrent torrent = Torrent.Load(new Uri(textField.Text), Manager.RootFolder + "/Config/_temp.torrent");
+                        Torrent torrent = null;
+                        try {
+                            torrent = Torrent.Load(new Uri(textField.Text), Manager.RootFolder + "/Config/_temp.torrent");
+                        } catch (TorrentException ex) {
+                            Console.WriteLine(ex.StackTrace);
+                            var alertError = UIAlertController.Create("An error occurred", "Please, open this link in Safari, and send .torrent file from it", UIAlertControllerStyle.Alert);
+                            var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
+                            alertError.AddAction(close);
+                            PresentViewController(alertError, true, null);
+                            return;
+                        } catch (FormatException ex) {
+                            Console.WriteLine(ex.Message);
+                            Console.WriteLine(ex.StackTrace);
+
+                            var alertError = UIAlertController.Create("Error", "Wrong link, check it and try again!", UIAlertControllerStyle.Alert);
+                            var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
+                            alertError.AddAction(close);
+                            PresentViewController(alertError, true, null);
+                            return;
+                        }
 
                         foreach (var m in Manager.Singletone.managers) {
                             if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
@@ -185,6 +204,8 @@ namespace iTorrent {
                     }
                 });
             };
+
+            Manager.Singletone.restoreAction = TableView.ReloadData;
         }
 
         public override void ViewWillAppear(bool animated) {
