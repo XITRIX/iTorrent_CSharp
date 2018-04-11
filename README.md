@@ -20,14 +20,14 @@ What can this app do:
 - Add torrent files from Share menu (Safari and other apps)
 - Store files in Files app (only iOS 11)
 - Download torrent file by link
-- Download torrent by magnet
+- Download torrent by magnet (not working yet)
 - Select files to download
 - Share files by FTP Server
 - ??? 
 
 ## Libraries used
 
-- [MonoTorrent](https://github.com/mono/monotorrent)
+- [MonoTorrent (joshmackey fork)](https://github.com/joshmackey/monotorrent)
 - [MooFTPServ](https://github.com/mooware/mooftpserv)
 
 ## Known bugs
