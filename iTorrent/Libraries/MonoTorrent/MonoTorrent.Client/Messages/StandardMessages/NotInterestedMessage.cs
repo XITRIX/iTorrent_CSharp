@@ -26,14 +26,18 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.Net;
 
-namespace MonoTorrent.Client.Messages.Standard {
+namespace MonoTorrent.Client.Messages.Standard
+{
     /// <summary>
     /// Represents a "NotInterested" message
     /// </summary>
-    public class NotInterestedMessage : PeerMessage {
+    public class NotInterestedMessage : PeerMessage
+    {
         private const int messageLength = 1;
         internal static readonly byte MessageId = 3;
 
@@ -41,13 +45,17 @@ namespace MonoTorrent.Client.Messages.Standard {
         /// <summary>
         /// Creates a new NotInterestedMessage
         /// </summary>
-        public NotInterestedMessage() { }
+        public NotInterestedMessage()
+        {
+        }
         #endregion
 
-        #region Methods
 
-        public override int Encode(byte[] buffer, int offset) {
-            int written = offset;
+        #region Methods
+        
+        public override int Encode(byte[] buffer, int offset)
+        {
+			int written = offset;
 
             written += Write(buffer, written, messageLength);
             written += Write(buffer, written, MessageId);
@@ -55,32 +63,40 @@ namespace MonoTorrent.Client.Messages.Standard {
             return CheckWritten(written - offset);
         }
 
-        public override void Decode(byte[] buffer, int offset, int length) {
+
+
+        public override void Decode(byte[] buffer, int offset, int length)
+        {
             // No decoding needed
         }
 
         /// <summary>
         /// Returns the length of the message in bytes
         /// </summary>
-        public override int ByteLength {
+        public override int ByteLength
+        {
             get { return (messageLength + 4); }
         }
         #endregion
+
 
         #region Overridden Methods
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public override string ToString() {
+        public override string ToString()
+        {
             return "NotInterestedMessage";
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             return (obj is NotInterestedMessage);
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return (this.ToString().GetHashCode());
         }
         #endregion

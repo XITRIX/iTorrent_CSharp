@@ -35,6 +35,7 @@ using System.Collections.Generic;
 
 using MonoTorrent.BEncoding;
 using MonoTorrent.Client;
+using MonoTorrent.Client.Tracker;
 using MonoTorrent.Common;
 using MonoTorrent.Client.Encryption;
 
@@ -116,7 +117,6 @@ namespace iTorrent {
                             Torrent torrent = Torrent.Load(file);
                             TorrentManager manager = new TorrentManager(torrent, RootFolder, new TorrentSettings());
 
-                            managers.Add(manager);
                             engine.Register(manager);
 
                             if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
@@ -147,6 +147,16 @@ namespace iTorrent {
                             manager.TorrentStateChanged += delegate {
                                 Manager.OnFinishLoading(manager);
                             };
+
+                            foreach (TrackerTier tier in manager.TrackerManager) {
+                                foreach (Tracker t in tier.Trackers) {
+                                    t.AnnounceComplete += delegate (object sender, AnnounceResponseEventArgs e) {
+                                        Console.WriteLine(string.Format("{0}!: {1}", e.Successful, e.Tracker));
+                                    };
+                                }
+                            }
+
+                            managers.Add(manager);
 
                             UIApplication.SharedApplication.InvokeOnMainThread(() => {
                                 restoreAction?.Invoke();
@@ -226,6 +236,10 @@ namespace iTorrent {
             engine.Register(manager);
         }
 
+        public void UnregisterManager(TorrentManager manager) {
+            engine.Unregister(manager);
+        }
+
         #region FTPServer
         public void RunFTPServer(Action<SocketException> onErrorEvent = null, Action onSuccessEvent = null) {
             ftpThread = new Thread(() => {
@@ -288,7 +302,7 @@ namespace iTorrent {
 
         public void UpdateManagers() {
             foreach (var manager in Manager.Singletone.managers) {
-                if (manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped || manager.State == TorrentState.Hashing) { continue; }
+                if (manager == null || manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped || manager.State == TorrentState.Hashing) { continue; }
 
                 long size = 0;
                 long downloaded = 0;

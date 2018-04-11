@@ -41,7 +41,7 @@ namespace iTorrent {
         protected TorrentCell(IntPtr handle) : base(handle) { }
 
         public void Update(bool force = false) {
-            if (manager == null || ((manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped) && Progress.Progress >= 1f && !force)) { return; }
+            if ((manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped) && Progress.Progress >= 1f && !force) { return; }
 
             Title.Text = manager.Torrent != null ? manager.Torrent.Name : "Magnet download";
 

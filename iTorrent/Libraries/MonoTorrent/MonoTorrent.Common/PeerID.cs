@@ -27,6 +27,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.Text.RegularExpressions;
 
@@ -166,7 +168,7 @@ namespace MonoTorrent.Common
 			}
 
             #region Standard style peers
-            if ((m = standard.Match(peerId)).Success)
+            if ((m = standard.Match(peerId)) != null)
             {
                 this.shortId = m.Groups[1].Value;
                 switch (m.Groups[2].Value)
@@ -317,7 +319,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region Shadows Style
-            if ((m = shadows.Match(peerId)).Success)
+            if ((m = shadows.Match(peerId)) != null)
             {
                 this.shortId = m.Groups[1].Value;
                 switch (m.Groups[2].Value)
@@ -356,7 +358,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region Brams Client
-            if ((m = brahms.Match(peerId)).Success)
+            if ((m = brahms.Match(peerId)) != null)
             {
                 this.shortId = "M";
                 this.client = Client.BitTorrent;
@@ -365,7 +367,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region BitLord
-            if ((m = bitlord.Match(peerId)).Success)
+            if ((m = bitlord.Match(peerId)) != null)
             {
                 this.client = Client.BitLord;
                 this.shortId = "lord";
@@ -374,7 +376,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region BitComet
-            if ((m = bitcomet.Match(peerId)).Success)
+            if ((m = bitcomet.Match(peerId)) != null)
             {
                 this.client = Client.BitComet;
                 this.shortId = "BC";
@@ -383,7 +385,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region XBT
-            if ((m = xbt.Match(peerId)).Success)
+            if ((m = xbt.Match(peerId)) != null)
             {
                 this.client = Client.XBTClient;
                 this.shortId = "XBT";
@@ -392,7 +394,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region Opera
-            if ((m = opera.Match(peerId)).Success)
+            if ((m = opera.Match(peerId)) != null)
             {
                 this.client = Client.Opera;
                 this.shortId = "OP";
@@ -400,7 +402,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region MLDonkey
-            if ((m = mldonkey .Match(peerId)).Success)
+            if ((m = mldonkey .Match(peerId)) != null)
             {
                 this.client = Client.MLDonkey;
                 this.shortId = "ML";
@@ -409,7 +411,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region Bits on wheels
-            if ((m = bow.Match(peerId)).Success)
+            if ((m = bow.Match(peerId)) != null)
             {
                 this.client = Client.BitsOnWheels;
                 this.shortId = "BOW";
@@ -418,7 +420,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region Queen Bee
-            if ((m = queenbee.Match(peerId)).Success)
+            if ((m = queenbee.Match(peerId)) != null)
             {
                 this.client = Client.QueenBee;
                 this.shortId = "Q";
@@ -427,7 +429,7 @@ namespace MonoTorrent.Common
             #endregion
 
             #region BitTornado special style
-            if((m = bittornado.Match(peerId)).Success)
+            if((m = bittornado.Match(peerId)) != null)
             {
                 this.shortId = m.Groups[1].Value;
                 this.client = Client.BitTornado;
@@ -439,6 +441,7 @@ namespace MonoTorrent.Common
             this.shortId = peerId;
             System.Diagnostics.Trace.WriteLine("Unrecognisable clientid style: " + peerId);
         }
+
 
         public override string ToString()
         {

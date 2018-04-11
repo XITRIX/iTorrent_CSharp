@@ -65,10 +65,11 @@ namespace MonoTorrent.Client
 
         #endregion
 
+
         #region Member Variables
 
         private BitField bitfield;              // The bitfield representing the pieces we've downloaded and have to download
-        //private bool disposed;
+        private bool disposed;
         private ClientEngine engine;            // The engine that this torrent is registered with
         private Error error;
         internal Queue<int> finishedPieces;     // The list of pieces which we should send "have" messages for
@@ -452,7 +453,7 @@ namespace MonoTorrent.Client
 
         public void Dispose()
         {
-            //disposed = true;
+            disposed = true;
         }
 
 
@@ -826,9 +827,8 @@ namespace MonoTorrent.Client
         {
             if (engine == null)
                 throw new TorrentException("This manager has not been registed with an Engine");
-            if (engine.Disposed) {
+            if (engine.Disposed)
                 throw new InvalidOperationException("The registered engine has been disposed");
-            }
         }
 
         internal PiecePicker CreateStandardPicker()

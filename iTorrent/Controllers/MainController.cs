@@ -35,6 +35,8 @@ using MonoTorrent;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
 
+using Google.MobileAds;
+
 using UIKit;
 using Foundation;
 
@@ -205,7 +207,26 @@ namespace iTorrent {
                 });
             };
 
-            Manager.Singletone.restoreAction = TableView.ReloadData;
+            Manager.Singletone.restoreAction = () => { 
+                TableView.ReloadData();
+            };
+
+            //var bannerView = new BannerView(AdSizeCons.Banner) {
+            //    AdUnitID = ADSManager.ADBlockTestID,
+            //    RootViewController = this
+            //};
+
+            //TableView.AddSubview(bannerView);
+            //var frame = bannerView.Frame;
+            //frame.Y = View.Frame.Size.Height - NavigationController.Toolbar.Frame.Height - bannerView.Frame.Height;
+            //frame.Width = View.Frame.Width;
+            //bannerView.Frame = frame;
+
+            //bannerView.AdReceived += delegate {
+            //    Console.WriteLine("Received");
+            //};
+
+            //bannerView.LoadRequest(Request.GetDefaultRequest());
         }
 
         public override void ViewWillAppear(bool animated) {
@@ -250,6 +271,7 @@ namespace iTorrent {
                     var manager = Manager.Singletone.managers[indexPath.Row];
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
+                    Manager.Singletone.UnregisterManager(manager);
                     if (Directory.Exists(Manager.RootFolder + "/" + manager.Torrent.Name)) {
                         Directory.Delete(Manager.RootFolder + "/" + manager.Torrent.Name, true);
                     } else {
@@ -283,6 +305,7 @@ namespace iTorrent {
                     var manager = Manager.Singletone.managers[indexPath.Row];
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
+                    Manager.Singletone.UnregisterManager(manager);
                     File.Delete(manager.Torrent.TorrentPath);
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
 
@@ -302,6 +325,7 @@ namespace iTorrent {
                     var manager = Manager.Singletone.managers[indexPath.Row];
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
+                    Manager.Singletone.UnregisterManager(manager);
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
 
                     var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;

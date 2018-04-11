@@ -26,15 +26,19 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.Net.Sockets;
 using MonoTorrent.Common;
 
-namespace MonoTorrent.Client {
+namespace MonoTorrent.Client
+{
     /// <summary>
     /// This class is used to track upload/download speed and bytes uploaded/downloaded for each connection
     /// </summary>
-    public class ConnectionMonitor {
+    public class ConnectionMonitor
+    {
         #region Member Variables
 
         private SpeedMonitor dataDown;
@@ -45,40 +49,52 @@ namespace MonoTorrent.Client {
 
         #endregion Member Variables
 
+
         #region Public Properties
 
-        public long DataBytesDownloaded {
+        public long DataBytesDownloaded
+        {
             get { return dataDown.Total; }
         }
 
-        public long DataBytesUploaded {
+        public long DataBytesUploaded
+        {
             get { return dataUp.Total; }
         }
 
-        public int DownloadSpeed {
+        public int DownloadSpeed
+        {
             get { return dataDown.Rate + protocolDown.Rate; }
         }
 
-        public long ProtocolBytesDownloaded {
+        public long ProtocolBytesDownloaded
+        {
             get { return protocolDown.Total; }
         }
 
-        public long ProtocolBytesUploaded {
+        public long ProtocolBytesUploaded
+        {
             get { return protocolUp.Total; }
         }
 
-        public int UploadSpeed {
+        public int UploadSpeed
+        {
             get { return dataUp.Rate + protocolUp.Rate; }
         }
 
         #endregion Public Properties
 
+
         #region Constructors
 
         internal ConnectionMonitor()
-            : this(12) { }
+            : this(12)
+        {
 
-        internal ConnectionMonitor(int averagingPeriod) {
+        }
+
+        internal ConnectionMonitor(int averagingPeriod)
+        {
             dataDown = new SpeedMonitor(averagingPeriod);
             dataUp = new SpeedMonitor(averagingPeriod);
             protocolDown = new SpeedMonitor(averagingPeriod);
@@ -87,10 +103,13 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Methods
 
-        internal void BytesSent(int bytesUploaded, TransferType type) {
-            lock (locker) {
+        internal void BytesSent(int bytesUploaded, TransferType type)
+        {
+            lock (locker)
+            {
                 if (type == TransferType.Data)
                     dataUp.AddDelta(bytesUploaded);
                 else
@@ -98,8 +117,10 @@ namespace MonoTorrent.Client {
             }
         }
 
-        internal void BytesReceived(int bytesDownloaded, TransferType type) {
-            lock (locker) {
+        internal void BytesReceived(int bytesDownloaded, TransferType type)
+        {
+            lock (locker)
+            {
                 if (type == TransferType.Data)
                     dataDown.AddDelta(bytesDownloaded);
                 else
@@ -107,8 +128,10 @@ namespace MonoTorrent.Client {
             }
         }
 
-        internal void Reset() {
-            lock (locker) {
+        internal void Reset()
+        {
+            lock (locker)
+            {
                 dataDown.Reset();
                 dataUp.Reset();
                 protocolDown.Reset();
@@ -116,8 +139,10 @@ namespace MonoTorrent.Client {
             }
         }
 
-        internal void Tick() {
-            lock (locker) {
+        internal void Tick()
+        {
+            lock (locker)
+            {
                 dataDown.Tick();
                 dataUp.Tick();
                 protocolDown.Tick();

@@ -40,7 +40,7 @@ namespace iTorrent {
 
         public long selectedSize = 0;
         public long selectedDownload = 0;
-        long totalDownload = 0;
+        public long totalDownload = 0;
 
         public DetailCell(IntPtr handle) : base(handle) {
         }

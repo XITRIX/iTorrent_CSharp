@@ -25,6 +25,8 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+using Firebase.Core;
+using Google.MobileAds;
 
 using Foundation;
 using UIKit;
@@ -44,8 +46,11 @@ namespace iTorrent {
 
         #region AppDelegate LifeCycle 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions) {
-			// Override point for customization after application launch.
-			// If not required for your application you can safely delete this method
+            // Override point for customization after application launch.
+            // If not required for your application you can safely delete this method
+
+            App.Configure();
+            MobileAds.Configure(ADSManager.AppID);
 
             Manager.Init();
 

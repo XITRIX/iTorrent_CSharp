@@ -26,11 +26,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
 using System;
 using MonoTorrent.Common;
 
-namespace MonoTorrent.Client {
-    public class Piece : IComparable<Piece> {
+namespace MonoTorrent.Client
+{
+    public class Piece : IComparable<Piece>
+    {
         internal const int BlockSize = (1 << 14); // 16kB
 
         #region Member Variables
@@ -43,66 +46,82 @@ namespace MonoTorrent.Client {
 
         #endregion MemberVariables
 
+
         #region Fields
 
-        public Block this[int index] {
+        public Block this[int index]
+        {
             get { return this.blocks[index]; }
         }
 
-        internal Block[] Blocks {
+        internal Block[] Blocks
+        {
             get { return this.blocks; }
         }
 
-        public bool AllBlocksRequested {
+        public bool AllBlocksRequested
+        {
             get { return this.totalRequested == BlockCount; }
         }
 
-        public bool AllBlocksReceived {
+        public bool AllBlocksReceived
+        {
             get { return this.totalReceived == BlockCount; }
         }
-
-        public bool AllBlocksWritten {
+        
+        public bool AllBlocksWritten
+        {
             get { return this.totalWritten == BlockCount; }
         }
 
-        public int BlockCount {
+        public int BlockCount
+        {
             get { return this.blocks.Length; }
         }
 
-        public int Index {
+        public int Index
+        {
             get { return this.index; }
         }
 
-        public bool NoBlocksRequested {
+        public bool NoBlocksRequested
+        {
             get { return this.totalRequested == 0; }
         }
 
-        public int TotalReceived {
+        public int TotalReceived
+        {
             get { return this.totalReceived; }
             internal set { this.totalReceived = value; }
         }
 
-        public int TotalRequested {
+        public int TotalRequested
+        {
             get { return this.totalRequested; }
             internal set { this.totalRequested = value; }
         }
 
-        public int TotalWritten {
+        public int TotalWritten
+        {
             get { return totalWritten; }
             internal set { this.totalWritten = value; }
         }
 
         #endregion Fields
 
+
         #region Constructors
 
-        internal Piece(int pieceIndex, int pieceLength, long torrentSize) {
+        internal Piece(int pieceIndex, int pieceLength, long torrentSize)
+        {
             this.index = pieceIndex;
 
             // Request last piece. Special logic needed
-            if ((torrentSize - ((long)pieceIndex * pieceLength)) < pieceLength)
+            if ((torrentSize - (long)pieceIndex *pieceLength) < pieceLength)      
                 LastPiece(pieceIndex, pieceLength, torrentSize);
-            else {
+
+            else
+            {
                 int numberOfPieces = (int)Math.Ceiling(((double)pieceLength / BlockSize));
 
                 blocks = new Block[numberOfPieces];
@@ -115,7 +134,8 @@ namespace MonoTorrent.Client {
             }
         }
 
-        private void LastPiece(int pieceIndex, int pieceLength, long torrentSize) {
+        private void LastPiece(int pieceIndex, int pieceLength, long torrentSize)
+        {
             int bytesRemaining = (int)(torrentSize - ((long)pieceIndex * pieceLength));
             int numberOfBlocks = bytesRemaining / BlockSize;
             if (bytesRemaining % BlockSize != 0)
@@ -124,7 +144,8 @@ namespace MonoTorrent.Client {
             blocks = new Block[numberOfBlocks];
 
             int i = 0;
-            while (bytesRemaining - BlockSize > 0) {
+            while (bytesRemaining - BlockSize > 0)
+            {
                 blocks[i] = new Block(this, i * BlockSize, BlockSize);
                 bytesRemaining -= BlockSize;
                 i++;
@@ -135,22 +156,27 @@ namespace MonoTorrent.Client {
 
         #endregion
 
+
         #region Methods
 
-        public int CompareTo(Piece other) {
+        public int CompareTo(Piece other)
+        {
             return other == null ? 1 : Index.CompareTo(other.Index);
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             Piece p = obj as Piece;
             return (p == null) ? false : this.index.Equals(p.index);
         }
 
-        public System.Collections.IEnumerator GetEnumerator() {
+        public System.Collections.IEnumerator GetEnumerator()
+        {
             return this.blocks.GetEnumerator();
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return this.index;
         }
 

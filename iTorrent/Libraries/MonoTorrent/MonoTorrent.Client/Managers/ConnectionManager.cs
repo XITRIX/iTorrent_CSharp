@@ -36,7 +36,6 @@ using MonoTorrent.Client.Encryption;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.NetworkInformation;
 using MonoTorrent.Client.Messages;
 using MonoTorrent.Client.Connections;
 using MonoTorrent.Client.Messages.FastPeer;
@@ -597,6 +596,7 @@ namespace MonoTorrent.Client
 
         internal void TryConnect()
         {
+            TorrentManager m = null;
             
             // If we have already reached our max connections globally, don't try to connect to a new peer
             while (OpenConnections < this.MaxOpenConnections && this.HalfOpenConnections < this.MaxHalfOpenConnections) {
@@ -641,21 +641,7 @@ namespace MonoTorrent.Client
             // Remove the peer from the lists so we can start connecting to him
             peer = manager.Peers.AvailablePeers[i];
             manager.Peers.AvailablePeers.RemoveAt(i);
-
-            // Do not try to connect to ourselves
-            if (peer.ConnectionUri.Port == manager.Engine.Listener.Endpoint.Port)
-            {
-                if (manager.Engine.Listener.Endpoint.Address.ToString() == peer.ConnectionUri.Host)
-                    return false;
-
-                if (manager.Engine.Listener.Endpoint.Address == IPAddress.Any)
-                    foreach (var intf in NetworkInterface.GetAllNetworkInterfaces())
-                        if (intf.OperationalStatus == OperationalStatus.Up)
-                            foreach (var ip in intf.GetIPProperties().UnicastAddresses)
-                                if (ip.Address.ToString() == peer.ConnectionUri.Host)
-                                    return false;
-            }
-
+            
             if (ShouldBanPeer(peer))
                 return false;
             

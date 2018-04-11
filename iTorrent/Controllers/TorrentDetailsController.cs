@@ -81,6 +81,7 @@ namespace iTorrent {
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
+                    Manager.Singletone.UnregisterManager(manager);
                     Directory.Delete(Path.Combine(Manager.RootFolder, manager.Torrent.Name), true);
                     File.Delete(manager.Torrent.TorrentPath);
 
@@ -94,6 +95,7 @@ namespace iTorrent {
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
+                    Manager.Singletone.UnregisterManager(manager);
                     File.Delete(manager.Torrent.TorrentPath);
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
@@ -106,6 +108,7 @@ namespace iTorrent {
                 var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
                     manager.Stop();
                     Manager.Singletone.managers.Remove(manager);
+                    Manager.Singletone.UnregisterManager(manager);
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
                         if (splitController.Collapsed) {
@@ -142,6 +145,7 @@ namespace iTorrent {
                         if (c != null) {
                             c.selectedSize = selectedSize;
                             c.selectedDownload = selectedDownload;
+                            c.totalDownload = totalDownload;
                             c.Update();
                         }
                     }

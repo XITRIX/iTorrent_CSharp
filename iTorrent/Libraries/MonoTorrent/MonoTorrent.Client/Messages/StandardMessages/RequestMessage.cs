@@ -26,12 +26,16 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.Net;
 using MonoTorrent.Client.Messages.FastPeer;
 
-namespace MonoTorrent.Client.Messages.Standard {
-    public class RequestMessage : PeerMessage {
+namespace MonoTorrent.Client.Messages.Standard
+{
+    public class RequestMessage : PeerMessage
+    {
         internal static readonly byte MessageId = 6;
         private const int messageLength = 13;
 
@@ -44,32 +48,40 @@ namespace MonoTorrent.Client.Messages.Standard {
         private int requestLength;
         #endregion
 
+
         #region Public Properties
 
-        public override int ByteLength {
+        public override int ByteLength
+        {
             get { return (messageLength + 4); }
         }
 
-        public int StartOffset {
+        public int StartOffset
+        {
             get { return this.startOffset; }
         }
 
-        public int PieceIndex {
+        public int PieceIndex
+        {
             get { return this.pieceIndex; }
         }
 
-        public int RequestLength {
+        public int RequestLength
+        {
             get { return this.requestLength; }
         }
 
         #endregion
 
+
         #region Constructors
 
-        public RequestMessage() {
+        public RequestMessage()
+        {
         }
 
-        public RequestMessage(int pieceIndex, int startOffset, int requestLength) {
+        public RequestMessage(int pieceIndex, int startOffset, int requestLength)
+        {
             this.pieceIndex = pieceIndex;
             this.startOffset = startOffset;
             this.requestLength = requestLength;
@@ -77,38 +89,45 @@ namespace MonoTorrent.Client.Messages.Standard {
 
         #endregion
 
+
         #region Methods
 
-        public override void Decode(byte[] buffer, int offset, int length) {
+        public override void Decode(byte[] buffer, int offset, int length)
+        {
             pieceIndex = ReadInt(buffer, ref offset);
             startOffset = ReadInt(buffer, ref offset);
             requestLength = ReadInt(buffer, ref offset);
         }
 
-        public override int Encode(byte[] buffer, int offset) {
-            int written = offset;
-
-            written += Write(buffer, written, messageLength);
-            written += Write(buffer, written, MessageId);
-            written += Write(buffer, written, pieceIndex);
-            written += Write(buffer, written, startOffset);
-            written += Write(buffer, written, requestLength);
+        public override int Encode(byte[] buffer, int offset)
+        {
+			int written = offset;
+			
+			written += Write(buffer, written, messageLength);
+			written += Write(buffer, written, MessageId);
+			written += Write(buffer, written, pieceIndex);
+			written += Write(buffer, written, startOffset);
+			written += Write(buffer, written, requestLength);
 
             return CheckWritten(written - offset);
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             RequestMessage msg = obj as RequestMessage;
             return (msg == null) ? false : (this.pieceIndex == msg.pieceIndex
                                             && this.startOffset == msg.startOffset
                                             && this.requestLength == msg.requestLength);
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return (this.pieceIndex.GetHashCode() ^ this.requestLength.GetHashCode() ^ this.startOffset.GetHashCode());
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
+
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append("RequestMessage ");
             sb.Append(" Index ");

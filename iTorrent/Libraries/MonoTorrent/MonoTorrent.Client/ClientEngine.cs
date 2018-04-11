@@ -257,10 +257,8 @@ namespace MonoTorrent.Client
 
         private void CheckDisposed()
         {
-            if (disposed) {
-                //Console.WriteLine(GetType().FullName + " : Disposed!!!!");
+            if (disposed)
                 throw new ObjectDisposedException(GetType().Name);
-            }
         }
 
         public bool Contains(InfoHash infoHash)

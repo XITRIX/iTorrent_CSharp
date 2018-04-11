@@ -53,18 +53,16 @@ namespace MonoTorrent.Common
         internal static  Version Version;
 		static string CreateClientVersion ()
 		{
-            AssemblyInformationalVersionAttribute versionAttr;
-            Assembly assembly = Assembly.GetExecutingAssembly ();
-            versionAttr = (AssemblyInformationalVersionAttribute) assembly.GetCustomAttributes (typeof (AssemblyInformationalVersionAttribute), false)[0];
-            Version = new Version(versionAttr.InformationalVersion);
+			AssemblyInformationalVersionAttribute versionAttr;
+			Assembly assembly = Assembly.GetExecutingAssembly ();
+			versionAttr = (AssemblyInformationalVersionAttribute) assembly.GetCustomAttributes (typeof (AssemblyInformationalVersionAttribute), false)[0];
+			Version = new Version(versionAttr.InformationalVersion);
 
-             //'MO' for MonoTorrent then four digit version number
+			    // 'MO' for MonoTorrent then four digit version number
             string version = string.Format ("{0}{1}{2}{3}", Math.Max (Version.Major, 0),
-            Math.Max (Version.Minor, 0),
-            Math.Max (Version.Build, 0),
-            Math.Max (Version.Revision, 0));
-
-            //string version = "4928";
+                                                            Math.Max (Version.Minor, 0),
+                                                            Math.Max (Version.Build, 0),
+                                                            Math.Max (Version.Revision, 0));
             if (version.Length > 4)
                 version = version.Substring (0, 4);
             else

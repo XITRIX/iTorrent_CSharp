@@ -26,6 +26,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
+
 using System;
 using System.Net;
 using MonoTorrent.Common;
@@ -50,6 +52,7 @@ namespace MonoTorrent.Client.Messages.Standard
         private BitField bitField;
         #endregion
 
+
         #region Constructors
         /// <summary>
         /// Creates a new BitfieldMessage
@@ -60,6 +63,7 @@ namespace MonoTorrent.Client.Messages.Standard
             this.bitField = new BitField(length);
         }
 
+
         /// <summary>
         /// Creates a new BitfieldMessage
         /// </summary>
@@ -69,6 +73,7 @@ namespace MonoTorrent.Client.Messages.Standard
             this.bitField = bitfield;
         }
         #endregion
+
 
         #region Methods
 
@@ -97,6 +102,7 @@ namespace MonoTorrent.Client.Messages.Standard
             get { return (this.bitField.LengthInBytes + 5); }
         }
         #endregion
+
 
         #region Overridden Methods
         /// <summary>

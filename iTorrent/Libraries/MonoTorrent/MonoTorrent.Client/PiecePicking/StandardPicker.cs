@@ -26,6 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -205,6 +206,8 @@ namespace MonoTorrent.Client
             return true;
         }
 
+
+
         public override RequestMessage ContinueExistingRequest(PeerId id)
         {
             for (int req = 0; req < requests.Count; req++)
@@ -275,6 +278,7 @@ namespace MonoTorrent.Client
                 p.Blocks[0].Requested = true;
                 return p.Blocks[0].CreateRequest(id);
             }
+
 
             return null;
         }
