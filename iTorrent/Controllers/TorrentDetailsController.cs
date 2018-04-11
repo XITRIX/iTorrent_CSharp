@@ -79,9 +79,16 @@ namespace iTorrent {
                 var message = manager.HasMetadata ? "Are you sure to remove " + manager.Torrent.Name + " torrent?" : "Are you sure to remove this magnet torrent?";
                 var actionController = UIAlertController.Create(null, message, UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
-                    manager.Stop();
+                    if (manager.State == TorrentState.Stopped) {
+                        Manager.Singletone.UnregisterManager(manager);
+                    } else {
+                        manager.TorrentStateChanged += (sender, e) => {
+                            if (e.NewState == TorrentState.Stopped)
+                                Manager.Singletone.UnregisterManager(manager);
+                        };
+                        manager.Stop();
+                    }
                     Manager.Singletone.managers.Remove(manager);
-                    Manager.Singletone.UnregisterManager(manager);
                     Directory.Delete(Path.Combine(Manager.RootFolder, manager.Torrent.Name), true);
                     File.Delete(manager.Torrent.TorrentPath);
 
@@ -93,9 +100,16 @@ namespace iTorrent {
                     }
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
-                    manager.Stop();
+                    if (manager.State == TorrentState.Stopped) {
+                        Manager.Singletone.UnregisterManager(manager);
+                    } else {
+                        manager.TorrentStateChanged += (sender, e) => {
+                            if (e.NewState == TorrentState.Stopped)
+                                Manager.Singletone.UnregisterManager(manager);
+                        };
+                        manager.Stop();
+                    }
                     Manager.Singletone.managers.Remove(manager);
-                    Manager.Singletone.UnregisterManager(manager);
                     File.Delete(manager.Torrent.TorrentPath);
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
@@ -106,9 +120,16 @@ namespace iTorrent {
                     }
                 });
                 var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
-                    manager.Stop();
+                    if (manager.State == TorrentState.Stopped) {
+                        Manager.Singletone.UnregisterManager(manager);
+                    } else {
+                        manager.TorrentStateChanged += (sender, e) => {
+                            if (e.NewState == TorrentState.Stopped)
+                                Manager.Singletone.UnregisterManager(manager);
+                        };
+                        manager.Stop();
+                    }
                     Manager.Singletone.managers.Remove(manager);
-                    Manager.Singletone.UnregisterManager(manager);
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
                         if (splitController.Collapsed) {

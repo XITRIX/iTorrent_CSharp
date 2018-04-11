@@ -269,9 +269,16 @@ namespace iTorrent {
                 var actionController = UIAlertController.Create(null, message, UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
                     var manager = Manager.Singletone.managers[indexPath.Row];
-                    manager.Stop();
+                    if (manager.State == TorrentState.Stopped) {
+                        Manager.Singletone.UnregisterManager(manager);
+                    } else {
+                        manager.TorrentStateChanged += (sender, e) => {
+                            if (e.NewState == TorrentState.Stopped)
+                                Manager.Singletone.UnregisterManager(manager);
+                        };
+                        manager.Stop();
+                    }
                     Manager.Singletone.managers.Remove(manager);
-                    Manager.Singletone.UnregisterManager(manager);
                     if (Directory.Exists(Manager.RootFolder + "/" + manager.Torrent.Name)) {
                         Directory.Delete(Manager.RootFolder + "/" + manager.Torrent.Name, true);
                     } else {
@@ -303,9 +310,16 @@ namespace iTorrent {
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
                     var manager = Manager.Singletone.managers[indexPath.Row];
-                    manager.Stop();
+                    if (manager.State == TorrentState.Stopped) {
+                        Manager.Singletone.UnregisterManager(manager);
+                    } else {
+                        manager.TorrentStateChanged += (sender, e) => {
+                            if (e.NewState == TorrentState.Stopped)
+                                Manager.Singletone.UnregisterManager(manager);
+                        };
+                        manager.Stop();
+                    }
                     Manager.Singletone.managers.Remove(manager);
-                    Manager.Singletone.UnregisterManager(manager);
                     File.Delete(manager.Torrent.TorrentPath);
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
 
@@ -323,9 +337,16 @@ namespace iTorrent {
                 });
                 var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
                     var manager = Manager.Singletone.managers[indexPath.Row];
-                    manager.Stop();
+                    if (manager.State == TorrentState.Stopped) {
+                        Manager.Singletone.UnregisterManager(manager);
+                    } else {
+                        manager.TorrentStateChanged += (sender, e) => {
+                            if (e.NewState == TorrentState.Stopped)
+                                Manager.Singletone.UnregisterManager(manager);
+                        };
+                        manager.Stop();
+                    }
                     Manager.Singletone.managers.Remove(manager);
-                    Manager.Singletone.UnregisterManager(manager);
                     tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
 
                     var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
