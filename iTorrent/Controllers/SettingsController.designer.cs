@@ -16,22 +16,35 @@ namespace iTorrent
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UISwitch BackgroundEnabler { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISwitch FTPBackgroundSwitcher { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISwitch FTPSwitcher { get; set; }
 
+        [Action ("BackgroundEnablerAction:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void BackgroundEnablerAction (UIKit.UISwitch sender);
+
         [Action ("BackgroungModeToggle:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void BackgroungModeToggle (UIKit.UISwitch sender);
 
-        [Action ("Enabler:")]
+        [Action ("FTPEnabler:")]
         [GeneratedCode ("iOS Designer", "1.0")]
-        partial void Enabler (UIKit.UISwitch sender);
+        partial void FTPEnabler (UIKit.UISwitch sender);
 
         void ReleaseDesignerOutlets ()
         {
+            if (BackgroundEnabler != null) {
+                BackgroundEnabler.Dispose ();
+                BackgroundEnabler = null;
+            }
+
             if (FTPBackgroundSwitcher != null) {
                 FTPBackgroundSwitcher.Dispose ();
                 FTPBackgroundSwitcher = null;

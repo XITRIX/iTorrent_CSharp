@@ -465,6 +465,7 @@
     <Compile Include="System\Background.cs" />
     <Compile Include="System\Manager.cs" />
     <Compile Include="Utils\ADSManager.cs" />
+    <Compile Include="Utils\UserDefaultsKeys.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GoogleService-Info.plist" />

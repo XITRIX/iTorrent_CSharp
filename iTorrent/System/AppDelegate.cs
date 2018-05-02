@@ -24,7 +24,9 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+  //
+using System.Collections.Generic;
+
 using Firebase.Core;
 using Google.MobileAds;
 
@@ -105,19 +107,13 @@ namespace iTorrent {
 
         [Export("splitViewController:collapseSecondaryViewController:ontoPrimaryViewController:")]
         public bool CollapseSecondViewController(UISplitViewController splitViewController, UIViewController secondaryViewController, UIViewController primaryViewController) {
+            var primaryNav = primaryViewController as UINavigationController;
             var secondNav = secondaryViewController as UINavigationController;
             if (secondNav != null) {
-                if (secondNav.TopViewController is TorrentDetailsController) {
-                    var detail = secondNav.TopViewController as TorrentDetailsController;
-                    if (detail != null && detail.manager != null) {
-                        return false;
-                    }
-                } else if (secondNav.TopViewController is TorrentFilesController) {
-                    var detail = secondNav.TopViewController as TorrentFilesController;
-                    if (detail != null && detail.manager != null) {
-                        return false;
-                    }
-                }
+                var viewControllers = new List<UIViewController>();
+                viewControllers.AddRange(primaryNav.ViewControllers);
+                viewControllers.AddRange(secondNav.ViewControllers);
+                primaryNav.ViewControllers = viewControllers.ToArray();
             }
             return true;
         }
@@ -126,6 +122,29 @@ namespace iTorrent {
         public UIViewController SeparateSecondaryViewController(UISplitViewController splitViewController, UIViewController primaryViewController) {
             if (primaryViewController is UINavigationController nav && nav.TopViewController is SettingsController settings) {
                 return Utils.CreateEmptyViewController();
+            }
+
+            var controllers = splitViewController.ViewControllers;
+            if (controllers[controllers.Length - 1] is UINavigationController navController) {
+                var viewControllers = new List<UIViewController>();
+                while (!(navController.TopViewController is MainController) && !(navController.TopViewController is SettingsController)) {
+                    var view = navController.TopViewController;
+                    navController.PopViewController(false);
+                    viewControllers.Add(view);
+                }
+                viewControllers.Reverse();
+
+                if (viewControllers.Count == 0) {
+                    return Utils.CreateEmptyViewController();
+                }
+
+                var detailNavController = new UINavigationController();
+                detailNavController.ViewControllers = viewControllers.ToArray();
+                detailNavController.ToolbarHidden = false;
+                detailNavController.NavigationBar.TintColor = navController.NavigationBar.TintColor;
+                detailNavController.Toolbar.TintColor = navController.NavigationBar.TintColor;
+                //detailNavController.NavigationBar.PrefersLargeTitles = true;
+                return detailNavController;
             }
             return null;
         }

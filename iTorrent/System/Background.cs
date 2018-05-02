@@ -55,7 +55,11 @@ namespace iTorrent {
         }
 
         public static void RunBackgroundMode() {
-            bool ftpBackground = NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground");
+            bool background = NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundMode);
+            if (!background) {
+                return;
+            }
+            bool ftpBackground = NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.FTPServerBackground);
             if (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive && ftpBackground) {
                 audioRecorder.Record();
             } else {

@@ -66,7 +66,7 @@ namespace iTorrent {
 
             AddAction.Clicked += delegate {
                 var alert = UIAlertController.Create("Add from...", null, UIAlertControllerStyle.ActionSheet);
-                var magnet = UIAlertAction.Create("Magnet", UIAlertActionStyle.Default, delegate {
+                var magnet = UIAlertAction.Create("Magnet (May not work)", UIAlertActionStyle.Default, delegate {
                     var magnetAlert = UIAlertController.Create("Add from magnet", "Please enter the magnet link below", UIAlertControllerStyle.Alert);
                     magnetAlert.AddTextField((UITextField obj) => {
                         obj.Placeholder = "magnet:";
@@ -257,6 +257,42 @@ namespace iTorrent {
             return cell;
         }
 
+        [Export("tableView:didSelectRowAtIndexPath:")]
+        public void RowSelected(UITableView tableView, NSIndexPath indexPath) {
+            var viewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("Detail") as TorrentDetailsController;
+            var manager = Manager.Singletone.managers[indexPath.Row];
+            if (manager.Torrent != null)
+                viewController.Title = manager.Torrent.Name;
+            else
+                viewController.Title = "Magnet download";
+            viewController.manager = manager;
+
+            var splitView = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
+            if (!splitView.Collapsed) {
+                if (splitView.ViewControllers.Length > 1 &&
+                    splitView.ViewControllers[1] is UINavigationController nav) {
+                    if (nav.TopViewController is TorrentFilesController fileController) {
+                        if (fileController.manager == manager) {
+                            fileController.NavigationController.PopViewController(true);
+                            return;
+                        }
+                    } else if (nav.TopViewController is TorrentDetailsController detailController) {
+                        if (detailController.manager == manager) {
+                            // TODO: Scroll to top, HOW TO DO THIS SHIT?!
+                            //return false;
+                        }
+                    }
+                }
+                var navController = new UINavigationController(viewController);
+                navController.ToolbarHidden = false;
+                navController.NavigationBar.TintColor = NavigationController.NavigationBar.TintColor;
+                navController.Toolbar.TintColor = NavigationController.NavigationBar.TintColor;
+                splitView.ShowDetailViewController(navController, this);
+            } else {
+                splitView.ShowDetailViewController(viewController, this);
+            }
+        }
+
         [Export("tableView:canEditRowAtIndexPath:")]
         public bool CanEditRow(UITableView tableView, NSIndexPath indexPath) {
             return true;
@@ -378,48 +414,6 @@ namespace iTorrent {
                 }
 
                 PresentViewController(actionController, true, null);
-            }
-        }
-        #endregion
-
-        #region Segue
-        public override bool ShouldPerformSegue(string segueIdentifier, NSObject sender) {
-            if (segueIdentifier == "Details") {
-                var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
-                if (!splitController.Collapsed) {
-                    if (splitController.ViewControllers.Length > 1) {
-                        if (splitController.ViewControllers[1] is UINavigationController detail) {
-                            if (detail.TopViewController is TorrentFilesController fileController) {
-                                var cell = sender as TorrentCell;
-                                if (fileController.manager == cell.manager) {
-                                    fileController.NavigationController.PopViewController(true);
-                                    return false;
-                                }
-                            } else if (detail.TopViewController is TorrentDetailsController detailController) {
-                                var cell = sender as TorrentCell;
-                                if (detailController.manager == cell.manager) {
-                                    // TODO: Scroll to top, HOW TO DO THIS SHIT?!
-                                    //return false;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-
-        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender) {
-            base.PrepareForSegue(segue, sender);
-            if (segue.Identifier == "Details") {
-                var target = segue.DestinationViewController as UINavigationController;
-                var cell = sender as TorrentCell;
-                if (cell.manager.Torrent != null)
-                    (target.TopViewController as TorrentDetailsController).Title = cell.manager.Torrent.Name;
-                else
-                    (target.TopViewController as TorrentDetailsController).Title = "Magnet download";
-                (target.TopViewController as TorrentDetailsController).manager = cell.manager;
-                (target.TopViewController as TorrentDetailsController).WillMoveToParentViewController(this);
             }
         }
         #endregion

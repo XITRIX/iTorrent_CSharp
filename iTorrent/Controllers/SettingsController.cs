@@ -15,7 +15,8 @@ namespace iTorrent {
 
 			bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);//NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
             FTPSwitcher.SetState(state, false);
-            FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"), false);
+            FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.FTPServerBackground), false);
+            BackgroundEnabler.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundMode), false);
         }
 
 		public override void ViewWillAppear(bool animated) {
@@ -32,15 +33,22 @@ namespace iTorrent {
 
 		public override string TitleForFooter(UITableView tableView, nint section) {
             if (section == 0) {
+                return "Enable downloading in background through multimedia functions (microphone recording)\n!!!MAY NOT WORK FROM THE FIRST TIME, OPEN AND CLOSE THIS APP UNTIL STATUS BAR BECOMES RED!!!";
+            }
+            if (section == 1) {
                 bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);
                 return state ? "Connect to: ftp://" + GetLocalIPAddress() + ":21" : "";
             }
             return "";
         }
+
+        partial void BackgroundEnablerAction(UISwitch sender) {
+            NSUserDefaults.StandardUserDefaults.SetBool(sender.On, UserDefaultsKeys.BackgroundMode);
+        }
         
-        partial void Enabler(UISwitch sender) {
+        partial void FTPEnabler(UISwitch sender) {
             if (sender.On) {
-				NSUserDefaults.StandardUserDefaults.SetBool(true, "FTPServer");
+                NSUserDefaults.StandardUserDefaults.SetBool(true, UserDefaultsKeys.FTPServer);
                 Manager.Singletone.RunFTPServer((exception) => {
                     new Thread(() => {
                         Manager.Singletone.StopFTPServer();
@@ -58,18 +66,14 @@ namespace iTorrent {
                     Console.WriteLine("Success");
                 });
             } else {
-                NSUserDefaults.StandardUserDefaults.SetBool(false, "FTPServer");
+                NSUserDefaults.StandardUserDefaults.SetBool(false, UserDefaultsKeys.FTPServer);
                 Manager.Singletone.StopFTPServer();
             }
             TableView.ReloadData();
         }
 
         partial void BackgroungModeToggle(UISwitch sender) {
-            if (sender.On) {
-                NSUserDefaults.StandardUserDefaults.SetBool(true, "FTPServerBackground");
-            } else {
-                NSUserDefaults.StandardUserDefaults.SetBool(false, "FTPServerBackground");
-            }
+            NSUserDefaults.StandardUserDefaults.SetBool(sender.On, UserDefaultsKeys.FTPServerBackground);
         }
 
         string GetLocalIPAddress() {
