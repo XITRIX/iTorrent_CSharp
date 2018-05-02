@@ -33,7 +33,7 @@ namespace iTorrent {
 
 		public override string TitleForFooter(UITableView tableView, nint section) {
             if (section == 0) {
-                return "Enable downloading in background through multimedia functions (microphone recording)\n!!!MAY NOT WORK FROM THE FIRST TIME, OPEN AND CLOSE THIS APP UNTIL STATUS BAR BECOMES RED!!!";
+                return "Enable downloading in background through multimedia functions (microphone recording)\nMAY NOT WORK FROM THE FIRST TIME, OPEN AND CLOSE THIS APP UNTIL STATUS BAR BECOMES RED!!!";
             }
             if (section == 1) {
                 bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);

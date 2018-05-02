@@ -41,7 +41,7 @@ namespace iTorrent {
         protected TorrentCell(IntPtr handle) : base(handle) { }
 
         public void Update(bool force = false) {
-            if ((manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped) && Progress.Progress >= 1f && !force) { return; }
+            if ((manager.State == TorrentState.Stopped) && Progress.Progress >= 1f && !force) { return; }
 
             Title.Text = manager.Torrent != null ? manager.Torrent.Name : "Magnet download";
 
@@ -60,7 +60,7 @@ namespace iTorrent {
             Info.Text = Utils.GetSizeText(downloaded) + " of " + Utils.GetSizeText(size) + " (" + String.Format("{0:0.00}", ((float)progress / 100f)) + "%)";
             Status.Text = manager.State == TorrentState.Downloading ? manager.State.ToString() + " - DL:" + Utils.GetSizeText(manager.Monitor.DownloadSpeed) + "/s, UL:" + Utils.GetSizeText(manager.Monitor.UploadSpeed) + "/s" : manager.State.ToString();
             Progress.Progress = progress / 10000f;
-            if ((Progress.Progress >= 1f || size == 0) && manager.State != TorrentState.Hashing && manager.HasMetadata) {
+            if ((Progress.Progress >= 1f || size == 0) && manager.State == TorrentState.Stopped && manager.HasMetadata) {
                 manager.Stop();
                 Status.Text = "Finished";
                 Progress.Progress = 1f;

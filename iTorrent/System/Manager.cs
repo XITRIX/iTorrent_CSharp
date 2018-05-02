@@ -302,7 +302,7 @@ namespace iTorrent {
 
         public void UpdateManagers() {
             foreach (var manager in Manager.Singletone.managers) {
-                if (manager == null || manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped || manager.State == TorrentState.Hashing) { continue; }
+                if (manager == null || manager.State == TorrentState.Stopping || manager.State == TorrentState.Stopped || manager.State == TorrentState.Hashing) { continue; }
 
                 long size = 0;
                 long downloaded = 0;

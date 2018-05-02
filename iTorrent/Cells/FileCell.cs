@@ -27,6 +27,7 @@
 //
 
 using System;
+using System.IO;
 using MonoTorrent.Common;
 using MonoTorrent.Client;
 
@@ -68,10 +69,23 @@ namespace iTorrent {
                         UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(shareController, true, null);
                     });
                     var delete = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate {
-                        var deleteController = UIAlertController.Create("Are you sure to delete? (Not implemented yet!)", file.Path, UIAlertControllerStyle.ActionSheet);
+                        var deleteController = UIAlertController.Create("Are you sure to delete?", file.Path, UIAlertControllerStyle.ActionSheet);
 
-                        var deleteAction = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate { 
-                            //TODO: Remove file and rehash it
+                        var deleteAction = UIAlertAction.Create("Delete", UIAlertActionStyle.Destructive, delegate {
+                            if (manager.State == TorrentState.Stopped) {
+                                file.fileRemoved = true;
+                                Switch.SetState(false, true);
+                                file.Priority = Priority.DoNotDownload;
+                                UpdateInDetail();
+                                if (File.Exists(file.FullPath)) {
+                                    File.Delete(file.FullPath);
+                                }
+                            } else {
+                                var alertController = UIAlertController.Create("Error deleting file", "File cannot be removed while the download is in progress.\nStop the downloading first!", UIAlertControllerStyle.Alert);
+                                var ok = UIAlertAction.Create("OK", UIAlertActionStyle.Cancel, null);
+                                alertController.AddAction(ok);
+                                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alertController, true, null);
+                            }
                         });
                         var cancelAction = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
@@ -121,8 +135,9 @@ namespace iTorrent {
         public void UpdateInDetail() {
             Title.Text = file.Path;
             Switch.SetState(file.Priority != Priority.DoNotDownload, false);
-            var persentage = ((file.BytesDownloaded * 10000 / file.Length) / 100f);
-            Size.Text = Utils.GetSizeText(file.BytesDownloaded) + " / " + Utils.GetSizeText(file.Length) + " (" + String.Format("{0:0.00}", persentage + "%)");
+            var downloaded = file.fileRemoved ? 0 : file.BytesDownloaded;
+            var persentage = ((downloaded * 10000 / file.Length) / 100f);
+            Size.Text = Utils.GetSizeText(downloaded) + " / " + Utils.GetSizeText(file.Length) + " (" + String.Format("{0:0.00}", persentage + "%)");
             Share.Hidden = persentage < 100;
         }
     }

@@ -63,7 +63,7 @@ namespace iTorrent {
                 case 0:
                     switch (indexPath.Row) {
                         case 0:
-                            Set("State", selectedDownload >= selectedSize && manager.HasMetadata ? "Finished" : manager.State.ToString());
+                            Set("State", selectedDownload >= selectedSize && manager.HasMetadata && manager.State == MonoTorrent.Common.TorrentState.Stopped ? "Finished" : manager.State.ToString());
                             break;
                     }
                     break;

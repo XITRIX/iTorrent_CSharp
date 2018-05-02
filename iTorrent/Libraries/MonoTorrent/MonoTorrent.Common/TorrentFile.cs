@@ -40,6 +40,10 @@ namespace MonoTorrent.Common
     /// </summary>
     public class TorrentFile : IEquatable<TorrentFile>
     {
+        //custom
+        public bool fileRemoved = false;
+        //custom
+
         #region Private Fields
 
         private BitField bitfield;

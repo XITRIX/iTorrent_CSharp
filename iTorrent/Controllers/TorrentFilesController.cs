@@ -101,6 +101,16 @@ namespace iTorrent {
             base.ViewDidDisappear(animated);
 
             Manager.Singletone.updateActions.Remove(action);
+            foreach (var file in manager.Torrent.Files) {
+                bool check = false;
+                if (file.fileRemoved) {
+                    check = true;
+                    file.fileRemoved = false;
+                }
+                if (check && manager.State == TorrentState.Stopped) {
+                    manager.HashCheck(true);
+                }
+            }
 		}
         #endregion
 

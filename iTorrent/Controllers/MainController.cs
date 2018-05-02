@@ -136,7 +136,7 @@ namespace iTorrent {
                             torrent = Torrent.Load(new Uri(textField.Text), Manager.RootFolder + "/Config/_temp.torrent");
                         } catch (TorrentException ex) {
                             Console.WriteLine(ex.StackTrace);
-                            var alertError = UIAlertController.Create("An error occurred", "Please, open this link in Safari, and send .torrent file from it", UIAlertControllerStyle.Alert);
+                            var alertError = UIAlertController.Create("An error occurred", "Please, open this link in Safari, and send .torrent file from there", UIAlertControllerStyle.Alert);
                             var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
                             alertError.AddAction(close);
                             PresentViewController(alertError, true, null);

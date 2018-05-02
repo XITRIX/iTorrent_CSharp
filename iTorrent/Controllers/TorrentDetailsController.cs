@@ -71,7 +71,7 @@ namespace iTorrent {
             };
 
             Pause.Clicked += delegate {
-                manager.Pause();
+                manager.Stop();
                 Update();
             };
 
@@ -255,7 +255,7 @@ namespace iTorrent {
                 }
             }
 
-            if (manager.State == TorrentState.Hashing || !manager.HasMetadata || !Manager.Singletone.managers.Contains(manager)) {
+            if (manager.State == TorrentState.Hashing || manager.State == TorrentState.Stopping || !manager.HasMetadata || !Manager.Singletone.managers.Contains(manager)) {
                 InvokeOnMainThread(() => {
                     Pause.Enabled = false;
                     Start.Enabled = false;
@@ -263,7 +263,7 @@ namespace iTorrent {
                 return;
             }
 
-            if (manager.State == TorrentState.Paused || manager.State == TorrentState.Stopped) {
+            if (manager.State == TorrentState.Stopped) {
                 InvokeOnMainThread(() => {
                     Pause.Enabled = false;
                     Start.Enabled = true;
