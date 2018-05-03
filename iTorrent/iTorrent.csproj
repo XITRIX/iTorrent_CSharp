@@ -132,6 +132,10 @@
     <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-50.png" />
     <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-75.png" />
     <ImageAsset Include="Assets.xcassets\Share.imageset\icons8-Ð·Ð°Ð³ÑÑÐ·Ð¸ÑÑ-25.png" />
+    <ImageAsset Include="Assets.xcassets\Sort.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\Sort.imageset\sorting-25.png" />
+    <ImageAsset Include="Assets.xcassets\Sort.imageset\sorting-50.png" />
+    <ImageAsset Include="Assets.xcassets\Sort.imageset\sorting-75.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -144,6 +148,7 @@
     <Folder Include="Libraries\MonoTorrent\" />
     <Folder Include="Libraries\MooFTPServ\" />
     <Folder Include="Assets.xcassets\Share.imageset\" />
+    <Folder Include="Assets.xcassets\Sort.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
@@ -466,6 +471,7 @@
     <Compile Include="System\Manager.cs" />
     <Compile Include="Utils\ADSManager.cs" />
     <Compile Include="Utils\UserDefaultsKeys.cs" />
+    <Compile Include="Utils\SortingManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GoogleService-Info.plist" />

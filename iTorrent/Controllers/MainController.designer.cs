@@ -19,13 +19,26 @@ namespace iTorrent
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIBarButtonItem Sort { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITableView tableView { get; set; }
+
+        [Action ("SortAction:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void SortAction (UIKit.UIBarButtonItem sender);
 
         void ReleaseDesignerOutlets ()
         {
             if (AddAction != null) {
                 AddAction.Dispose ();
                 AddAction = null;
+            }
+
+            if (Sort != null) {
+                Sort.Dispose ();
+                Sort = null;
             }
 
             if (tableView != null) {

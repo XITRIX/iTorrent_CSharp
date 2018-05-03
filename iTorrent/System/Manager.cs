@@ -71,6 +71,7 @@ namespace iTorrent {
         public List<TorrentManager> managers = new List<TorrentManager>();
         ClientEngine engine;
 
+        public List<Action> managerStateChanged = new List<Action>();
         public List<Action> updateActions = new List<Action>();
         public List<Action<TorrentManager>> masterUpdateActions = new List<Action<TorrentManager>>();
         public Action restoreAction;
@@ -122,14 +123,12 @@ namespace iTorrent {
                             if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
                                 if (save.data[torrent.InfoHash.ToHex()].resume != null) {
                                     manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
+                                    manager.dateOfAdded = save.data[torrent.InfoHash.ToHex()].date;
                                     switch (save.data[torrent.InfoHash.ToHex()].state) {
                                         case TorrentState.Downloading:
                                             manager.Start();
                                             break;
-                                        case TorrentState.Paused:
-                                            manager.Pause();
-                                            break;
-                                        case TorrentState.Stopped:
+                                        default:
                                             manager.Stop();
                                             break;
                                     }
@@ -230,6 +229,9 @@ namespace iTorrent {
                 }
             }
             Background.CheckToStopBackground();
+            foreach (var action in Manager.Singletone.managerStateChanged) {
+                action?.Invoke();
+            }
         }
 
         public void RegisterManager(TorrentManager manager) {

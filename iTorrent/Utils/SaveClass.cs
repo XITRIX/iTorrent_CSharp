@@ -25,6 +25,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+using System;
 
 using MonoTorrent.Client;
 using MonoTorrent.Common;
@@ -52,6 +53,7 @@ namespace iTorrent {
 
     public class TorrentManagerSave {
         public TorrentState state;
+        public DateTime date;
         public byte[] resume;
         public SerializableDictionary<string, bool> downloading;
 
@@ -60,6 +62,7 @@ namespace iTorrent {
 
         public TorrentManagerSave(TorrentManager manager) {
             state = manager.State;
+            date = manager.dateOfAdded;
 
             if (manager.State != TorrentState.Hashing && manager.HasMetadata) {
                 resume = manager.SaveFastResume().Encode().Encode();

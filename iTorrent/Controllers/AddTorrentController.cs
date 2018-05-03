@@ -92,6 +92,7 @@ namespace iTorrent {
 
             Download.Clicked += delegate {
                 TorrentManager manager = new TorrentManager(torrent, Manager.RootFolder, new TorrentSettings());
+                manager.dateOfAdded = DateTime.Now;
                 Manager.Singletone.managers.Add(manager);
                 Manager.Singletone.RegisterManager(manager);
                 if (MainController.Instance != null)

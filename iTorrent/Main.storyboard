@@ -81,11 +81,18 @@
                             </connections>
                         </barButtonItem>
                     </toolbarItems>
-                    <navigationItem key="navigationItem" title="iTorrent" id="1110"/>
+                    <navigationItem key="navigationItem" title="iTorrent" id="1110">
+                        <barButtonItem key="rightBarButtonItem" id="60036" image="Sort">
+                            <connections>
+                                <action selector="SortAction:" destination="BYZ-38-t0r" id="60370"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="AddAction" destination="33769" id="name-outlet-33769"/>
                         <outlet property="tableView" destination="4323" id="name-outlet-4323"/>
+                        <outlet property="Sort" destination="60036" id="name-outlet-60036"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -516,6 +523,7 @@
     <resources>
         <image name="Settings" width="25" height="25"/>
         <image name="Share" width="50" height="50"/>
+        <image name="Sort" width="25" height="25"/>
     </resources>
     <color key="tintColor" red="1" green="0.29803921570000003" blue="0.16862745100000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
 </document>

@@ -28,14 +28,11 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using System.Collections.Generic;
 
 using MonoTorrent;
 using MonoTorrent.Client;
 using MonoTorrent.Common;
-
-using Google.MobileAds;
 
 using UIKit;
 using Foundation;
@@ -47,10 +44,14 @@ namespace iTorrent {
         #region Variables
         public static MainController Instance { get; private set; }
         public UITableView TableView { get { return tableView; } }
+
+        private List<List<TorrentManager>> sortedManagers;
+        private List<String> headers;
         #endregion
 
         #region Life Cycle
         Action action;
+        Action actionManagerStateChanged;
         Action<TorrentManager> masterAction;
 
         public override void ViewDidLoad() {
@@ -102,6 +103,7 @@ namespace iTorrent {
                             Directory.CreateDirectory(Manager.ConfigFolder);
                         }
                         var manager = new TorrentManager(magnetLink, Manager.RootFolder, new TorrentSettings(), Manager.RootFolder + "/Config/" + magnetLink.InfoHash.ToHex() + ".torrent");
+                        manager.dateOfAdded = DateTime.Now;
 
                         Manager.Singletone.managers.Add(manager);
                         Manager.Singletone.RegisterManager(manager);
@@ -207,6 +209,12 @@ namespace iTorrent {
                 });
             };
 
+            actionManagerStateChanged = () => {
+                InvokeOnMainThread(delegate {
+                    TableView.ReloadData();
+                });
+            };
+
             Manager.Singletone.restoreAction = () => { 
                 TableView.ReloadData();
             };
@@ -235,6 +243,7 @@ namespace iTorrent {
             tableView.ReloadData();
             Manager.Singletone.updateActions.Add(action);
             Manager.Singletone.masterUpdateActions.Add(masterAction);
+            Manager.Singletone.managerStateChanged.Add(actionManagerStateChanged);
         }
 
         public override void ViewDidDisappear(bool animated) {
@@ -242,17 +251,45 @@ namespace iTorrent {
 
             Manager.Singletone.updateActions.Remove(action);
             Manager.Singletone.masterUpdateActions.Remove(masterAction);
+            Manager.Singletone.managerStateChanged.Remove(actionManagerStateChanged);
         }
         #endregion
 
         #region TableView DataSource
+        [Export("numberOfSectionsInTableView:")]
+        public nint NumberOfSections(UITableView tableView) {
+            sortedManagers = SortingManager.SortTorrentManagers(Manager.Singletone.managers, out headers);
+            if (NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.SortingSections)) {
+                return sortedManagers.Count;
+            } 
+            return 1;
+        }
+
+        [Export("tableView:titleForHeaderInSection:")]
+        public string TitleForHeader(UITableView tableView, nint section) {
+            return headers[(int)section];
+        }
+
+        [Export("tableView:willDisplayHeaderView:forSection:")]
+        public void WillDisplayHeaderView(UITableView tableView, UIView headerView, nint section) {
+            headerView.TintColor = new UIColor(0.9f, 0.9f, 0.9f, 0.7f);
+
+            var blurEffect = UIBlurEffect.FromStyle(UIBlurEffectStyle.Light);
+            var blurEffectView = new UIVisualEffectView(blurEffect);
+            //always fill the view
+            blurEffectView.Frame = headerView.Bounds;
+            blurEffectView.AutoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight;
+            headerView.AddSubview(blurEffectView);
+            headerView.InsertSubview(blurEffectView, 0);
+        }
+
         public nint RowsInSection(UITableView tableView, nint section) {
-            return Manager.Singletone.managers.Count;
+            return sortedManagers[(int)section].Count;
         }
 
         public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
             TorrentCell cell = (TorrentCell)tableView.DequeueReusableCell("Cell", indexPath);
-            cell.manager = Manager.Singletone.managers[indexPath.Row];
+            cell.manager = sortedManagers[indexPath.Section][indexPath.Row];
             cell.Update(true);
             return cell;
         }
@@ -260,7 +297,7 @@ namespace iTorrent {
         [Export("tableView:didSelectRowAtIndexPath:")]
         public void RowSelected(UITableView tableView, NSIndexPath indexPath) {
             var viewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("Detail") as TorrentDetailsController;
-            var manager = Manager.Singletone.managers[indexPath.Row];
+            var manager = sortedManagers[indexPath.Section][indexPath.Row];
             if (manager.Torrent != null)
                 viewController.Title = manager.Torrent.Name;
             else
@@ -301,10 +338,10 @@ namespace iTorrent {
         [Export("tableView:commitEditingStyle:forRowAtIndexPath:")]
         public void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath) {
             if (editingStyle == UITableViewCellEditingStyle.Delete) {
-                var message = Manager.Singletone.managers[indexPath.Row].HasMetadata ? "Are you sure to remove " + Manager.Singletone.managers[indexPath.Row].Torrent.Name + " torrent?" : "Are you sure to remove this magnet torrent?";
+                var message = sortedManagers[indexPath.Section][indexPath.Row].HasMetadata ? "Are you sure to remove " + Manager.Singletone.managers[indexPath.Row].Torrent.Name + " torrent?" : "Are you sure to remove this magnet torrent?";
                 var actionController = UIAlertController.Create(null, message, UIAlertControllerStyle.ActionSheet);
                 var removeAll = UIAlertAction.Create("Yes and remove data", UIAlertActionStyle.Destructive, delegate {
-                    var manager = Manager.Singletone.managers[indexPath.Row];
+                    var manager = sortedManagers[indexPath.Section][indexPath.Row];
                     if (manager.State == TorrentState.Stopped) {
                         Manager.Singletone.UnregisterManager(manager);
                     } else {
@@ -345,7 +382,7 @@ namespace iTorrent {
                     }
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
-                    var manager = Manager.Singletone.managers[indexPath.Row];
+                    var manager = sortedManagers[indexPath.Section][indexPath.Row];
                     if (manager.State == TorrentState.Stopped) {
                         Manager.Singletone.UnregisterManager(manager);
                     } else {
@@ -372,7 +409,7 @@ namespace iTorrent {
                     }
                 });
                 var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
-                    var manager = Manager.Singletone.managers[indexPath.Row];
+                    var manager = sortedManagers[indexPath.Section][indexPath.Row];
                     if (manager.State == TorrentState.Stopped) {
                         Manager.Singletone.UnregisterManager(manager);
                     } else {
@@ -399,7 +436,7 @@ namespace iTorrent {
                 });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
-                if (Manager.Singletone.managers[indexPath.Row].HasMetadata) {
+                if (sortedManagers[indexPath.Section][indexPath.Row].HasMetadata) {
                     actionController.AddAction(removeAll);
                     actionController.AddAction(removeTorrent);
                 } else {
@@ -417,5 +454,12 @@ namespace iTorrent {
             }
         }
         #endregion
+
+        partial void SortAction(UIBarButtonItem sender) {
+            var sortingController = SortingManager.CreateSortingController(Sort, () => {
+                TableView.ReloadData();
+            });
+            PresentViewController(sortingController, true, null);
+        }
     }
 }
