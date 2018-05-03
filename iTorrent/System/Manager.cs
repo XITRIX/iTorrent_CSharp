@@ -210,14 +210,14 @@ namespace iTorrent {
             Torrent torrent = Torrent.Load(url.Path);
 
             foreach (var m in managers) {
-                if (m.Torrent.InfoHash.Equals(torrent.InfoHash)) {
+                if (m.InfoHash.Equals(torrent.InfoHash)) {
                     var alert = UIAlertController.Create("This torrent already exists", "Torrent with name: \"" + torrent.Name + "\" already exists in download queue", UIAlertControllerStyle.Alert);
                     var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
                     alert.AddAction(close);
                     UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
                     return;
                 }
-                if (m.Torrent.Name.Equals(torrent.Name)) {
+                if (m.Torrent != null && m.Torrent.Name.Equals(torrent.Name)) {
                     //TODO: Unregister old one               
                 }
             }

@@ -370,7 +370,11 @@ namespace iTorrent {
                     if (File.Exists(manager.Torrent.TorrentPath)) {
                         File.Delete(manager.Torrent.TorrentPath);
                     }
-                    tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+                    if (sortedManagers[indexPath.Section].Count <= 1) {
+                        tableView.DeleteSections(new NSIndexSet((nuint)indexPath.Section) , UITableViewRowAnimation.Automatic);
+                    } else {
+                        tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+                    }
 
                     var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
                     if (!splitController.Collapsed) {
@@ -402,7 +406,11 @@ namespace iTorrent {
                     }
                     Manager.Singletone.managers.Remove(manager);
                     File.Delete(manager.Torrent.TorrentPath);
-                    tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+                    if (sortedManagers[indexPath.Section].Count <= 1) {
+                        tableView.DeleteSections(new NSIndexSet((nuint)indexPath.Section), UITableViewRowAnimation.Automatic);
+                    } else {
+                        tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+                    }
 
                     var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
                     if (!splitController.Collapsed) {
@@ -428,7 +436,11 @@ namespace iTorrent {
                         manager.Stop();
                     }
                     Manager.Singletone.managers.Remove(manager);
-                    tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+                    if (sortedManagers[indexPath.Section].Count <= 1) {
+                        tableView.DeleteSections(new NSIndexSet((nuint)indexPath.Section), UITableViewRowAnimation.Automatic);
+                    } else {
+                        tableView.DeleteRows(new NSIndexPath[] { indexPath }, UITableViewRowAnimation.Automatic);
+                    }
 
                     var splitController = UIApplication.SharedApplication.KeyWindow.RootViewController as UISplitViewController;
                     if (!splitController.Collapsed) {
