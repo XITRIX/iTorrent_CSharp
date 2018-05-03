@@ -105,7 +105,7 @@ namespace iTorrent {
             settings.SavePath = RootFolder;
 
             engine = new ClientEngine(settings);
-            engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
+            engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Any, 6969));
 
             byte[] nodes = null;
             try {
@@ -114,11 +114,12 @@ namespace iTorrent {
                 Console.WriteLine("No existing dht nodes could be loaded");
             }
 
-            DhtListener dhtListner = new DhtListener(new IPEndPoint(IPAddress.Any, 6969));
+            DhtListener dhtListner = new DhtListener(new IPEndPoint(IPAddress.Any, 6970));
             DhtEngine dht = new DhtEngine(dhtListner);
             engine.RegisterDht(dht);
             dhtListner.Start();
             engine.DhtEngine.Start(nodes);
+            dhtListner.Start();
         }
 
         void RestoreTorrents() {

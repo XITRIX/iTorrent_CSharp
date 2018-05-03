@@ -104,6 +104,10 @@ namespace iTorrent {
                         }
                         var manager = new TorrentManager(magnetLink, Manager.RootFolder, new TorrentSettings(), Manager.RootFolder + "/Config/" + magnetLink.InfoHash.ToHex() + ".torrent");
                         manager.dateOfAdded = DateTime.Now;
+                        manager.PeersFound += manager_PeersFound; //TODO: Remove it later
+                        manager.TorrentStateChanged += (sender, e) => { //TODO: Remove it later
+                            Console.WriteLine("OLD: " + e.OldState.ToString() + ", NEW: " + e.NewState.ToString());
+                        };
 
                         Manager.Singletone.managers.Add(manager);
                         Manager.Singletone.RegisterManager(manager);
@@ -235,6 +239,10 @@ namespace iTorrent {
             //};
 
             //bannerView.LoadRequest(Request.GetDefaultRequest());
+        }
+
+        static void manager_PeersFound(object sender, PeersAddedEventArgs e) { //TODO: Remove it later
+            Console.WriteLine(string.Format("Found {0} new peers and {1} existing peers", e.NewPeers, e.ExistingPeers));//throw new Exception("The method or operation is not implemented.");
         }
 
         public override void ViewWillAppear(bool animated) {

@@ -89,14 +89,23 @@ namespace iTorrent {
                         manager.Stop();
                     }
                     Manager.Singletone.managers.Remove(manager);
-                    Directory.Delete(Path.Combine(Manager.RootFolder, manager.Torrent.Name), true);
-                    File.Delete(manager.Torrent.TorrentPath);
+                    if (Directory.Exists(Manager.RootFolder + "/" + manager.Torrent.Name)) {
+                        Directory.Delete(Manager.RootFolder + "/" + manager.Torrent.Name, true);
+                    } else {
+                        if (File.Exists(Manager.RootFolder + "/" + manager.Torrent.Name)) {
+                            File.Delete(Manager.RootFolder + "/" + manager.Torrent.Name);
+                        }
+                    }
+                    if (File.Exists(manager.Torrent.TorrentPath)) {
+                        File.Delete(manager.Torrent.TorrentPath);
+                    }
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
                         if (splitController.Collapsed) {
-                            (splitController.ViewControllers[0] as UINavigationController).PopViewController(true);
-                        } 
-                        splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                            NavigationController.PopViewController(true);
+                        } else {
+                            splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                        }
                     }
                 });
                 var removeTorrent = UIAlertAction.Create("Yes but keep data", UIAlertActionStyle.Default, delegate {
@@ -114,9 +123,10 @@ namespace iTorrent {
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
                         if (splitController.Collapsed) {
-                            (splitController.ViewControllers[0] as UINavigationController).PopViewController(true);
-                        } 
-                        splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                            NavigationController.PopViewController(true);
+                        } else {
+                            splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
+                        }
                     }
                 });
                 var removeMagnet = UIAlertAction.Create("Remove", UIAlertActionStyle.Destructive, delegate {
@@ -133,9 +143,10 @@ namespace iTorrent {
 
                     if (UIApplication.SharedApplication.KeyWindow.RootViewController is UISplitViewController splitController) {
                         if (splitController.Collapsed) {
-                            (splitController.ViewControllers[0] as UINavigationController).PopViewController(true);
+                            NavigationController.PopViewController(true);
+                        } else {
+                            splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                         }
-                        splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                     }
                 });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);

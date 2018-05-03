@@ -139,7 +139,7 @@ namespace iTorrent {
                             Set("Seeders", manager.Peers.Seeds.ToString());
                             break;
                         case 6:
-                            Set("Peers", manager.Peers.ActivePeers.Count.ToString());
+                            Set("Peers", manager.Peers.AvailablePeers.Count.ToString());
                             break;
                     }
                     break;
