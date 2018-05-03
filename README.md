@@ -5,7 +5,7 @@
 
 ## Screenshots
 
-![pic](https://user-images.githubusercontent.com/9553519/38474040-d08144a2-3ba1-11e8-941e-7295dac03cc8.png)
+![pic](https://user-images.githubusercontent.com/9553519/39586699-5eea36c4-4f00-11e8-81c0-b437a0945bd5.png)
 
 **Download .ipa:** ([Google Drive](https://drive.google.com/open?id=1lCdjScAPKwgkWRdWrgx6qdFX2vsoX5Gt))
 
@@ -19,6 +19,7 @@ What can this app do:
 - Download in the background by using microphone hack
 - Add torrent files from Share menu (Safari and other apps)
 - Store files in Files app (only iOS 11)
+- Support for <iOS 11 versions, like sending files directly from app
 - Download torrent file by link
 - Download torrent by magnet (not working yet)
 - Select files to download
@@ -33,6 +34,7 @@ What can this app do:
 ## Known bugs
 
 - Microphone writing (background mode) might require several attempts to enable. Just try again by opening and closing the app until the status bar becomes red.
+- Magnet links not working yet ... but you can try.
 
 ## License
 
