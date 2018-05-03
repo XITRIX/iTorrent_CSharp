@@ -272,7 +272,7 @@ namespace iTorrent {
 
         [Export("tableView:willDisplayHeaderView:forSection:")]
         public void WillDisplayHeaderView(UITableView tableView, UIView headerView, nint section) {
-            headerView.TintColor = new UIColor(0.9f, 0.9f, 0.9f, 0.7f);
+            headerView.TintColor = new UIColor(0.95f, 0.95f, 0.95f, 0.9f);
 
             var blurEffect = UIBlurEffect.FromStyle(UIBlurEffectStyle.Light);
             var blurEffectView = new UIVisualEffectView(blurEffect);

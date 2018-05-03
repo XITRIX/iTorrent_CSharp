@@ -11,14 +11,14 @@ namespace iTorrent {
     public class SortingManager {
 
         public enum SortingTypes {
-            Alphabet = 0,
+            Name = 0,
             DateAdded = 1,
             DateCreated = 2,
             Size = 3
         }
 
         public static UIAlertController CreateSortingController(UIBarButtonItem buttonItem = null, Action applyChanges = null) {
-            var alphabetAction = CreateAlertButton("Alphabet", SortingTypes.Alphabet, applyChanges);
+            var alphabetAction = CreateAlertButton("Name", SortingTypes.Name, applyChanges);
             var dateAddedAction = CreateAlertButton("Date Added", SortingTypes.DateAdded, applyChanges);
             var dateCreatedAction = CreateAlertButton("Date Created", SortingTypes.DateCreated, applyChanges);
             var sizeAction = CreateAlertButton("Size", SortingTypes.Size, applyChanges);
@@ -31,7 +31,7 @@ namespace iTorrent {
             var sortAlertController = UIAlertController.Create("Sorting type", null, UIAlertControllerStyle.ActionSheet);
 
             var message = "Current select: ";
-            CheckConditionToAddButtonToList(ref sortAlertController, ref message, alphabetAction, SortingTypes.Alphabet);
+            CheckConditionToAddButtonToList(ref sortAlertController, ref message, alphabetAction, SortingTypes.Name);
             CheckConditionToAddButtonToList(ref sortAlertController, ref message, dateAddedAction, SortingTypes.DateAdded);
             CheckConditionToAddButtonToList(ref sortAlertController, ref message, dateCreatedAction, SortingTypes.DateCreated);
             CheckConditionToAddButtonToList(ref sortAlertController, ref message, sizeAction, SortingTypes.Size);
@@ -79,12 +79,16 @@ namespace iTorrent {
             headers = new List<string>();
 
             if (NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.SortingSections)) {
+                var metadataManagers = new List<TorrentManager>();
                 var hashingManagers = new List<TorrentManager>();
                 var finishedManagers = new List<TorrentManager>();
                 var downloadingManagers = new List<TorrentManager>();
                 var stoppedManagers = new List<TorrentManager>();
                 foreach (var manager in localManagers) {
                     switch (manager.State) {
+                        case TorrentState.Metadata:
+                            metadataManagers.Add(manager);
+                            break;
                         case TorrentState.Hashing:
                             hashingManagers.Add(manager);
                             break;
@@ -113,6 +117,7 @@ namespace iTorrent {
                             break;
                     }
                 }
+                AddManager(ref res, ref metadataManagers, ref headers, TorrentState.Metadata.ToString());
                 AddManager(ref res, ref hashingManagers, ref headers, TorrentState.Hashing.ToString());
                 AddManager(ref res, ref downloadingManagers, ref headers, TorrentState.Downloading.ToString());
                 AddManager(ref res, ref finishedManagers, ref headers, "Finished");
@@ -136,9 +141,11 @@ namespace iTorrent {
 
         private static void SimpleSort(ref List<TorrentManager> list) {
             switch ((SortingTypes)(int)NSUserDefaults.StandardUserDefaults.IntForKey(UserDefaultsKeys.SortingType)) {
-                case SortingTypes.Alphabet:
+                case SortingTypes.Name:
                     list.Sort((m1, m2) => {
-                        return string.Compare(m1.Torrent.Name, m2.Torrent.Name, StringComparison.CurrentCulture);
+                        var m1name = m1.Torrent?.Name ?? "Magnet download";
+                        var m2name = m2.Torrent?.Name ?? "Magnet download";
+                        return string.Compare(m1name, m2name, StringComparison.CurrentCulture);
                     });
                     break;
                 case SortingTypes.DateAdded:

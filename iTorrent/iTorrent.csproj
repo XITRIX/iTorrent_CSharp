@@ -43,12 +43,11 @@
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARMv7, ARMv7s, ARM64</MtouchArch>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodesignProvision>VS: ru.nonamedude.iTorrent Development</CodesignProvision>
-    <MtouchUseLlvm>true</MtouchUseLlvm>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>pdbonly</DebugType>
@@ -472,6 +471,43 @@
     <Compile Include="Utils\ADSManager.cs" />
     <Compile Include="Utils\UserDefaultsKeys.cs" />
     <Compile Include="Utils\SortingManager.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\BigInteger.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\DhtEngine.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Message.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\MessageException.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\MessageFactory.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\MessageLoop.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\TransactionId.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\EventArgs\NodeAddedEventArgs.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\EventArgs\NodeFoundEventArgs.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\EventArgs\SendMessageEventArgs.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\EventArgs\TaskCompleteEventArgs.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Listeners\DhtListener.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Errors\ErrorMessage.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Queries\AnnouncePeer.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Queries\FindNode.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Queries\GetPeers.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Queries\Ping.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Queries\QueryMessage.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Responses\AnnouncePeerResponse.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Responses\FindNodeResponse.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Responses\GetPeersResponse.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Responses\PingResponse.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Messages\Responses\ResponseMessage.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Nodes\Node.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Nodes\NodeId.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Nodes\NodeState.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Nodes\TokenManager.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\RoutingTable\Bucket.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\RoutingTable\RoutingTable.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\AnnounceTask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\GetPeersTask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\ITask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\InitialiseTask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\RefreshBucketTask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\ReplaceNodeTask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\SendMessageTask.cs" />
+    <Compile Include="Libraries\MonoTorrent.Dht\Tasks\Task.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GoogleService-Info.plist" />

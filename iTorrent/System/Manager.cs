@@ -38,6 +38,8 @@ using MonoTorrent.Client;
 using MonoTorrent.Client.Tracker;
 using MonoTorrent.Common;
 using MonoTorrent.Client.Encryption;
+using MonoTorrent.Dht;
+using MonoTorrent.Dht.Listeners;
 
 using mooftpserv;
 
@@ -53,6 +55,7 @@ namespace iTorrent {
             RootFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             ConfigFolder = Path.Combine(RootFolder, "Config");
             DatFile = Path.Combine(ConfigFolder, "dat.itor");
+            DhtNodeFile = Path.Combine(ConfigFolder, "dht.itor");
             AudioFile = Path.Combine(ConfigFolder, "audio.caf");
         }
         public static void Init() {
@@ -64,6 +67,7 @@ namespace iTorrent {
         public static readonly string RootFolder;
         public static readonly string ConfigFolder;
         public static readonly string DatFile;
+        public static readonly string DhtNodeFile;
         public static readonly string AudioFile;
 
         public static readonly int UIUpdateRate = 1000;
@@ -82,7 +86,7 @@ namespace iTorrent {
 
         public Manager() {
             if (Singletone != null) {
-                throw new MessageException("Only one sample of this object can exists");
+                throw new MonoTorrent.Client.MessageException("Only one sample of this object can exists");
             }
 
             SetupEngine();
@@ -102,6 +106,19 @@ namespace iTorrent {
 
             engine = new ClientEngine(settings);
             engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
+
+            byte[] nodes = null;
+            try {
+                nodes = File.ReadAllBytes(DhtNodeFile);
+            } catch {
+                Console.WriteLine("No existing dht nodes could be loaded");
+            }
+
+            DhtListener dhtListner = new DhtListener(new IPEndPoint(IPAddress.Any, 6969));
+            DhtEngine dht = new DhtEngine(dhtListner);
+            engine.RegisterDht(dht);
+            dhtListner.Start();
+            engine.DhtEngine.Start(nodes);
         }
 
         void RestoreTorrents() {
@@ -279,6 +296,7 @@ namespace iTorrent {
             } else {
                 save = new SaveClass();
             }
+            File.WriteAllBytes(DhtNodeFile, engine.DhtEngine.SaveNodes());
             foreach (var manager in Manager.Singletone.managers) {
                 if (manager.Torrent == null) { continue; }
 

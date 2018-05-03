@@ -96,7 +96,7 @@ namespace iTorrent {
                                 Set("Created On", "");
                             break;
                         case 3:
-                            if (manager.Torrent != null && manager.dateOfAdded.Year != 1)
+                            if (manager.dateOfAdded.Year != 1)
                                 Set("Added on", manager.dateOfAdded.ToShortDateString());
                             else
                                 Set("Added on", "");
