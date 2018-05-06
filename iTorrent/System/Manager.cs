@@ -48,6 +48,8 @@ using Foundation;
 
 namespace iTorrent {
     public class Manager {
+        
+        public static readonly bool useDht = false; //DHT ENABLER!!!!!
 
         #region Singleton
         public static Manager Singletone { get; private set; }
@@ -107,19 +109,21 @@ namespace iTorrent {
             engine = new ClientEngine(settings);
             engine.ChangeListenEndpoint(new IPEndPoint(IPAddress.Any, 6969));
 
-            byte[] nodes = null;
-            try {
-                nodes = File.ReadAllBytes(DhtNodeFile);
-            } catch {
-                Console.WriteLine("No existing dht nodes could be loaded");
-            }
+            if (useDht) {
+                byte[] nodes = null;
+                try {
+                    nodes = File.ReadAllBytes(DhtNodeFile);
+                } catch {
+                    Console.WriteLine("No existing dht nodes could be loaded");
+                }
 
-            DhtListener dhtListner = new DhtListener(new IPEndPoint(IPAddress.Any, 6970));
-            DhtEngine dht = new DhtEngine(dhtListner);
-            engine.RegisterDht(dht);
-            dhtListner.Start();
-            engine.DhtEngine.Start(nodes);
-            dhtListner.Start();
+                DhtListener dhtListner = new DhtListener(new IPEndPoint(IPAddress.Any, 6970));
+                DhtEngine dht = new DhtEngine(dhtListner);
+                engine.RegisterDht(dht);
+                dhtListner.Start();
+                engine.DhtEngine.Start(nodes);
+                dhtListner.Start();
+            }
         }
 
         void RestoreTorrents() {
@@ -297,7 +301,9 @@ namespace iTorrent {
             } else {
                 save = new SaveClass();
             }
-            File.WriteAllBytes(DhtNodeFile, engine.DhtEngine.SaveNodes());
+            if (useDht) {
+                File.WriteAllBytes(DhtNodeFile, engine.DhtEngine.SaveNodes());
+            }
             foreach (var manager in Manager.Singletone.managers) {
                 if (manager.Torrent == null) { continue; }
 

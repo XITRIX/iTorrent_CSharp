@@ -280,15 +280,16 @@ namespace iTorrent {
 
         [Export("tableView:willDisplayHeaderView:forSection:")]
         public void WillDisplayHeaderView(UITableView tableView, UIView headerView, nint section) {
-            headerView.TintColor = new UIColor(0.95f, 0.95f, 0.95f, 0.9f);
-
-            var blurEffect = UIBlurEffect.FromStyle(UIBlurEffectStyle.Light);
-            var blurEffectView = new UIVisualEffectView(blurEffect);
-            //always fill the view
-            blurEffectView.Frame = headerView.Bounds;
-            blurEffectView.AutoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight;
-            headerView.AddSubview(blurEffectView);
-            headerView.InsertSubview(blurEffectView, 0);
+            if (!(headerView.Subviews[0] is UIVisualEffectView)) {
+                headerView.TintColor = new UIColor(0.95f, 0.95f, 0.95f, 0.9f);
+                var blurEffect = UIBlurEffect.FromStyle(UIBlurEffectStyle.Light);
+                var blurEffectView = new UIVisualEffectView(blurEffect);
+                //always fill the view
+                blurEffectView.Frame = headerView.Bounds;
+                blurEffectView.AutoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight;
+                headerView.AddSubview(blurEffectView);
+                headerView.InsertSubview(blurEffectView, 0);
+            }
         }
 
         public nint RowsInSection(UITableView tableView, nint section) {
