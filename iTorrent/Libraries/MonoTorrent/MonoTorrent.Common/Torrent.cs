@@ -739,6 +739,7 @@ namespace MonoTorrent.Common
             }
             catch (BEncodingException ex)
             {
+                Console.WriteLine(path);
                 throw new TorrentException("Invalid torrent file specified", ex);
             }
         }

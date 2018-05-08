@@ -17,6 +17,7 @@ namespace iTorrent {
             FTPSwitcher.SetState(state, false);
             FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.FTPServerBackground), false);
             BackgroundEnabler.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundMode), false);
+            DHTSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.DHTEnabled), false);
         }
 
 		public override void ViewWillAppear(bool animated) {
@@ -39,7 +40,27 @@ namespace iTorrent {
                 bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);
                 return state ? "Connect to: ftp://" + GetLocalIPAddress() + ":21" : "";
             }
+            if (section == 2) {
+                return "It could help with magnets... or cause toubles in nornal downloading...";
+            }
             return "";
+        }
+
+        partial void DHTAction(UISwitch sender) {
+            var controller = UIAlertController.Create("DHT state changing", "Changes will take effect only after reboot.", UIAlertControllerStyle.Alert);
+            var reboot = UIAlertAction.Create("Reboot", UIAlertActionStyle.Destructive, delegate {
+                NSUserDefaults.StandardUserDefaults.SetBool(sender.On, UserDefaultsKeys.DHTEnabled);
+                Manager.Singletone.SaveState();
+                Thread.CurrentThread.Abort();
+            });
+            var later = UIAlertAction.Create("Not now", UIAlertActionStyle.Cancel, delegate {
+                sender.SetState(!sender.On, true);
+            });
+
+            controller.AddAction(reboot);
+            controller.AddAction(later);
+
+            PresentViewController(controller, true, null);
         }
 
         partial void BackgroundEnablerAction(UISwitch sender) {

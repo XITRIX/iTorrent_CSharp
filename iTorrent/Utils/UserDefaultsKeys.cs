@@ -6,5 +6,6 @@ namespace iTorrent {
         public static readonly String FTPServer = "FTPServer";
         public static readonly String SortingType = "SortingType";
         public static readonly String SortingSections = "SortingSections";
+        public static readonly String DHTEnabled = "DHTEnabled";
     }
 }

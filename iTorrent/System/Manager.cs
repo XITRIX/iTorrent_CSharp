@@ -49,7 +49,7 @@ using Foundation;
 namespace iTorrent {
     public class Manager {
         
-        public static readonly bool useDht = false; //DHT ENABLER!!!!!
+        public static bool useDht = false; //DHT ENABLER!!!!!
 
         #region Singleton
         public static Manager Singletone { get; private set; }
@@ -91,6 +91,8 @@ namespace iTorrent {
                 throw new MonoTorrent.Client.MessageException("Only one sample of this object can exists");
             }
 
+            useDht = NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.DHTEnabled);
+
             SetupEngine();
             RestoreTorrents();
 
@@ -122,70 +124,72 @@ namespace iTorrent {
                 engine.RegisterDht(dht);
                 dhtListner.Start();
                 engine.DhtEngine.Start(nodes);
-                dhtListner.Start();
             }
         }
 
         void RestoreTorrents() {
-                SaveClass save = null;
-                if (File.Exists(DatFile)) {
-                    save = Utils.DeSerializeObject<SaveClass>(DatFile);
-                }
+            SaveClass save = null;
+            if (File.Exists(DatFile)) {
+                save = Utils.DeSerializeObject<SaveClass>(DatFile);
+            }
+            if (File.Exists(Path.Combine(ConfigFolder, "_temp.torrent"))) {
+                File.Delete(Path.Combine(ConfigFolder, "_temp.torrent"));
+            }
 
                 if (Directory.Exists(ConfigFolder)) {
-                foreach (var file in Directory.GetFiles(ConfigFolder)) {
-                    new Thread(() => {
-                        if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
+                    foreach (var file in Directory.GetFiles(ConfigFolder)) {
+                        new Thread(() => {
+                            if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
 
-                            Torrent torrent = Torrent.Load(file);
-                            TorrentManager manager = new TorrentManager(torrent, RootFolder, new TorrentSettings());
+                                Torrent torrent = Torrent.Load(file);
+                                TorrentManager manager = new TorrentManager(torrent, RootFolder, new TorrentSettings());
 
-                            engine.Register(manager);
+                                engine.Register(manager);
 
-                            if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
-                                if (save.data[torrent.InfoHash.ToHex()].resume != null) {
-                                    manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
-                                    manager.dateOfAdded = save.data[torrent.InfoHash.ToHex()].date;
-                                    switch (save.data[torrent.InfoHash.ToHex()].state) {
-                                        case TorrentState.Downloading:
-                                            manager.Start();
-                                            break;
-                                        default:
-                                            manager.Stop();
-                                            break;
+                                if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
+                                    if (save.data[torrent.InfoHash.ToHex()].resume != null) {
+                                        manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
+                                        manager.dateOfAdded = save.data[torrent.InfoHash.ToHex()].date;
+                                        switch (save.data[torrent.InfoHash.ToHex()].state) {
+                                            case TorrentState.Downloading:
+                                                manager.Start();
+                                                break;
+                                            default:
+                                                manager.Stop();
+                                                break;
+                                        }
+                                    }
+                                    foreach (var _file in torrent.Files) {
+                                        if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
+                                            _file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
+                                        }
                                     }
                                 }
-                                foreach (var _file in torrent.Files) {
-                                    if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
-                                        _file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
+
+                                PiecePicker picker = new StandardPicker();
+                                picker = new PriorityPicker(picker);
+                                manager.ChangePicker(picker);
+                                manager.TorrentStateChanged += delegate {
+                                    Manager.OnFinishLoading(manager);
+                                };
+
+                                foreach (TrackerTier tier in manager.TrackerManager) {
+                                    foreach (Tracker t in tier.Trackers) {
+                                        t.AnnounceComplete += delegate (object sender, AnnounceResponseEventArgs e) {
+                                            Console.WriteLine(string.Format("{0}!: {1}", e.Successful, e.Tracker));
+                                        };
                                     }
                                 }
+
+                                managers.Add(manager);
+
+                                UIApplication.SharedApplication.InvokeOnMainThread(() => {
+                                    restoreAction?.Invoke();
+                                });
                             }
-
-                            PiecePicker picker = new StandardPicker();
-                            picker = new PriorityPicker(picker);
-                            manager.ChangePicker(picker);
-                            manager.TorrentStateChanged += delegate {
-                                Manager.OnFinishLoading(manager);
-                            };
-
-                            foreach (TrackerTier tier in manager.TrackerManager) {
-                                foreach (Tracker t in tier.Trackers) {
-                                    t.AnnounceComplete += delegate (object sender, AnnounceResponseEventArgs e) {
-                                        Console.WriteLine(string.Format("{0}!: {1}", e.Successful, e.Tracker));
-                                    };
-                                }
-                            }
-
-                            managers.Add(manager);
-
-                            UIApplication.SharedApplication.InvokeOnMainThread(() => {
-                                restoreAction?.Invoke();
-                            });
-                        }
-                    }).Start();
+                        }).Start();
+                    }
                 }
-            }
         }
 
         void InitializeMainLoop() {
