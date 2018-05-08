@@ -78,12 +78,19 @@ namespace iTorrent {
             var localManagers = managers;
             headers = new List<string>();
 
+            if (NSUserDefaults.StandardUserDefaults.ValueForKey(new NSString(UserDefaultsKeys.SortingSections)) == null) {
+                NSUserDefaults.StandardUserDefaults.SetBool(true, UserDefaultsKeys.SortingSections);
+            }
+
             if (NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.SortingSections)) {
                 var metadataManagers = new List<TorrentManager>();
                 var hashingManagers = new List<TorrentManager>();
                 var finishedManagers = new List<TorrentManager>();
                 var downloadingManagers = new List<TorrentManager>();
+                var stoppingManagers = new List<TorrentManager>();
                 var stoppedManagers = new List<TorrentManager>();
+                var errorManagers = new List<TorrentManager>();
+                var seedingManagers = new List<TorrentManager>();
                 foreach (var manager in localManagers) {
                     switch (manager.State) {
                         case TorrentState.Metadata:
@@ -94,6 +101,15 @@ namespace iTorrent {
                             break;
                         case TorrentState.Downloading:
                             downloadingManagers.Add(manager);
+                            break;
+                        case TorrentState.Seeding:
+                            seedingManagers.Add(manager);
+                            break;
+                        case TorrentState.Error:
+                            errorManagers.Add(manager);
+                            break;
+                        case TorrentState.Stopping:
+                            stoppedManagers.Add(manager);
                             break;
                         case TorrentState.Stopped:
                             long size = 0;
@@ -120,8 +136,11 @@ namespace iTorrent {
                 AddManager(ref res, ref metadataManagers, ref headers, TorrentState.Metadata.ToString());
                 AddManager(ref res, ref hashingManagers, ref headers, TorrentState.Hashing.ToString());
                 AddManager(ref res, ref downloadingManagers, ref headers, TorrentState.Downloading.ToString());
+                AddManager(ref res, ref seedingManagers, ref headers, TorrentState.Seeding.ToString());
                 AddManager(ref res, ref finishedManagers, ref headers, "Finished");
+                AddManager(ref res, ref stoppingManagers, ref headers, TorrentState.Stopping.ToString());
                 AddManager(ref res, ref stoppedManagers, ref headers, TorrentState.Stopped.ToString());
+                AddManager(ref res, ref errorManagers, ref headers, TorrentState.Error.ToString());
             } else {
                 headers.Add("");
                 SimpleSort(ref localManagers);

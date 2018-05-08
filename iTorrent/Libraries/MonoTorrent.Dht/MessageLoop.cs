@@ -204,12 +204,12 @@ namespace MonoTorrent.Dht
             }
             catch (MessageException ex)
             {
-                Console.WriteLine("Incoming message barfed: {0}", ex);
+                //Console.WriteLine("Incoming message barfed: {0}", ex);
                 // Normal operation (FIXME: do i need to send a response error message?) 
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Handle Error for message: {0}", ex);
+                //Console.WriteLine("Handle Error for message: {0}", ex);
                 this.EnqueueSend(new ErrorMessage(ErrorCode.GenericError, "Misshandle received message!"), source);
             }
         }

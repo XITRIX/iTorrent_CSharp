@@ -51,6 +51,7 @@ namespace iTorrent {
         string[] sections = { "", "SPEED", "GENERAL INFORMATION", "TRANSFER", "MORE" };
 
         Action action;
+        Action managerStateChanged;
         #endregion
 
         #region Lifecycle
@@ -183,6 +184,15 @@ namespace iTorrent {
                     }
                 });
             };
+
+            managerStateChanged = () => { 
+                Update();
+                InvokeOnMainThread(() => {
+                    if (manager.Torrent != null) {
+                        Title = manager.Torrent.Name;
+                    }
+                });
+            };
         }
 
 		public override void ViewWillAppear(bool animated) {
@@ -190,6 +200,7 @@ namespace iTorrent {
 
             if (action != null) {
                 Manager.Singletone.updateActions.Add(action);
+                Manager.Singletone.managerStateChanged.Add(managerStateChanged);
             }
             tableView.ReloadData();
 		}
@@ -198,6 +209,7 @@ namespace iTorrent {
             base.ViewDidDisappear(animated);
 
             Manager.Singletone.updateActions.Remove(action);
+            Manager.Singletone.managerStateChanged.Remove(managerStateChanged);
 		}
         #endregion
 

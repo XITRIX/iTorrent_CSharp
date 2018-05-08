@@ -36,6 +36,7 @@ using MonoTorrent.Common;
 
 using UIKit;
 using Foundation;
+using SafariServices;
 
 namespace iTorrent {
     public partial class MainController : UIViewController, IUITableViewDataSource, IUITableViewDelegate {
@@ -67,7 +68,7 @@ namespace iTorrent {
 
             AddAction.Clicked += delegate {
                 var alert = UIAlertController.Create("Add from...", null, UIAlertControllerStyle.ActionSheet);
-                var magnet = UIAlertAction.Create("Magnet (May not work)", UIAlertActionStyle.Default, delegate {
+                var magnet = UIAlertAction.Create("Magnet", UIAlertActionStyle.Default, delegate {
                     var magnetAlert = UIAlertController.Create("Add from magnet", "Please enter the magnet link below", UIAlertControllerStyle.Alert);
                     magnetAlert.AddTextField((UITextField obj) => {
                         obj.Placeholder = "magnet:";
@@ -144,6 +145,11 @@ namespace iTorrent {
                             Console.WriteLine(ex.StackTrace);
                             var alertError = UIAlertController.Create("An error occurred", "Please, open this link in Safari, and send .torrent file from there", UIAlertControllerStyle.Alert);
                             var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
+                            var openSafari = UIAlertAction.Create("Open Safari", UIAlertActionStyle.Default, delegate {
+                                var safari = new SFSafariViewController(NSUrl.FromString(textField.Text));
+                                PresentViewController(safari, true, null);
+                            });
+                            alertError.AddAction(openSafari);
                             alertError.AddAction(close);
                             PresentViewController(alertError, true, null);
                             return;
@@ -453,7 +459,7 @@ namespace iTorrent {
                                 splitController.ShowDetailViewController(Utils.CreateEmptyViewController(), this);
                             }
                         }
-                    } //FIXME: IPhone Plus - If remove torrent in portrait mode than rotate, split view detail will show removed manager
+                    }
                 });
                 var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
 
