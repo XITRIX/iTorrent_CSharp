@@ -146,8 +146,9 @@ namespace iTorrent {
                             var alertError = UIAlertController.Create("An error occurred", "Please, open this link in Safari, and send .torrent file from there", UIAlertControllerStyle.Alert);
                             var close = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
                             var openSafari = UIAlertAction.Create("Open Safari", UIAlertActionStyle.Default, delegate {
-                                var safari = new SFSafariViewController(NSUrl.FromString(textField.Text));
-                                PresentViewController(safari, true, null);
+                                //var safari = new SFSafariViewController(NSUrl.FromString(textField.Text));
+                                //PresentViewController(safari, true, null);
+                                UIApplication.SharedApplication.OpenUrl(NSUrl.FromString(textField.Text));
                             });
                             alertError.AddAction(openSafari);
                             alertError.AddAction(close);
