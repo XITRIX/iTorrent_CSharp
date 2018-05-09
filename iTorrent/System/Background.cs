@@ -36,13 +36,33 @@ using Foundation;
 using AVFoundation;
 
 namespace iTorrent {
-    public class Background {
+	public class Background {
+
+		public enum BackgroundTypes {
+            Music,
+            Microphone
+        }
+		public static String GetBackgroundTypeTitle(BackgroundTypes type) {
+			switch (type) {
+				case BackgroundTypes.Music:
+					return "Play empty music";
+				case BackgroundTypes.Microphone:
+					return "Record on microphone";
+				default:
+					return null;
+			}
+		}
 
         static AVAudioRecorder audioRecorder;
+		static AVAudioPlayer audioPlayer;
+
+		static NSObject audioObserver;
+
+		static bool backgroundRunning;
 
         public static bool Backgrounding {
             get {
-                return audioRecorder.Recording;
+				return backgroundRunning;
             }
         }
 
@@ -52,52 +72,98 @@ namespace iTorrent {
           
             NSError error;
             audioRecorder = AVAudioRecorder.Create(new NSUrl(Manager.AudioFile), settings, out error);
+			audioPlayer = AVAudioPlayer.FromUrl(new NSUrl(NSBundle.MainBundle.PathForResource("3", "wav")));
         }
 
         public static void RunBackgroundMode() {
-            bool background = NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundMode);
+            bool background = NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundModeEnabled);
             if (!background) {
                 return;
             }
+
+
             bool ftpBackground = NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.FTPServerBackground);
             if (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive && ftpBackground) {
-                audioRecorder.Record();
+				RunBackground();
             } else {
                 foreach (var manager in Manager.Singletone.managers) {
                     if (manager.State !=  TorrentState.Paused && manager.State != TorrentState.Stopped) {
-                        if (!audioRecorder.Recording) {
-                            audioRecorder.Record();
-                            break;
-                        }
+						RunBackground();
+                        break;
                     }
                 }
             }
         }
 
-        public static void StopBackgroundMode() {
-            if (audioRecorder.Recording) {
-                audioRecorder.Stop();
+		static void RunBackground() {
+			BackgroundTypes mode = (BackgroundTypes)(int)NSUserDefaults.StandardUserDefaults.IntForKey(UserDefaultsKeys.BackgroundModeType);
+            switch (mode) {
+                case BackgroundTypes.Microphone:
+					if (!audioRecorder.Recording) {
+						audioRecorder.Record();
+					}
+					backgroundRunning = true;
+                    break;
+				case BackgroundTypes.Music:
+					audioObserver = NSNotificationCenter.DefaultCenter.AddObserver(AVAudioSession.InterruptionNotification, InteruptedAudio, AVAudioSession.SharedInstance());
+					PlayAudio();
+                    backgroundRunning = true;
+					break;
             }
+		}
 
-            if (File.Exists(Manager.AudioFile)) {
-                File.Delete(Manager.AudioFile);
-            }
-        }
+		public static void StopBackgroundMode() {
+			BackgroundTypes mode = (BackgroundTypes)(int)NSUserDefaults.StandardUserDefaults.IntForKey(UserDefaultsKeys.BackgroundModeType);
+			switch (mode) {
+				case BackgroundTypes.Microphone:
+					if (audioRecorder != null && audioRecorder.Recording) {
+						audioRecorder.Stop();
+					}
+
+					if (File.Exists(Manager.AudioFile)) {
+						File.Delete(Manager.AudioFile);
+					}
+					break;
+				case BackgroundTypes.Music:
+					if (audioObserver != null) {
+						NSNotificationCenter.DefaultCenter.RemoveObserver(audioObserver);
+						audioObserver = null;
+						audioPlayer.Stop();
+					}
+					break;
+			}
+			backgroundRunning = false;
+		}
 
         public static void CheckToStopBackground() {
-            if (audioRecorder != null && audioRecorder.Recording && (Manager.Singletone.ftpThread == null || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
+			if (backgroundRunning && (Manager.Singletone.ftpThread == null || !NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServerBackground"))) {
                 foreach (var manager in Manager.Singletone.managers) {
                     if (manager.State != TorrentState.Paused && manager.State != TorrentState.Stopped && manager.State != TorrentState.Error) {
                         return;
                     }
-                }
-
-                audioRecorder.Stop();
-
-                if (File.Exists(Manager.AudioFile)) {
-                    File.Delete(Manager.AudioFile);
-                }
+                }            
+				StopBackgroundMode();
             }
         }
+
+		public static void InteruptedAudio(NSNotification notification) {
+			if (notification.Name == AVAudioSession.InterruptionNotification && notification.UserInfo != null) {
+				var info = notification.UserInfo;
+				//info.TryGetValue((NSObject) AVAudioSession.ChangeNewKey, out intValue);
+				PlayAudio();
+			}
+        }
+
+		public static void PlayAudio() {
+			var bundle = NSBundle.MainBundle.PathForResource("3", "wav");
+			var alertSound = new NSUrl(bundle);
+			AVAudioSession.SharedInstance().SetCategory(AVAudioSessionCategory.Playback, AVAudioSessionCategoryOptions.MixWithOthers);
+			AVAudioSession.SharedInstance().SetActive(true);
+			audioPlayer.NumberOfLoops = -1;
+			audioPlayer.Volume = 0.01f;
+			audioPlayer.PrepareToPlay();
+			audioPlayer.Play();
+			Console.WriteLine("Playing music");
+		}
     }
 }

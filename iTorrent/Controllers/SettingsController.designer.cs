@@ -20,6 +20,10 @@ namespace iTorrent
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIButton BackgroundTypeButton { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISwitch DHTSwitcher { get; set; }
 
         [Outlet]
@@ -34,6 +38,10 @@ namespace iTorrent
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void BackgroundEnablerAction (UIKit.UISwitch sender);
 
+        [Action ("BackgroundTypeButtonAction:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void BackgroundTypeButtonAction (UIKit.UIButton sender);
+
         [Action ("BackgroungModeToggle:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void BackgroungModeToggle (UIKit.UISwitch sender);
@@ -41,6 +49,10 @@ namespace iTorrent
         [Action ("DHTAction:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void DHTAction (UIKit.UISwitch sender);
+
+        [Action ("DonateVisaCopyAction:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void DonateVisaCopyAction (UIKit.UIButton sender);
 
         [Action ("FTPEnabler:")]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -51,6 +63,11 @@ namespace iTorrent
             if (BackgroundEnabler != null) {
                 BackgroundEnabler.Dispose ();
                 BackgroundEnabler = null;
+            }
+
+            if (BackgroundTypeButton != null) {
+                BackgroundTypeButton.Dispose ();
+                BackgroundTypeButton = null;
             }
 
             if (DHTSwitcher != null) {

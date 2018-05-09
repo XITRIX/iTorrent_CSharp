@@ -45,6 +45,7 @@ using mooftpserv;
 
 using UIKit;
 using Foundation;
+using UserNotifications;
 
 namespace iTorrent {
     public class Manager {
@@ -253,8 +254,24 @@ namespace iTorrent {
                 if (downloaded >= size) {
                     manager.Pause();
                 }
-            }
-            Background.CheckToStopBackground();
+			} else if (manager.State == TorrentState.Stopped) {
+				if (UIDevice.CurrentDevice.CheckSystemVersion(10,0)) {
+					var content = new UNMutableNotificationContent();
+					content.Title = "Download finished";
+					content.Body = manager.Torrent.Name + " finished downloading";
+					content.Sound = UNNotificationSound.Default;
+                    
+					var date = DateTime.Now;
+					var trigger = UNTimeIntervalNotificationTrigger.CreateTrigger(1, false);
+					var identifier = manager.Torrent.Name;
+					var request = UNNotificationRequest.FromIdentifier(identifier, content, trigger);
+
+					UNUserNotificationCenter.Current.AddNotificationRequest(request, null);
+				}
+
+                Background.CheckToStopBackground();
+			}
+			Console.WriteLine("State chaged: " + manager.State.ToString());
             foreach (var action in Manager.Singletone.managerStateChanged) {
                 action?.Invoke();
             }

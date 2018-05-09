@@ -26,14 +26,18 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 using Firebase.Core;
-using Google.MobileAds;
+using Firebase.Analytics;
+//using Google.MobileAds;
 
 using Foundation;
 using UIKit;
 using AVFoundation;
+using UserNotifications;
 
 namespace iTorrent {
     // The UIApplicationDelegate for the application. This class is responsible for launching the
@@ -49,11 +53,22 @@ namespace iTorrent {
 
         #region AppDelegate LifeCycle 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions) {
-            // Override point for customization after application launch.
-            // If not required for your application you can safely delete this method
+			// Override point for customization after application launch.
+			// If not required for your application you can safely delete this method
 
-            App.Configure();
-            MobileAds.Configure(ADSManager.AppID);
+			new Firebase.Analytics.Loader();
+			new Firebase.InstanceID.Loader();
+			App.Configure();
+           
+			//MobileAds.Configure(ADSManager.AppID);
+
+			if (UIDevice.CurrentDevice.CheckSystemVersion(10,0)) {
+				var center = UNUserNotificationCenter.Current;
+				var options = UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound;
+				center.RequestAuthorization(options, (granted, error) => {
+					Console.WriteLine("Granted: " + granted.ToString());
+				});
+			}
 
             Manager.Init();
 
@@ -64,6 +79,13 @@ namespace iTorrent {
             } else {
                 throw new System.MissingMemberException("Storyboard's root element is not SplitViewController");
             }
+
+			//new Thread(() => {
+			//	for (; ; ) {
+			//		Console.WriteLine("Check");
+			//		Thread.Sleep(5000);
+			//	}
+			//}).Start();
 
             return true;
         }
@@ -80,11 +102,12 @@ namespace iTorrent {
             // Games should use this method to pause the game.
         }
 
+		//bool stop;
         public override void DidEnterBackground(UIApplication application) {
             // Use this method to release shared resources, save user data, invalidate timers and store the application state.
             // If your application supports background exection this method is called instead of WillTerminate when the user quits.'
             Background.RunBackgroundMode();
-            Manager.Singletone.SaveState();
+			Manager.Singletone.SaveState();
         }
 
         public override void WillEnterForeground(UIApplication application) {
@@ -92,6 +115,7 @@ namespace iTorrent {
             // Here you can undo many of the changes made on entering the background.
 
             Background.StopBackgroundMode();
+			//stop = true;
         }
 
         public override void OnActivated(UIApplication application) {

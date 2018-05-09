@@ -16,12 +16,13 @@ This app was written in Visual Studio - Xamarin.iOS
 It is a simple torrent client for iOS with Files app support.
 
 What can this app do:
-- Download in the background by using microphone hack
+- Download in the background by using music or microphone hack
 - Add torrent files from Share menu (Safari and other apps)
 - Store files in Files app (only iOS 11)
 - Support for <iOS 11 versions, like sending files directly from app
-- Download torrent file by link
-- Download torrent by magnet (not working yet)
+- Download torrent by link
+- Download torrent by magnet (may not work)
+- Send notification on torrent downloaded
 - Select files to download
 - Share files by FTP Server
 - ??? 
@@ -33,8 +34,14 @@ What can this app do:
 
 ## Known bugs
 
-- Microphone writing (background mode) might require several attempts to enable. Just try again by opening and closing the app until the status bar becomes red.
-- Magnet links not working yet ... but you can try.
+- Microphone writing background mode might require several attempts to enable. Just try again by opening and closing the app until the status bar becomes red, so HIGHLY recommended to not use it.
+- Magnet links may not work, try to turn on DHT in settings, but it could break normal downloads.
+
+## Donate on donuts
+
+VISA CARD - 4890 4944 7168 8218
+[QIWI Moneybox](https://qiwi.me/c5ec30ff-21d6-428b-9a10-29a1d18242db)
+
 
 ## License
 

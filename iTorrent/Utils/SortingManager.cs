@@ -103,7 +103,7 @@ namespace iTorrent {
 
         public static List<List<TorrentManager>> SortTorrentManagers(List<TorrentManager> managers, out List<String> headers) {
             var res = new List<List<TorrentManager>>();
-            var localManagers = managers;
+			var localManagers = new List<TorrentManager>(managers);
             headers = new List<string>();
 
             if (NSUserDefaults.StandardUserDefaults.ValueForKey(new NSString(UserDefaultsKeys.SortingSections)) == null) {
