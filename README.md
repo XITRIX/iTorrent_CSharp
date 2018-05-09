@@ -39,8 +39,8 @@ What can this app do:
 
 ## Donate on donuts
 
-VISA CARD - 4890 4944 7168 8218
-[QIWI Moneybox](https://qiwi.me/c5ec30ff-21d6-428b-9a10-29a1d18242db)
+- VISA CARD - 4890 4944 7168 8218
+- [QIWI Moneybox](https://qiwi.me/c5ec30ff-21d6-428b-9a10-29a1d18242db)
 
 
 ## License
