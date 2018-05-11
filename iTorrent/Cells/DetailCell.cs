@@ -63,7 +63,7 @@ namespace iTorrent {
                 case 0:
                     switch (indexPath.Row) {
                         case 0:
-                            Set("State", selectedDownload >= selectedSize && manager.HasMetadata && manager.State == MonoTorrent.Common.TorrentState.Stopped ? "Finished" : manager.State.ToString());
+							Set("State", Utils.GetManagerTorrentState(manager).ToString());
                             break;
                     }
                     break;
@@ -72,13 +72,15 @@ namespace iTorrent {
                         case 0:
                             Set("Download", Utils.GetSizeText(manager.Monitor.DownloadSpeed) + "/s");
                             break;
-                        case 1:
-
+                        case 1:                     
                             Set("Upload", Utils.GetSizeText(manager.Monitor.UploadSpeed) + "/s");
                             break;
+						case 2:
+							Set("Time remains", Utils.GetManagerTorrentState(manager) == MonoTorrent.Common.TorrentState.Downloading ? Utils.DownloadingTimeRemainText(manager.Monitor.DownloadSpeed, selectedSize, selectedDownload) : "---");
+							break;
                     }
                     break;
-                case 2:
+                case 3:
                     switch (indexPath.Row) {
                         case 0:
                             Set("Hash", manager.InfoHash.ToHex());
@@ -109,7 +111,7 @@ namespace iTorrent {
                             break;
                     }
                     break;
-                case 3:
+                case 4:
                     switch (indexPath.Row) {
                         case 0:
                             if (manager.Torrent != null)

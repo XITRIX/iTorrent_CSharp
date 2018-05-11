@@ -48,7 +48,7 @@ namespace iTorrent {
         long selectedDownload = 0;
         long totalDownload = 0;
 
-        string[] sections = { "", "SPEED", "GENERAL INFORMATION", "TRANSFER", "MORE" };
+        string[] sections = { "", "SPEED", "SEEDING", "GENERAL INFORMATION", "TRANSFER", "MORE" };
 
         Action action;
         Action managerStateChanged;
@@ -229,33 +229,42 @@ namespace iTorrent {
                 case 0:
                     return 1;
                 case 1:
-                    return 2;
-                case 2:
-                    return 5;
+                    return 3;
+				case 2:
+					return 1;
                 case 3:
-                    return 7;
+                    return 5;
                 case 4:
+                    return 7;
+                case 5:
                     return 1;
             }
             return 0;
         }
 
-        public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
-            if (indexPath.Section <= 3) {
-                UITableViewCell cell = tableView.DequeueReusableCell("CellDetail", indexPath);
-                ((DetailCell)cell).Set(indexPath, manager, selectedSize, selectedDownload, totalDownload);
-                ((DetailCell)cell).Update();
-                return cell;
-            } else {
-                UITableViewCell cell = tableView.DequeueReusableCell("Cell", indexPath);
-                cell.TextLabel.Text = "Files";
-                return cell;
-            }
-        }
+		public UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath) {
+			if (indexPath.Section == 2) {
+				var cell = (SwitchCell) tableView.DequeueReusableCell("SwitchCell", indexPath);
+				cell.GetSwitcher.SetState(manager.allowSeeding, false);
+				cell.SetSwitcherAction((switcher) => {
+					manager.allowSeeding = switcher.On;
+				});
+				return cell;
+			} else if (indexPath.Section <= 4) {
+				UITableViewCell cell = tableView.DequeueReusableCell("CellDetail", indexPath);
+				((DetailCell)cell).Set(indexPath, manager, selectedSize, selectedDownload, totalDownload);
+				((DetailCell)cell).Update();
+				return cell;
+			} else {
+				UITableViewCell cell = tableView.DequeueReusableCell("Cell", indexPath);
+				cell.TextLabel.Text = "Files";
+				return cell;
+			}
+		}
 
         [Export("tableView:didSelectRowAtIndexPath:")]
         public void RowSelected(UITableView tableView, NSIndexPath indexPath) {
-            if (indexPath.Section > 3 && manager.Torrent != null) {
+            if (indexPath.Section > 4 && manager.Torrent != null) {
                 var controller = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("Files");
                 ((TorrentFilesController)controller).manager = manager;
                 ShowViewController(controller, this);
@@ -278,7 +287,10 @@ namespace iTorrent {
                 }
             }
 
-            if (manager.State == TorrentState.Hashing || manager.State == TorrentState.Stopping || !manager.HasMetadata || !Manager.Singletone.managers.Contains(manager)) {
+            if (manager.State == TorrentState.Hashing || 
+			    manager.State == TorrentState.Stopping || 
+			    !manager.HasMetadata || 
+			    !Manager.Singletone.managers.Contains(manager)) {
                 InvokeOnMainThread(() => {
                     Pause.Enabled = false;
                     Start.Enabled = false;
@@ -294,7 +306,10 @@ namespace iTorrent {
                 return;
             }
 
-            if (selectedDownload >= selectedSize && manager.HasMetadata) {
+			if (selectedDownload >= selectedSize && 
+			    manager.HasMetadata &&
+			    !manager.allowSeeding) {
+                Console.WriteLine("Stopping 4");
                 manager.Stop();
             }
 
@@ -305,5 +320,22 @@ namespace iTorrent {
             });
         }
 
+		partial void RehashAction(UIBarButtonItem sender) {
+			if (manager.State == TorrentState.Stopped) {
+				var controller = UIAlertController.Create("Torrent rehash", "This action will recheck the state of all downloaded files", UIAlertControllerStyle.Alert);
+				var hash = UIAlertAction.Create("Rehash", UIAlertActionStyle.Destructive, delegate {
+					manager.HashCheck(true);
+				});
+				var cancel = UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null);
+				controller.AddAction(hash);
+				controller.AddAction(cancel);
+				PresentViewController(controller, true, null);
+			} else {
+				var controller = UIAlertController.Create("Torrent rehash", "This action allows only when torrent is stopped, current state: " + Utils.GetManagerTorrentState(manager).ToString(), UIAlertControllerStyle.Alert);
+				var cancel = UIAlertAction.Create("Close", UIAlertActionStyle.Cancel, null);
+                controller.AddAction(cancel);
+                PresentViewController(controller, true, null);
+			}
+		}
     }
 }

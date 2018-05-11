@@ -102,8 +102,8 @@ namespace iTorrent {
                 PiecePicker picker = new StandardPicker();
                 picker = new PriorityPicker(picker);
                 manager.ChangePicker(picker);
-                manager.TorrentStateChanged += delegate {
-                    Manager.OnFinishLoading(manager);
+				manager.TorrentStateChanged += (sender, e) => {
+                    Manager.OnFinishLoading(manager, e);
                 };
 
                 foreach (var file in files) {

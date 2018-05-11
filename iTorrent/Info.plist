@@ -6,10 +6,8 @@
 	<string>iTorrent</string>
 	<key>CFBundleIdentifier</key>
 	<string>ru.nonamedude.iTorrent</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.4</string>
 	<key>CFBundleVersion</key>
-	<string>4.0</string>
+	<string>5.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -80,5 +78,7 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
 </dict>
 </plist>

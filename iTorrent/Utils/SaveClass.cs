@@ -55,6 +55,7 @@ namespace iTorrent {
         public TorrentState state;
         public DateTime date;
         public byte[] resume;
+		public bool allowSeeding;
         public SerializableDictionary<string, bool> downloading;
 
         public TorrentManagerSave() {
@@ -63,6 +64,7 @@ namespace iTorrent {
         public TorrentManagerSave(TorrentManager manager) {
             state = manager.State;
             date = manager.dateOfAdded;
+			allowSeeding = manager.allowSeeding;
 
             if (manager.State != TorrentState.Hashing && manager.HasMetadata) {
                 resume = manager.SaveFastResume().Encode().Encode();

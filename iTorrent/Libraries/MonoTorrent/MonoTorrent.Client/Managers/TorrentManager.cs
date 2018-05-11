@@ -48,6 +48,7 @@ namespace MonoTorrent.Client {
 
         //Custom
         public DateTime dateOfAdded;
+		public bool allowSeeding;
         //Custom
 
         #region Events

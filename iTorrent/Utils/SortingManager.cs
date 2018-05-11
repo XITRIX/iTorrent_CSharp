@@ -104,6 +104,11 @@ namespace iTorrent {
         public static List<List<TorrentManager>> SortTorrentManagers(List<TorrentManager> managers, out List<String> headers) {
             var res = new List<List<TorrentManager>>();
 			var localManagers = new List<TorrentManager>(managers);
+			for (var i = localManagers.Count - 1; i >= 0; i--) {
+				if (localManagers[i] == null) {
+					localManagers.Remove(localManagers[i]);
+				}
+			}
             headers = new List<string>();
 
             if (NSUserDefaults.StandardUserDefaults.ValueForKey(new NSString(UserDefaultsKeys.SortingSections)) == null) {
@@ -120,44 +125,30 @@ namespace iTorrent {
                 var errorManagers = new List<TorrentManager>();
                 var seedingManagers = new List<TorrentManager>();
                 foreach (var manager in localManagers) {
-                    switch (manager.State) {
+					switch (Utils.GetManagerTorrentState(manager)) {
                         case TorrentState.Metadata:
                             metadataManagers.Add(manager);
                             break;
                         case TorrentState.Hashing:
                             hashingManagers.Add(manager);
-                            break;
+							break;
+                        case TorrentState.Finished:
+                            finishedManagers.Add(manager);
+							break;
                         case TorrentState.Downloading:
                             downloadingManagers.Add(manager);
-                            break;
-                        case TorrentState.Seeding:
-                            seedingManagers.Add(manager);
-                            break;
-                        case TorrentState.Error:
-                            errorManagers.Add(manager);
-                            break;
+							break;
                         case TorrentState.Stopping:
                             stoppedManagers.Add(manager);
                             break;
                         case TorrentState.Stopped:
-                            long size = 0;
-                            long downloaded = 0;
-
-                            if (manager.Torrent != null) {
-                                foreach (var f in manager.Torrent.Files) {
-                                    if (f.Priority != Priority.DoNotDownload) {
-                                        size += f.Length;
-                                        downloaded += f.BytesDownloaded;
-                                    }
-                                }
-                            }
-                            long progress = size != 0 ? downloaded * 10000 / size : 0;
-                            var fprogress = progress / 10000f;
-                            if ((fprogress >= 1f || size == 0) && manager.HasMetadata) {
-                                finishedManagers.Add(manager);
-                            } else {
-                                stoppedManagers.Add(manager);
-                            }
+                            stoppedManagers.Add(manager);
+							break;
+                        case TorrentState.Error:
+                            errorManagers.Add(manager);
+                            break;
+                        case TorrentState.Seeding:
+                            seedingManagers.Add(manager);
                             break;
                     }
                 }

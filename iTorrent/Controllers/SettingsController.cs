@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Net.Sockets;
@@ -14,16 +15,18 @@ namespace iTorrent {
     public partial class SettingsController : UITableViewController {
         public SettingsController(IntPtr handle) : base(handle) { }
 
-        public override void ViewDidLoad() {
-            base.ViewDidLoad();
+		public override void ViewDidLoad() {
+			base.ViewDidLoad();
 
 			bool state = (Manager.Singletone.ftpThread != null && Manager.Singletone.ftpThread.IsAlive);//NSUserDefaults.StandardUserDefaults.BoolForKey("FTPServer");
-            FTPSwitcher.SetState(state, false);
-            FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.FTPServerBackground), false);
-            BackgroundEnabler.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundModeEnabled), false);
-            DHTSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.DHTEnabled), false);         
+			FTPSwitcher.SetState(state, false);
+			FTPBackgroundSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.FTPServerBackground), false);
+			BackgroundEnabler.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.BackgroundModeEnabled), false);
+			DHTSwitcher.SetState(NSUserDefaults.StandardUserDefaults.BoolForKey(UserDefaultsKeys.DHTEnabled), false);
 			BackgroundTypeButton.SetTitle(((BackgroundTypes)(int)NSUserDefaults.StandardUserDefaults.IntForKey(UserDefaultsKeys.BackgroundModeType)).ToString(), UIControlState.Normal);
-        }
+
+			CheckUpdate();
+		}
 
 		public override void ViewWillAppear(bool animated) {
             base.ViewWillAppear(animated);
@@ -37,6 +40,42 @@ namespace iTorrent {
             NavigationController.ToolbarHidden = false;
 		}
 
+		public void CheckUpdate() {
+            UpdateLabel.Hidden = true;
+            UpdateLoading.Hidden = false;
+            UpdateLoading.StartAnimating();
+
+			new Thread(() => {
+                Boolean? updated;
+				String textFromUrl = "";
+				try {
+					textFromUrl = (new WebClient()).DownloadString("https://raw.githubusercontent.com/XITRIX/iTorrent/master/iTorrent/Resources/Version.cs");
+					var textFromFile = File.ReadAllText(NSBundle.MainBundle.PathForResource("Version", "cs"));
+
+					var urlFloat = float.Parse(textFromUrl);
+					var fileFloat = float.Parse(textFromFile);
+
+					updated = urlFloat > fileFloat;
+				} catch (Exception) {
+					updated = null;
+				}
+                
+                InvokeOnMainThread(() => {
+					if (updated == null) {
+						UpdateLabel.Text = "Update check failed";
+					} else if (updated.Value) {
+						UpdateLabel.Text = "New version " + textFromUrl + " available";
+                        UpdateLabel.TextColor = UIColor.Red;
+					} else {
+                        UpdateLabel.Text = "Latest version installed";
+					}
+                    UpdateLoading.StopAnimating();
+                    UpdateLoading.Hidden = true;
+                    UpdateLabel.Hidden = false;
+                });
+            }).Start();
+		}
+
 		public override string TitleForFooter(UITableView tableView, nint section) {
             if (section == 0) {
                 return "Enable downloading in background through multimedia functions";
@@ -48,11 +87,14 @@ namespace iTorrent {
             if (section == 2) {
                 return "It could help with magnets... or cause troubles in normal downloading...";
             }
+			if (section == 3) {
+				return "Current app version: " + File.ReadAllText(NSBundle.MainBundle.PathForResource("Version", "cs"));
+			}
             return "";
         }
 
         partial void DHTAction(UISwitch sender) {
-            var controller = UIAlertController.Create("DHT state changing", "Changes will take effect only after reboot.", UIAlertControllerStyle.Alert);
+            var controller = UIAlertController.Create("DHT state changing", "Changes will take effect only after application reboot.", UIAlertControllerStyle.Alert);
             var reboot = UIAlertAction.Create("Reboot", UIAlertActionStyle.Destructive, delegate {
                 NSUserDefaults.StandardUserDefaults.SetBool(sender.On, UserDefaultsKeys.DHTEnabled);
                 Manager.Singletone.SaveState();
@@ -147,6 +189,10 @@ namespace iTorrent {
 
             PresentViewController(controller, true, null);
 		}
+
+        partial void OpenGitHubAction(UIButton sender) {
+			UIApplication.SharedApplication.OpenUrl(new NSUrl("https://github.com/XITRIX/iTorrent"));
+        }
 
 		partial void DonateVisaCopyAction(UIButton sender) {
 			UIPasteboard.General.String = "4890494471688218";

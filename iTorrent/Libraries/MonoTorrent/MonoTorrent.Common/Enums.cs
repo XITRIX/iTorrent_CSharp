@@ -72,7 +72,8 @@ namespace MonoTorrent.Common
         Hashing,
         Stopping,
         Error,
-		Metadata
+		Metadata,
+        Finished //Custom
     }
 
     public enum Priority

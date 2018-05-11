@@ -34,6 +34,14 @@ namespace iTorrent
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UISwitch FTPSwitcher { get; set; }
 
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UILabel UpdateLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIActivityIndicatorView UpdateLoading { get; set; }
+
         [Action ("BackgroundEnablerAction:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void BackgroundEnablerAction (UIKit.UISwitch sender);
@@ -57,6 +65,10 @@ namespace iTorrent
         [Action ("FTPEnabler:")]
         [GeneratedCode ("iOS Designer", "1.0")]
         partial void FTPEnabler (UIKit.UISwitch sender);
+
+        [Action ("OpenGitHubAction:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void OpenGitHubAction (UIKit.UIButton sender);
 
         void ReleaseDesignerOutlets ()
         {
@@ -83,6 +95,16 @@ namespace iTorrent
             if (FTPSwitcher != null) {
                 FTPSwitcher.Dispose ();
                 FTPSwitcher = null;
+            }
+
+            if (UpdateLabel != null) {
+                UpdateLabel.Dispose ();
+                UpdateLabel = null;
+            }
+
+            if (UpdateLoading != null) {
+                UpdateLoading.Dispose ();
+                UpdateLoading = null;
             }
         }
     }

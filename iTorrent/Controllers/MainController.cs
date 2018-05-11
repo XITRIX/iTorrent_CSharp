@@ -109,13 +109,13 @@ namespace iTorrent {
                         manager.TorrentStateChanged += (sender, e) => { //TODO: Remove it later
                             Console.WriteLine("OLD: " + e.OldState.ToString() + ", NEW: " + e.NewState.ToString());
                         };
-
+                        
                         Manager.Singletone.managers.Add(manager);
                         Manager.Singletone.RegisterManager(manager);
                         TableView.ReloadData();
 
-                        manager.TorrentStateChanged += delegate {
-                            Manager.OnFinishLoading(manager);
+						manager.TorrentStateChanged += (sender, e) => {
+                            Manager.OnFinishLoading(manager, e);
                         };
 
                         manager.Start();
@@ -207,7 +207,7 @@ namespace iTorrent {
                     foreach (var cell in tableView.VisibleCells) {
                         ((TorrentCell)cell).Update();
                     }
-                    Manager.Singletone.UpdateManagers();
+                    Manager.Singletone.StopManagersIfNeeded();
                 });
             };
 

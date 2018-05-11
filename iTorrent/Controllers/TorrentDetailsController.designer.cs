@@ -30,6 +30,10 @@ namespace iTorrent
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITableView tableView { get; set; }
 
+        [Action ("RehashAction:")]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        partial void RehashAction (UIKit.UIBarButtonItem sender);
+
         void ReleaseDesignerOutlets ()
         {
             if (Pause != null) {

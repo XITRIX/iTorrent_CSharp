@@ -128,70 +128,95 @@ namespace iTorrent {
             }
         }
 
-        void RestoreTorrents() {
-            SaveClass save = null;
-            if (File.Exists(DatFile)) {
-                save = Utils.DeSerializeObject<SaveClass>(DatFile);
-            }
-            if (File.Exists(Path.Combine(ConfigFolder, "_temp.torrent"))) {
-                File.Delete(Path.Combine(ConfigFolder, "_temp.torrent"));
-            }
+		void RestoreTorrents() {
+			SaveClass save = null;
+			if (File.Exists(DatFile)) {
+				try {
+					save = Utils.DeSerializeObject<SaveClass>(DatFile);
+				} catch (System.Xml.XmlException e) {
+					Console.WriteLine(e.StackTrace);
+                    File.Move(DatFile, Path.Combine(ConfigFolder, "dat1.itor"));
+					var controller = UIAlertController.Create("Config file loading error", "There was a problem loading the configuration file, a copy will be created under the \"dat1\" name, and a new one will be created", UIAlertControllerStyle.Alert);
+                                   
+					var topWindow = new UIWindow(UIScreen.MainScreen.Bounds);
+					topWindow.RootViewController = new UIViewController();
+					topWindow.WindowLevel = UIWindowLevel.Alert + 1;
 
-                if (Directory.Exists(ConfigFolder)) {
-                    foreach (var file in Directory.GetFiles(ConfigFolder)) {
-                        new Thread(() => {
-                            if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
+					var ok = UIAlertAction.Create("OK", UIAlertActionStyle.Cancel, delegate {
+						topWindow.Hidden = true;
+						topWindow = null;
+                    });
+                    controller.AddAction(ok);
 
-                                Torrent torrent = Torrent.Load(file);
-                                TorrentManager manager = new TorrentManager(torrent, RootFolder, new TorrentSettings());
+					topWindow.MakeKeyAndVisible();
+					topWindow.RootViewController.PresentViewController(controller, true, null);
+				}
+			}
+			if (File.Exists(Path.Combine(ConfigFolder, "_temp.torrent"))) {
+				File.Delete(Path.Combine(ConfigFolder, "_temp.torrent"));
+			}
 
-                                engine.Register(manager);
+			if (Directory.Exists(ConfigFolder)) {
+				foreach (var file in Directory.GetFiles(ConfigFolder)) {
+					new Thread(() => {
+						if (file.EndsWith(".torrent", StringComparison.Ordinal)) {
 
-                                if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
-                                    if (save.data[torrent.InfoHash.ToHex()].resume != null) {
-                                        manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
-                                        manager.dateOfAdded = save.data[torrent.InfoHash.ToHex()].date;
-                                        switch (save.data[torrent.InfoHash.ToHex()].state) {
-                                            case TorrentState.Downloading:
-                                                manager.Start();
-                                                break;
-                                            default:
-                                                manager.Stop();
-                                                break;
-                                        }
-                                    }
-                                    foreach (var _file in torrent.Files) {
-                                        if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
-                                            _file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
-                                        }
-                                    }
+							Torrent torrent = Torrent.Load(file);
+							TorrentManager manager = new TorrentManager(torrent, RootFolder, new TorrentSettings());
+
+							engine.Register(manager);
+							manager.TorrentStateChanged += (sender, e) => {
+                                Manager.OnFinishLoading(manager, e);
+                            };
+
+							if (save != null && save.data.ContainsKey(torrent.InfoHash.ToHex())) {
+								if (save.data[torrent.InfoHash.ToHex()].resume != null) {
+									manager.LoadFastResume(new FastResume(BEncodedValue.Decode(save.data[torrent.InfoHash.ToHex()].resume) as BEncodedDictionary));
+									manager.dateOfAdded = save.data[torrent.InfoHash.ToHex()].date;
+									manager.allowSeeding = save.data[torrent.InfoHash.ToHex()].allowSeeding;
+									switch (save.data[torrent.InfoHash.ToHex()].state) {
+										case TorrentState.Downloading:
+											manager.Start();
+											break;
+										default:
+											manager.Stop();
+											break;
+									}
+								}
+								foreach (var _file in torrent.Files) {
+									if (save.data[torrent.InfoHash.ToHex()].downloading.ContainsKey(_file.Path)) {
+										_file.Priority = save.data[torrent.InfoHash.ToHex()].downloading[_file.Path] ? Priority.Highest : Priority.DoNotDownload;
+									}
+								}
+							} else {
+								foreach (var _file in torrent.Files) {
+									_file.Priority = Priority.DoNotDownload;
                                 }
+								manager.HashCheck(true);
+							}
 
-                                PiecePicker picker = new StandardPicker();
-                                picker = new PriorityPicker(picker);
-                                manager.ChangePicker(picker);
-                                manager.TorrentStateChanged += delegate {
-                                    Manager.OnFinishLoading(manager);
-                                };
+							PiecePicker picker = new StandardPicker();
+							picker = new PriorityPicker(picker);
+							manager.ChangePicker(picker);
 
-                                foreach (TrackerTier tier in manager.TrackerManager) {
-                                    foreach (Tracker t in tier.Trackers) {
-                                        t.AnnounceComplete += delegate (object sender, AnnounceResponseEventArgs e) {
-                                            Console.WriteLine(string.Format("{0}!: {1}", e.Successful, e.Tracker));
-                                        };
-                                    }
-                                }
+							foreach (TrackerTier tier in manager.TrackerManager) {
+								foreach (Tracker t in tier.Trackers) {
+									t.AnnounceComplete += delegate (object sender, AnnounceResponseEventArgs e) {
+										Console.WriteLine(string.Format("{0}!: {1}", e.Successful, e.Tracker));
+									};
+								}
+							}
 
-                                managers.Add(manager);
+							managers.Add(manager);
 
-                                UIApplication.SharedApplication.InvokeOnMainThread(() => {
-                                    restoreAction?.Invoke();
-                                });
-                            }
-                        }).Start();
-                    }
-                }
-        }
+							UIApplication.SharedApplication.InvokeOnMainThread(() => {
+								restoreAction?.Invoke();
+							});
+						}
+					}).Start();
+				}
+			}
+		}
 
         void InitializeMainLoop() {
             new Thread(() => {
@@ -235,10 +260,14 @@ namespace iTorrent {
             UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(controller, true, null);
         }
 
-        public static void OnFinishLoading(TorrentManager manager) {
-            if (manager.State == TorrentState.Seeding) {
-                manager.Pause();
-            } else if (manager.State == TorrentState.Downloading) {
+		public static void OnFinishLoading(TorrentManager manager, TorrentStateChangedEventArgs args) {
+			var newState = Utils.GetManagerTorrentState(manager);
+			Console.WriteLine(manager.Torrent.Name + " State chaged: " + newState);
+			if (manager.State == TorrentState.Seeding && !manager.allowSeeding) {
+                Console.WriteLine("Stopping 2");
+                manager.Stop();
+            } else if (manager.State == TorrentState.Downloading && 
+			           !manager.allowSeeding) {
                 long size = 0;
                 long downloaded = 0;
 
@@ -251,10 +280,11 @@ namespace iTorrent {
                     }
                 }
 
-                if (downloaded >= size) {
-                    manager.Pause();
+				if (downloaded >= size && manager.HasMetadata && manager.State != TorrentState.Hashing) {
+					Console.WriteLine("Stopping 3");
+                    manager.Stop();
                 }
-			} else if (manager.State == TorrentState.Stopped) {
+			} else if (newState == TorrentState.Finished || newState == TorrentState.Seeding) {
 				if (UIDevice.CurrentDevice.CheckSystemVersion(10,0)) {
 					var content = new UNMutableNotificationContent();
 					content.Title = "Download finished";
@@ -271,7 +301,6 @@ namespace iTorrent {
 
                 Background.CheckToStopBackground();
 			}
-			Console.WriteLine("State chaged: " + manager.State.ToString());
             foreach (var action in Manager.Singletone.managerStateChanged) {
                 action?.Invoke();
             }
@@ -313,44 +342,51 @@ namespace iTorrent {
                 ftpThread.Abort();
             }
         }
-        #endregion
+		#endregion
 
-        public void SaveState() {
-            SaveClass save = null;
-            if (File.Exists(DatFile)) {
-                save = Utils.DeSerializeObject<SaveClass>(DatFile);
-            } else {
-                save = new SaveClass();
-            }
-            if (useDht) {
-                File.WriteAllBytes(DhtNodeFile, engine.DhtEngine.SaveNodes());
-            }
-            foreach (var manager in Manager.Singletone.managers) {
-                if (manager.Torrent == null) { continue; }
+		public void SaveState() {
+			SaveClass save = null;
+			try {
+				save = Utils.DeSerializeObject<SaveClass>(DatFile);
+			} catch (Exception e) {
+				Console.WriteLine(e.StackTrace);
+				save = new SaveClass();
+			}
+			if (useDht) {
+				File.WriteAllBytes(DhtNodeFile, engine.DhtEngine.SaveNodes());
+			}
+			foreach (var manager in Manager.Singletone.managers) {
+				if (manager.Torrent == null) { continue; }
 
-                try {
-                    save.AddManager(manager);
-                } catch (InvalidOperationException ex) {
-                    Console.WriteLine(ex.StackTrace);
-                }
+				try {
+					save.AddManager(manager);
+				} catch (InvalidOperationException ex) {
+					Console.WriteLine(ex.StackTrace);
+				}
 
-                foreach (var file in manager.Torrent.Files) {
-                    if (manager.State != TorrentState.Hashing && File.Exists(file.FullPath) && file.Priority == Priority.DoNotDownload && file.BytesDownloaded == 0) {
-                        File.Delete(file.FullPath);
-                    }
-                }
-            }
+				foreach (var file in manager.Torrent.Files) {
+					if (manager.State != TorrentState.Hashing && manager.HasMetadata && File.Exists(file.FullPath) && file.Priority == Priority.DoNotDownload && file.BytesDownloaded == 0) {
+						File.Delete(file.FullPath);
+					}
+				}
+			}
 
-            if (!Directory.Exists(Manager.ConfigFolder)) {
-                Directory.CreateDirectory(Manager.ConfigFolder);
-            }
+			if (!Directory.Exists(Manager.ConfigFolder)) {
+				Directory.CreateDirectory(Manager.ConfigFolder);
+			}
 
-            Utils.SerializeObject<SaveClass>(save, Manager.DatFile);
-        }
+			Utils.SerializeObject<SaveClass>(save, Manager.DatFile);
+		}
 
-        public void UpdateManagers() {
-            foreach (var manager in Manager.Singletone.managers) {
-                if (manager == null || manager.State == TorrentState.Stopping || manager.State == TorrentState.Stopped || manager.State == TorrentState.Hashing) { continue; }
+        public void StopManagersIfNeeded() {
+			var localManagers = new List<TorrentManager>(managers);
+			foreach (var manager in localManagers) {
+				if (manager == null || 
+				    manager.State == TorrentState.Stopping || 
+				    manager.State == TorrentState.Stopped || 
+				    manager.State == TorrentState.Hashing || 
+				    manager.State == TorrentState.Error || 
+				    (manager.allowSeeding && manager.State == TorrentState.Seeding)) { continue; }
 
                 long size = 0;
                 long downloaded = 0;
@@ -364,7 +400,8 @@ namespace iTorrent {
                     }
                 }
 
-                if (downloaded >= size && manager.HasMetadata) {
+				if (downloaded >= size && manager.HasMetadata && !manager.allowSeeding) {
+					Console.WriteLine("Stopping 1");
                     manager.Stop();
                 }
             }

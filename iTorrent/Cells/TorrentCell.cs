@@ -43,10 +43,12 @@ namespace iTorrent {
         public void Update(bool force = false) {
             if ((manager.State == TorrentState.Stopped) && Progress.Progress >= 1f && !force) { return; }
 
-            Title.Text = manager.Torrent != null ? manager.Torrent.Name : "Magnet download";
+            Title.Text = manager.Torrent != null ? manager.Torrent.Name : "Magnet download";         
 
             long size = 0;
             long downloaded = 0;
+
+			var state = Utils.GetManagerTorrentState(manager);
 
             if (manager.Torrent != null) {
                 foreach (var f in manager.Torrent.Files) {
@@ -58,11 +60,15 @@ namespace iTorrent {
             }
             long progress = size != 0 ? downloaded * 10000 / size : 0;
             Info.Text = Utils.GetSizeText(downloaded) + " of " + Utils.GetSizeText(size) + " (" + String.Format("{0:0.00}", ((float)progress / 100f)) + "%)";
-            Status.Text = manager.State == TorrentState.Downloading ? manager.State.ToString() + " - DL:" + Utils.GetSizeText(manager.Monitor.DownloadSpeed) + "/s, UL:" + Utils.GetSizeText(manager.Monitor.UploadSpeed) + "/s" : manager.State.ToString();
+			if (state == TorrentState.Downloading) {
+				Status.Text = state.ToString() + " - DL:" + Utils.GetSizeText(manager.Monitor.DownloadSpeed) + "/s - time remains: " + Utils.DownloadingTimeRemainText(manager.Monitor.DownloadSpeed, size, downloaded);
+			} else if (state == TorrentState.Seeding) {
+				Status.Text = state.ToString() + " - UL:" + Utils.GetSizeText(manager.Monitor.UploadSpeed) + "/s";
+			} else {
+				Status.Text = state.ToString();
+			}
             Progress.Progress = progress / 10000f;
-            if ((Progress.Progress >= 1f || size == 0) && manager.State == TorrentState.Stopped && manager.HasMetadata) {
-                manager.Stop();
-                Status.Text = "Finished";
+			if ((Progress.Progress >= 1f || size == 0) && (state == TorrentState.Stopped || state == TorrentState.Finished)) {
                 Progress.Progress = 1f;
             }
         }

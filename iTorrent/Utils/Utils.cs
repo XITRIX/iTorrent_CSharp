@@ -31,10 +31,46 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
+using MonoTorrent.Client;
+using MonoTorrent.Common;
+
 using UIKit;
 
 namespace iTorrent {
     public class Utils {
+		public static TorrentState GetManagerTorrentState(TorrentManager manager) {
+			if (manager == null) return TorrentState.Error;
+			switch (manager.State) {
+                case TorrentState.Downloading:
+                case TorrentState.Stopped:
+                    long size = 0;
+                    long downloaded = 0;
+
+                    if (manager.Torrent != null) {
+                        foreach (var f in manager.Torrent.Files) {
+                            if (f.Priority != Priority.DoNotDownload) {
+                                size += f.Length;
+                                downloaded += f.BytesDownloaded;
+                            }
+                        }
+                    }
+                    long progress = size != 0 ? downloaded * 10000 / size : 0;
+                    var fprogress = progress / 10000f;
+                    if ((fprogress >= 1f || size == 0) && manager.HasMetadata) {
+                        if (manager.State == TorrentState.Downloading) {
+							return TorrentState.Seeding;
+                        }
+						return TorrentState.Finished;
+                    } else {
+                        if (manager.State == TorrentState.Downloading) {
+							return TorrentState.Downloading;
+                        }
+						return TorrentState.Stopped;
+                    }
+            }
+			return manager.State;
+		}
+
         public static string GetSizeText(long size) {
             string[] names = { "B", "KB", "MB", "GB" };
             int count = 0;
@@ -97,6 +133,38 @@ namespace iTorrent {
 
             return objectOut;
         }
+
+		public static String DownloadingTimeRemainText(long speedInBytes, long fileSize, long downloadedSize) {
+			if (speedInBytes == 0) {
+				return "eternity";
+			}
+			long seconds = (fileSize - downloadedSize) / speedInBytes;
+			return SecondsToTimeText(seconds);
+		}
+
+		public static String SecondsToTimeText(long seconds) {
+			long sec = seconds % 60;
+			long min = (seconds / 60) % 60;
+			long hour = (seconds / 60 / 60) % 24;
+			long day = (seconds / 60 / 60 / 24);
+
+			String res = "";
+
+			if (day > 0) {
+				res += day + "d ";
+			}
+			if (day > 0 || hour > 0) {
+				res += hour + "h ";
+            }
+			if (day > 0 || hour > 0 || min > 0) {
+				res += min + "m ";
+            }
+			if (day > 0 || hour > 0 || min > 0 || sec > 0) {
+				res += sec + "s";
+            }
+
+			return res;
+		}
 
         public static UIViewController CreateEmptyViewController() {
             var view = new UIViewController();
