@@ -52,11 +52,9 @@ namespace iTorrent {
 					textFromUrl = (new WebClient()).DownloadString("https://raw.githubusercontent.com/XITRIX/iTorrent/master/iTorrent/Resources/Version.cs");
 					var textFromFile = File.ReadAllText(NSBundle.MainBundle.PathForResource("Version", "cs"));
 
-					var urlFloat = float.Parse(textFromUrl);
-					var fileFloat = float.Parse(textFromFile);
-
-					updated = urlFloat > fileFloat;
-				} catch (Exception) {
+					updated = string.Compare(textFromUrl, textFromFile, StringComparison.Ordinal) > 0;
+				} catch (Exception e) {
+					Console.WriteLine(e.StackTrace);
 					updated = null;
 				}
                 
